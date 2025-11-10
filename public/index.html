@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн Школа</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Онлайн Школа</h1>
+            <div id="auth-section">
+                <button id="login-btn" class="btn btn-primary">Войти</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h2>Подготовка к ОГЭ и ЕГЭ</h2>
+            <p>Индивидуальные занятия, тесты, лекции и интерактивная доска</p>
+        </section>
+    </main>
+
+    <!-- Модальное окно входа -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Вход в аккаунт</h2>
+            <form id="login-form">
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+            <p class="register-link">Нет аккаунта? <a href="#" id="show-register">Зарегистрироваться</a></p>
+        </div>
+    </div>
+
+    <!-- Модальное окно регистрации -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Регистрация</h2>
+            <form id="register-form">
+                <input type="text" placeholder="Имя" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
