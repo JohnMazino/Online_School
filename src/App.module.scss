@@ -1,0 +1,605 @@
+:root {
+    --primary: #5086f2;
+    --primary-dark: #3a6bd1;
+    --secondary: #856fd7;
+    --accent: #88abf2;
+    --text-dark: #1e1e3f;
+    --text-light: #f0f4ff;
+    --bg-light: #f8f9ff;
+    --bg-card: rgba(255, 255, 255, 0.62);
+    --shadow: rgba(0, 0, 0, 0.12);
+}
+
+
+.appWrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+// боковое меню
+.sidebarZone {
+    width: var(--sidebar-collapsed);
+    flex-shrink: 0;
+    transition: width 0.35s ease;
+    position: relative;
+}
+
+.mainContent {
+    flex: 1;
+    position: relative;
+    padding-left: var(--sidebar-collapsed);
+    transition: padding-left 0.35s ease;
+    overflow-x: hidden;
+}
+
+.appWrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebarZone {
+    width: var(--sidebar-collapsed, 70px);
+    flex-shrink: 0;
+    transition: width 0.35s ease;
+    position: relative;
+}
+
+
+/* ────────────────────────────────────────────────
+   прямоугольник с контентом
+───────────────────────────────────────────────── */
+.contentRectangle {
+    /* Отступ сверху — совпадает с отступом меню */
+    margin-top: 10vh;
+    margin-left: 200px;
+    margin-right: var(--sidebar-collapsed, 70px);
+    margin-bottom: 0;
+
+    /* Внутренние отступы внутри прямоугольника */
+    padding: 2.5rem 2rem 3rem;
+
+    /* Визуальное оформление прямоугольника */
+    // background: rgba(255, 255, 255, 0.3);
+    background: var(--bg-card);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+
+    /* Чтобы карточки и заголовки не прилипали к краям */
+    min-height: calc(100vh - 10vh - 2rem);
+
+    /* Важно для скролла */
+    box-sizing: border-box;
+}
+
+
+// лого и надпись платформа
+.header {
+    text-align: center;
+}
+
+.logoAndTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    animation: breathe 6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.03);
+        opacity: 0.98;
+    }
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-top: -25px;
+}
+
+.appName {
+    margin: 0;
+    font-size: 4.8rem;
+    font-weight: 700;
+    line-height: 1.05; // чуть меньше 1 — компенсирует descender шрифта
+    background: linear-gradient(90deg, #5086f2, #856fd7, #88abf2, #5086f2);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientFlow 8s ease infinite;
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+// Фото и кнопка вход/регистрация
+.heroSection {
+    margin: 2rem 0 4rem;
+    padding: 0 1rem;
+}
+
+.heroContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.5rem;
+    flex-wrap: wrap; // на узких экранах фото пойдёт вверх
+}
+
+.heroImageWrapper {
+    flex: 1;
+    min-width: 320px;
+    max-width: 55%;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.heroImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 4 / 3; // или 16/9, 3/2 — подбери под свою картинку
+}
+
+.heroAction {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bigAuthButton {
+    padding: 1.2rem 2.8rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(80, 134, 242, 0.35);
+    transition: all 0.28s ease;
+
+    &:hover {
+        transform: translateY(-4px) scale(1.04);
+        box-shadow: 0 16px 40px rgba(80, 134, 242, 0.5);
+    }
+}
+
+/* Адаптив */
+@media (max-width: 900px) {
+    .heroContent {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .heroImageWrapper {
+        max-width: 100%;
+    }
+
+    .bigAuthButton {
+        width: 100%;
+        max-width: 360px;
+    }
+}
+
+
+// Приветственный блок
+.welcomeBox {
+    margin: 3rem 0 4rem;
+    display: flex;
+    justify-content: center;
+}
+
+.welcomeRectangle {
+    background: white;
+    color: var(--text-dark);
+    border-radius: 20px;
+    padding: 2.5rem 3rem;
+    max-width: 820px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(136, 171, 242, 0.18);
+    text-align: center;
+}
+
+.welcomeTitle {
+    margin: 0 0 1.4rem;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #2c2c54;
+}
+
+.welcomeText {
+    margin: 0;
+    font-size: 1.23rem;
+    line-height: 1.7;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .welcomeRectangle {
+        padding: 1.8rem 1.6rem;
+        margin: 0 1rem;
+    }
+
+    .welcomeTitle {
+        font-size: 1.7rem;
+    }
+
+    .welcomeText {
+        font-size: 1.05rem;
+    }
+}
+
+
+// Карточки "Наши преимущества"
+.advantagesSection {
+    margin: 4rem 0 6rem;
+    text-align: center;
+}
+
+.sectionAdvantagesTitle {
+    font-size: 2.6rem;
+    margin-bottom: 3.5rem;
+    color: var(--text-dark); // тёмный текст для заголовка секции
+}
+
+.advantagesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.advantageCard {
+    position: relative;
+    height: 220px; // фиксированная высота
+    perspective: 1000px;
+    cursor: pointer;
+    color: var(--text-dark);
+
+    &:hover .cardFront {
+        transform: rotateY(180deg);
+    }
+
+    &:hover .cardBack {
+        transform: rotateY(0deg);
+    }
+}
+
+.cardFront,
+.cardBack {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    transition: transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); // мягкая тень для светлой темы
+}
+
+.cardFront {
+    background: rgba(80, 134, 242, 0.12); // очень лёгкий синий фон
+    border: 1px solid rgba(80, 134, 242, 0.18);
+    transform: rotateY(0deg);
+    color: var(--text-dark); // тёмный текст
+}
+
+.cardBack {
+    background: var(--bg-card); // белый/светлый фон (как у приветствия)
+    color: var(--text-dark);
+    transform: rotateY(180deg);
+    padding: 2.5rem;
+    text-align: center;
+    border: 1px solid rgba(80, 134, 242, 0.15);
+}
+
+.iconWrapper {
+    width: 80px;
+    height: 80px;
+    background: rgba(80, 134, 242, 0.12); // лёгкий акцентный фон
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+    color: var(--primary); // синий цвет иконки (#5086f2)
+    font-size: 2rem;
+}
+
+.cardTitle {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark); // тёмный заголовок
+}
+
+.cardBack p {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+/* Адаптив */
+@media (max-width: 900px) {
+    .advantagesGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .advantageCard {
+        height: 260px;
+    }
+}
+
+
+// Карточки "Наши репетиторы"
+.tutorsSection {
+    margin: 5rem 0 7rem;
+    text-align: center;
+}
+
+.sectionTutorTitle {
+    font-size: 2.8rem;
+    margin-bottom: 3.5rem;
+    color: var(--text-dark); // тёмный заголовок секции
+}
+
+.tutorsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.2rem 2.4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+
+    @media (max-width: 1100px) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem 1.8rem;
+    }
+
+    @media (max-width: 700px) {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+}
+
+.tutorCard {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); // мягкая тень для светлой темы
+    transition: all 0.4s ease;
+    aspect-ratio: 3 / 4;
+    height: auto;
+
+    &:hover {
+        transform: translateY(-16px) scale(1.04);
+        box-shadow: 0 24px 60px rgba(80, 134, 242, 0.22);
+    }
+}
+
+.cardContent {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.tutorPhoto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.55s ease;
+}
+
+.tutorCard:hover .tutorPhoto {
+    opacity: 0;
+}
+
+.tutorNameFront {
+    position: absolute;
+    bottom: -26px;
+    left: 0;
+    right: 0;
+    padding: 1.2rem 1rem 1.6rem;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.65) 40%, rgba(0, 0, 0, 0.35) 70%, transparent 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 3;
+    transition: opacity 0.55s ease;
+}
+
+.tutorCard:hover .tutorNameFront {
+    opacity: 0;
+}
+
+.infoOverlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-card); // светлый фон (белый/полупрозрачный)
+    color: var(--text-dark);
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: opacity 0.55s ease;
+    border-radius: 20px;
+}
+
+.tutorCard:hover .infoOverlay {
+    opacity: 1;
+}
+
+.tutorName {
+    margin: 0 0 1.2rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.tutorInfo {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    margin: 0 0 1.8rem;
+    max-width: 90%;
+    color: var(--text-dark);
+}
+
+.documents {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    font-size: 0.95rem;
+    color: #4a4a6e;
+
+    span {
+        background: rgba(80, 134, 242, 0.08);
+        padding: 0.5rem 1.2rem;
+        border-radius: 10px;
+        color: var(--text-dark);
+    }
+}
+
+
+// Футер (подвал)
+.footer {
+    background: #f8f9ff; // очень светлый голубоватый фон
+    color: #2c2c54; // тёмно-синий/фиолетовый текст
+    padding: 4rem 0 2rem;
+    margin-top: 6rem;
+    border-top: 1px solid rgba(80, 134, 242, 0.12);
+    border-radius: 20px;
+
+}
+
+.footerContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 3rem;
+}
+
+.footerLogo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footerLogoImg {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.footerTitle {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #5086f2; // акцентный синий
+}
+
+.footerSubtitle {
+    margin: 0.3rem 0 0;
+    font-size: 0.95rem;
+    opacity: 0.75;
+    color: #4a4a6e;
+}
+
+.footerLinks {
+    display: flex;
+    gap: 4rem;
+    flex-wrap: wrap;
+}
+
+.linkColumn {
+    min-width: 140px;
+
+    h5 {
+        margin: 0 0 1.2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #3a3a6e;
+    }
+
+    a {
+        display: block;
+        color: #4a4a6e;
+        text-decoration: none;
+        margin-bottom: 0.7rem;
+        font-size: 0.95rem;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #5086f2;
+        }
+    }
+}
+
+.socialIcons {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1.4rem;
+    justify-content: flex-start;
+
+    a {
+        color: #4a4a6e;
+        font-size: 1.4rem;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #5086f2;
+        }
+    }
+}
+
+.copyright {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(136, 171, 242, 0.12);
+    font-size: 0.9rem;
+    color: #6b6b8f;
+}

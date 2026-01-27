@@ -1,0 +1,74 @@
+.sidebar {
+    position: fixed;
+    top: 10vh;
+    bottom: 10vh;
+    left: 0;
+    height: auto;
+    max-height: 80vh;
+    width: 70px; // ширина в свёрнутом состоянии (только иконки)
+    background: rgba(255, 255, 255, 0.62);
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    overflow: hidden;
+    transition: width 0.35s ease; // плавное раскрытие
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+
+    &:hover {
+        width: 240px; // ширина в раскрытом состоянии
+    }
+}
+
+.nav {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+
+
+}
+
+.menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+}
+
+.menuItem {
+    margin: 8px 0;
+}
+
+.menuLink {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    color: #000000;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(136, 171, 242, 0.3);
+        color: white;
+    }
+}
+
+.icon {
+    font-size: 1.5rem;
+    min-width: 40px; // фиксированная ширина для иконок
+    text-align: center;
+}
+
+// Появление текста при наведении на меню
+.text {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.sidebar:hover .text {
+    opacity: 1;
+    transform: translateX(0);
+}
