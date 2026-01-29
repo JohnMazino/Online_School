@@ -9,7 +9,7 @@ import { useUsers } from "y-presence";
 import { useMultiplayerState } from "./hooks/useMultiplayerState";
 import { useCallback, useEffect, useState } from "react";
 import "./styles.css";
-import { awareness, doc, roomID, yAssets, yBindings, yShapes } from "./store";
+import { getRoom } from "./store";
 import { FormulaToolbar } from "./components/FormulaToolbar";
 
 // Компонент редактора
@@ -34,6 +34,7 @@ function Editor({ roomId }: { roomId: string }) {
       }
 
       const preloadImages = () => {
+        const { yAssets } = getRoom(roomId);
         const assets = Object.fromEntries(yAssets.entries());
         console.log(`Предзагрузка ${Object.keys(assets).length} ассетов`);
 
@@ -46,12 +47,12 @@ function Editor({ roomId }: { roomId: string }) {
             img.onerror = (e) => console.error("Ошибка предзагрузки:", asset.src, e);
           }
         });
-      };
+      }; 
 
       preloadImages();
 
-      const unsubscribe = yAssets.observeDeep(preloadImages);
-      return unsubscribe;
+      const unsubscribe = getRoom(roomId).yAssets.observeDeep(preloadImages);
+      return unsubscribe; 
     },
     [onMount],
   );
@@ -136,13 +137,14 @@ function Editor({ roomId }: { roomId: string }) {
         size,
       };
 
+      const { doc, yAssets } = getRoom(roomId);
       doc.transact(() => {
-        yAssets.set(id, asset);
+        yAssets.set(id, asset as any);
       });
 
       return dataUrl; // tldraw ждёт dataURL для быстрого рендера
     },
-    [],
+    [roomId],
   );
 
   return (
@@ -155,14 +157,14 @@ function Editor({ roomId }: { roomId: string }) {
         {...events}
         onAssetCreate={onAssetCreate}
       />
-      <FormulaToolbar app={app} />
+      <FormulaToolbar app={app} roomId={roomId} />
     </>
   );
 }
 
 // Информация о пользователях
-function Info() {
-  const users = useUsers(awareness);
+function Info({ roomId }: { roomId: string }) {
+  const users = useUsers(getRoom(roomId).awareness);
    return (
     <div className="absolute p-md">
       <div className="flex space-between">
@@ -170,8 +172,8 @@ function Info() {
       </div>
     </div>
   );
-}
-export default function App() {
+} 
+export default function App({ userBoardId }: { userBoardId?: number }) {
   useEffect(() => {
     document.documentElement.lang = "ru";
     localStorage.setItem("tldraw_language", "ru");
@@ -183,10 +185,12 @@ export default function App() {
     );
   }, []);
 
+  const roomId = `user-${userBoardId ?? Math.floor(Math.random() * 1e9)}`;
+
   return (
     <div className="tldraw custom-theme h-screen w-screen" lang="ru">
-      <Info />
-      <Editor roomId={roomID} />
+      <Info roomId={roomId} />
+      <Editor roomId={roomId} />
     </div>
   );
 }

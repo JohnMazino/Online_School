@@ -6,7 +6,7 @@ import {
   TDAsset,
   TDAssetType,
 } from "@tldraw/tldraw";
-import { doc, yShapes, yAssets } from "../store";
+import { getRoom } from "../store";
 import { formulaToCanvas } from "../utils/formulaConverter";
 
 export interface FormulaData {
@@ -16,7 +16,7 @@ export interface FormulaData {
 const generateId = () =>
   `shape_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-export const useFormulaTools = () => {
+export const useFormulaTools = (roomId?: string) => {
   // Добавляет новую формулу на холст как изображение
   const addFormula = useCallback(
     async (app: TldrawApp, formula: string = "x^2 + y^2 = z^2") => {
@@ -44,6 +44,7 @@ export const useFormulaTools = () => {
         };
 
         // Добавляем Asset в Yjs
+        const { doc, yAssets } = getRoom(roomId ?? 'anonymous');
         doc.transact(() => {
           yAssets.set(assetId, asset);
         });
@@ -78,6 +79,7 @@ export const useFormulaTools = () => {
         } as any;
 
         // Добавляем Shape в Yjs
+        const { yShapes } = getRoom(roomId ?? 'anonymous');
         doc.transact(() => {
           yShapes.set(newShape.id, newShape);
         });
@@ -99,6 +101,7 @@ export const useFormulaTools = () => {
       if (!app) return;
 
       try {
+        const { yShapes } = getRoom(roomId ?? 'anonymous');
         const shape = yShapes.get(shapeId);
         if (!shape || shape.type !== TDShapeType.Image) return;
 
@@ -118,6 +121,7 @@ export const useFormulaTools = () => {
         // Добавляем задержку для надёжности
         await new Promise((resolve) => setTimeout(resolve, 100));
 
+        const { doc, yAssets } = getRoom(roomId ?? 'anonymous');
         doc.transact(() => {
           yAssets.set(assetId, asset);
           // Сохраняем существующий style или используем дефолтный

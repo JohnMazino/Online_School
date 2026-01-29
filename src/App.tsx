@@ -8,6 +8,7 @@ import Sidebar from './components/SideBar/SideBar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Draw from './pages/Draw';
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
 import styles from './App.module.scss';
@@ -312,6 +313,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/draw" element={<Draw />} />
       </Routes>
     </BrowserRouter>
   );

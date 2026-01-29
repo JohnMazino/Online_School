@@ -174,7 +174,12 @@ export default function Profile() {
                     <section className={styles.section}>
                         <h2>Интерактивная доска</h2>
                         <div className={styles.boardPlaceholder}>
-                            <p>Интерактивная доска появится здесь (в будущем) </p>
+                            <button
+                                className={styles.openBoardBtn}
+                                onClick={() => window.open(`/draw?userId=${user.id}`, '_blank', 'noopener')}
+                            >
+                                Открыть доску
+                            </button>
                         </div>
                     </section>
 

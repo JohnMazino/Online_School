@@ -8,6 +8,7 @@ import 'katex/dist/katex.min.css';
 
 interface FormulaToolbarProps {
   app: TldrawApp | null;
+  roomId?: string;
 }
 
 const LATEX_COMMANDS = [
@@ -33,7 +34,7 @@ const LATEX_COMMANDS = [
   '\\rightarrow', '\\leftarrow', '\\Rightarrow', '\\Leftarrow',
 ];
 
-export const FormulaToolbar: React.FC<FormulaToolbarProps> = ({ app }) => {
+export const FormulaToolbar: React.FC<FormulaToolbarProps> = ({ app, roomId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [formulaInput, setFormulaInput] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -45,7 +46,7 @@ export const FormulaToolbar: React.FC<FormulaToolbarProps> = ({ app }) => {
   const [previewHtml, setPreviewHtml] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  const { addFormula } = useFormulaTools();
+  const { addFormula } = useFormulaTools(roomId);
 
   // Обновление предпросмотра
   useEffect(() => {
@@ -361,7 +362,7 @@ useEffect(() => {
                       value={formulaInput}
                       onChange={handleInputChange}
                       onKeyDown={handleKeyDown}
-                      placeholder="Напишите формулу, можете начать с обратного слэша \"
+                      placeholder="Напишите формулу, можете начать с обратного слэша \\"
                       style={{
                         width: '100%',
                         height: '80px',

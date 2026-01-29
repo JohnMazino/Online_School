@@ -3,62 +3,66 @@ import { WebsocketProvider } from "y-websocket";
 import { TDAsset, TDBinding, TDShape } from "@tldraw/tldraw";
 
 const VERSION = 1;
+const WS_URL = "wss://draw-yjss-server-production.up.railway.app";
 
-export const doc = new Y.Doc();
-export const roomID = `y-tldraw-${VERSION}`;
+type Room = {
+  doc: Y.Doc;
+  provider: WebsocketProvider;
+  awareness: any;
+  yShapes: Y.Map<TDShape>;
+  yBindings: Y.Map<TDBinding>;
+  yAssets: Y.Map<TDAsset>;
+  undoManager: Y.UndoManager;
+};
 
-export const provider = new WebsocketProvider(
-  "wss://draw-yjss-server-production.up.railway.app",
-  roomID,
-  doc,
-  {
+const rooms: Record<string, Room> = {};
+
+export function getRoom(roomId: string): Room {
+  const key = `y-tldraw-${VERSION}-${roomId}`;
+  if (rooms[key]) return rooms[key];
+
+  const doc = new Y.Doc();
+  const provider = new WebsocketProvider(WS_URL, key, doc, {
     connect: true,
     maxBackoffTime: 10000,
-  },
-);
+  });
+  const awareness = provider.awareness;
+  const yShapes: Y.Map<TDShape> = doc.getMap("shapes");
+  const yBindings: Y.Map<TDBinding> = doc.getMap("bindings");
+  const yAssets: Y.Map<TDAsset> = doc.getMap("assets");
+  const undoManager = new Y.UndoManager([yShapes, yBindings]);
 
-export const awareness = provider.awareness;
+  // Лёгкий лог и исправление http → https
+  yAssets.observeDeep((events) => {
+    if (events.length === 0) return;
 
-export const yShapes: Y.Map<TDShape> = doc.getMap("shapes");
-export const yBindings: Y.Map<TDBinding> = doc.getMap("bindings");
-export const yAssets: Y.Map<TDAsset> = doc.getMap("assets");
+    let needsUpdate = false;
+    const updates: Record<string, TDAsset> = {};
 
-console.log("yAssets map создан, clientID:", awareness.clientID);
+    yAssets.forEach((asset, id) => {
+      if (
+        (asset.type === "image" || asset.type === "video") &&
+        asset.src?.startsWith("http://")
+      ) {
+        updates[id] = {
+          ...asset,
+          src: asset.src.replace(/^http:\/\//, "https://"),
+        };
+        needsUpdate = true;
+      }
+    });
 
-// Undo только для shapes и bindings (assets не нужно отменять обычно)
-export const undoManager = new Y.UndoManager([yShapes, yBindings]);
-
-// НЕ очищаем yAssets при загрузке страницы!
-// if (typeof window !== 'undefined') { yAssets.clear(); }
-
-// Фикс протокола + лёгкий лог
-yAssets.observeDeep((events) => {
-  if (events.length === 0) return;
-
-  console.log(`yAssets: ${yAssets.size} ассетов (${events.length} изменений)`);
-
-  // Исправляем http → https если вдруг попало
-  let needsUpdate = false;
-  const updates: Record<string, TDAsset> = {};
-
-  yAssets.forEach((asset, id) => {
-    if (
-      (asset.type === "image" || asset.type === "video") &&
-      asset.src?.startsWith("http://")
-    ) {
-      updates[id] = {
-        ...asset,
-        src: asset.src.replace(/^http:\/\//, "https://"),
-      };
-      needsUpdate = true;
+    if (needsUpdate) {
+      doc.transact(() => {
+        Object.entries(updates).forEach(([id, fixed]) => {
+          yAssets.set(id, fixed);
+        });
+      });
     }
   });
 
-  if (needsUpdate) {
-    doc.transact(() => {
-      Object.entries(updates).forEach(([id, fixed]) => {
-        yAssets.set(id, fixed);
-      });
-    });
-  }
-});
+  const room: Room = { doc, provider, awareness, yShapes, yBindings, yAssets, undoManager };
+  rooms[key] = room;
+  return room;
+}
+

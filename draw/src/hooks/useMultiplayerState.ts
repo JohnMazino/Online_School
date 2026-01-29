@@ -1,34 +1,30 @@
 import { useCallback, useEffect, useRef } from "react";
 import { TDBinding, TDShape, TDUser, TldrawApp } from "@tldraw/tldraw";
-
-import {
-  awareness,
-  doc,
-  provider,
-  undoManager,
-  yAssets,
-  yBindings,
-  yShapes,
-} from "../store";
+import { getRoom } from "../store";
 
 export function useMultiplayerState(roomId: string) {
   const tldrawRef = useRef<TldrawApp>();
+  const roomRef = useRef(getRoom(roomId));
+
+  useEffect(() => {
+    roomRef.current = getRoom(roomId);
+  }, [roomId]);
 
   // Основная функция синхронизации всего контента
   const syncContent = useCallback(() => {
     const app = tldrawRef.current;
     if (!app) return;
 
+    const { yAssets, yShapes, yBindings } = roomRef.current;
+
     // Получаем все ассеты и фильтруем те, что имеют правильную структуру
     const allAssets = Object.fromEntries(yAssets.entries());
     const validAssets = Object.fromEntries(
       Object.entries(allAssets).filter(([_, asset]) => {
-        // Оставляем только ассеты с правильной структурой
         return asset?.id && asset?.type && asset?.src;
       }),
     );
 
-    // Дефолтный стиль для shapes без стиля
     const defaultStyle = {
       color: "black",
       size: "medium",
@@ -36,13 +32,11 @@ export function useMultiplayerState(roomId: string) {
       scale: "1",
     };
 
-    // Получаем все shapes и фильтруем + исправляем их
     const allShapes = Object.fromEntries(yShapes.entries());
     const validShapes = Object.fromEntries(
       Object.entries(allShapes)
         .filter(([_, shape]) => {
           if (!shape) return false;
-          // Если это изображение/видео, проверяем что ассет существует
           if (shape.assetId && !validAssets[shape.assetId]) {
             console.warn(
               `Shape ${shape.id} ссылается на несуществующий ассет ${shape.assetId}`,
@@ -52,7 +46,6 @@ export function useMultiplayerState(roomId: string) {
           return true;
         })
         .map(([id, shape]) => {
-          // Убедимся, что у каждого shape есть валидный style объект
           if (!shape.style || typeof shape.style !== "object") {
             shape = {
               ...shape,
@@ -69,7 +62,7 @@ export function useMultiplayerState(roomId: string) {
       validAssets,
       undefined,
     );
-  }, []);
+  }, [roomRef]);
 
   // onMount
   const onMount = useCallback(
@@ -91,9 +84,9 @@ export function useMultiplayerState(roomId: string) {
       shapes: Record<string, TDShape | undefined>,
       bindings: Record<string, TDBinding | undefined>,
     ) => {
+      const { undoManager, yShapes, yBindings, doc } = roomRef.current;
       undoManager.stopCapturing();
 
-      // Дефолтный стиль для shapes без стиля
       const defaultStyle = {
         color: "black",
         size: "medium",
@@ -106,7 +99,6 @@ export function useMultiplayerState(roomId: string) {
           if (!shape) {
             yShapes.delete(id);
           } else {
-            // Убедимся, что style всегда присутствует
             const shapeToSave = {
               ...shape,
               style: shape.style || defaultStyle,
@@ -128,12 +120,12 @@ export function useMultiplayerState(roomId: string) {
   );
 
   // Undo / Redo
-  const onUndo = useCallback(() => undoManager.undo(), []);
-  const onRedo = useCallback(() => undoManager.redo(), []);
+  const onUndo = useCallback(() => roomRef.current.undoManager.undo(), []);
+  const onRedo = useCallback(() => roomRef.current.undoManager.redo(), []);
 
   // Передача текущего пользователя в awareness
   const onChangePresence = useCallback((app: TldrawApp, user: TDUser) => {
-    awareness.setLocalStateField("tdUser", user);
+    roomRef.current.awareness.setLocalStateField("tdUser", user);
   }, []);
 
   // Синхронизация пользователей (awareness)
@@ -142,14 +134,16 @@ export function useMultiplayerState(roomId: string) {
       const app = tldrawRef.current;
       if (!app || !app.room) return;
 
-      const others = Array.from(awareness.getStates().entries())
+      const awareness = roomRef.current.awareness;
+
+      const states = Array.from(awareness.getStates().entries()) as Array<[any, any]>;
+      const others = states
         .filter(([key]) => key !== awareness.clientID)
         .map(([, state]) => state)
-        .filter((state): state is { tdUser: TDUser } => !!state.tdUser);
+        .filter((state): state is { tdUser: TDUser } => !!state && !!(state as any).tdUser);
 
       const remoteUserIds = others.map((s) => s.tdUser.id);
 
-      // Удаляем пользователей, которые вышли
       Object.values(app.room.users).forEach((user) => {
         if (
           user &&
@@ -160,10 +154,10 @@ export function useMultiplayerState(roomId: string) {
         }
       });
 
-      // Обновляем список пользователей
       app.updateUsers(others.map((s) => s.tdUser));
     };
 
+    const awareness = roomRef.current.awareness;
     awareness.on("change", onChangeAwareness);
     return () => awareness.off("change", onChangeAwareness);
   }, []);
@@ -172,6 +166,8 @@ export function useMultiplayerState(roomId: string) {
   useEffect(() => {
     // Первичная синхронизация (на случай, если что-то уже было в yjs)
     syncContent();
+
+    const { yShapes, yBindings, yAssets } = roomRef.current;
 
     yShapes.observeDeep(syncContent);
     yBindings.observeDeep(syncContent);
@@ -187,7 +183,7 @@ export function useMultiplayerState(roomId: string) {
   // Отключение провайдера при уходе со страницы
   useEffect(() => {
     const handleDisconnect = () => {
-      provider.disconnect();
+      roomRef.current.provider.disconnect();
     };
 
     window.addEventListener("beforeunload", handleDisconnect);
