@@ -55,6 +55,7 @@
     }
 }
 
+
 .logoutBtn {
     display: flex;
     align-items: center;
@@ -91,4 +92,40 @@
 .sidebar:hover .text {
     opacity: 1;
     transform: translateX(0);
+}
+
+
+/* Стили для кнопки смены темы */
+.themeToggle {
+    margin-top: auto; // прижимает кнопку к низу меню
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    .themeButton {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: inherit;
+        cursor: pointer;
+        text-align: left;
+        border-radius: 12px;
+        transition: background 0.2s;
+
+        &:hover {
+            background: rgba(80, 134, 242, 0.15);
+        }
+
+        .icon {
+            font-size: 1.4rem;
+            margin-right: 1rem;
+        }
+
+        .text {
+            font-size: 1.05rem;
+        }
+    }
 }

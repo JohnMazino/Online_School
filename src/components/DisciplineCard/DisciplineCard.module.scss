@@ -9,7 +9,7 @@
     color: var(--text-dark);
 }
 
-/* Исправленная сетка: 3 карточки в ряд с ограничением ширины */
+/* 3 карточки в ряд с ограничением ширины */
 .advantagesGrid {
     display: grid;
     grid-template-columns: repeat(3, minmax(300px, 1fr));
@@ -76,7 +76,7 @@
     z-index: 2;
 }
 
-/* Остальные стили без изменений */
+/* Остальные стили для модального окна */
 .modalOverlay {
     position: fixed;
     inset: 0;

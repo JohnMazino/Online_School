@@ -26,7 +26,8 @@ export default function Register() {
             setError('Заполните все поля');
             return;
         }
-        if (phone.length < 10) {
+        // special-case: accept 'admin'
+        if (phone !== 'admin' && phone.replace(/\D/g, '').length < 10) {
             setError('Номер телефона должен содержать минимум 10 цифр');
             return;
         }
@@ -35,7 +36,11 @@ export default function Register() {
         try {
             const data = await authApi.register(firstName, lastName, phone, password);
             login(data.user, data.token);
-            navigate('/');
+            if (data.user?.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (err: any) {
             setError(err.message || 'Ошибка регистрации');
         } finally {

@@ -16,6 +16,8 @@ interface User {
     firstName: string;
     lastName: string;
     phone: string;
+    role?: string;
+    balance?: number;
 }
 
 interface AuthState {

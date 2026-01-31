@@ -20,7 +20,7 @@ export default function Login() {
         setError('');
 
         // Простая валидация
-        if (!phone || phone.length < 10) {
+        if (!phone || (phone !== 'admin' && phone.replace(/\D/g, '').length < 10)) {
             setError('Введите корректный номер телефона');
             return;
         }
@@ -33,7 +33,11 @@ export default function Login() {
         try {
             const data = await authApi.login(phone, password);
             login(data.user, data.token);
-            navigate('/');
+            if (data.user?.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError('Неверный номер телефона или пароль');
         } finally {
