@@ -1,25 +1,72 @@
+/* ────────────────────────────────────────────────
+   Глобальные переменные и темы
+───────────────────────────────────────────────── */
+
 :root {
+    /* Основные акцентные цвета (остаются почти одинаковыми в обеих темах) */
     --primary: #5086f2;
     --primary-dark: #3a6bd1;
     --secondary: #856fd7;
     --accent: #88abf2;
-    --text-dark: #1e1e3f;
-    --text-light: #f0f4ff;
-    --bg-light: #f8f9ff;
+
+    /* Переменные, которые будут меняться в зависимости от темы */
+    --bg-light: rgba(248, 249, 255);
     --bg-card: rgba(255, 255, 255, 0.62);
+    --text-dark: #1e1e3f;
+    --text-light: #e0e0ff;
     --shadow: rgba(0, 0, 0, 0.12);
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #2c2c54;
+    --border-light: rgba(80, 134, 242, 0.12);
+}
+
+/* Светлая тема (по умолчанию) */
+:root,
+html.light {
+    --bg-light: rgba(248, 249, 255);
+    --bg-card: rgba(255, 255, 255, 0.62);
+    --text-dark: #2c2c54;
+    --text-light: #e0e0ff;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #2c2c54;
+    --border-light: rgba(80, 134, 242, 0.12);
+}
+
+/* Тёмная тема */
+html.dark {
+    --bg-light: #0f0f1a;
+    --bg-card: rgba(22, 33, 62, 0.62);
+    --text-dark: #e0e0ff;
+    --text-light: #b0b8ff;
+    --shadow: rgba(0, 0, 0, 0.4);
+    --sidebar-bg: #16213e;
+    --sidebar-text: #e0e0ff;
+    --border-light: rgba(80, 134, 242, 0.25);
+}
+
+/* Применяем базовые стили к body */
+body {
+    margin: 0;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background 0.4s ease, color 0.4s ease;
 }
 
 
+/* ────────────────────────────────────────────────
+   Общие контейнеры
+───────────────────────────────────────────────── */
+// боковое меню
 .appWrapper {
     display: flex;
     min-height: 100vh;
+    background: var(--bg-light);
 }
 
-
-// боковое меню
 .sidebarZone {
-    width: var(--sidebar-collapsed);
+    width: var(--sidebar-collapsed, 70px);
     flex-shrink: 0;
     transition: width 0.35s ease;
     position: relative;
@@ -33,18 +80,6 @@
     overflow-x: hidden;
 }
 
-.appWrapper {
-    display: flex;
-    min-height: 100vh;
-}
-
-.sidebarZone {
-    width: var(--sidebar-collapsed, 70px);
-    flex-shrink: 0;
-    transition: width 0.35s ease;
-    position: relative;
-}
-
 
 /* ────────────────────────────────────────────────
    прямоугольник с контентом
@@ -52,29 +87,25 @@
 .contentRectangle {
     /* Отступ сверху — совпадает с отступом меню */
     margin-top: 10vh;
-    margin-left: 200px;
-    margin-right: var(--sidebar-collapsed, 70px);
+    margin-left: 180px;
+    margin-right: 80px;
     margin-bottom: 0;
 
     /* Внутренние отступы внутри прямоугольника */
     padding: 2.5rem 2rem 3rem;
 
-    /* Визуальное оформление прямоугольника */
-    // background: rgba(255, 255, 255, 0.3);
     background: var(--bg-card);
     border-radius: 20px;
     backdrop-filter: blur(10px);
-    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
-
-    /* Чтобы карточки и заголовки не прилипали к краям */
-    min-height: calc(100vh - 10vh - 2rem);
-
-    /* Важно для скролла */
-    box-sizing: border-box;
+    box-shadow: 0 12px 40px var(--shadow);
+    min-height: calc(100vh - 14vh);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
+/* ────────────────────────────────────────────────
+   Хедер, герой, приветствие и т.д.
+───────────────────────────────────────────────── */
 
-// лого и надпись платформа
 .header {
     text-align: center;
 }
@@ -100,24 +131,16 @@
     }
 }
 
-.logo {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    margin-top: -25px;
-}
-
 .appName {
     margin: 0;
     font-size: 4.8rem;
     font-weight: 700;
-    line-height: 1.05; // чуть меньше 1 — компенсирует descender шрифта
-    background: linear-gradient(90deg, #5086f2, #856fd7, #88abf2, #5086f2);
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent), var(--primary));
     background-size: 300% 300%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: gradientFlow 8s ease infinite;
+    animation: gradientFlow 10s ease infinite;
 }
 
 @keyframes gradientFlow {
@@ -134,11 +157,8 @@
     }
 }
 
-
-// Фото и кнопка вход/регистрация
 .heroSection {
     margin: 2rem 0 4rem;
-    padding: 0 1rem;
 }
 
 .heroContent {
@@ -146,17 +166,16 @@
     align-items: center;
     justify-content: space-between;
     gap: 2.5rem;
-    flex-wrap: wrap; // на узких экранах фото пойдёт вверх
+    flex-wrap: wrap;
 }
 
 .heroImageWrapper {
     flex: 1;
     min-width: 320px;
     max-width: 55%;
-    position: relative;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 12px 32px var(--shadow);
 }
 
 .heroImage {
@@ -164,7 +183,6 @@
     height: auto;
     display: block;
     object-fit: cover;
-    aspect-ratio: 4 / 3; // или 16/9, 3/2 — подбери под свою картинку
 }
 
 .heroAction {
@@ -184,34 +202,15 @@
     border: none;
     border-radius: 16px;
     cursor: pointer;
-    box-shadow: 0 8px 24px rgba(80, 134, 242, 0.35);
+    box-shadow: 0 8px 24px var(--shadow);
     transition: all 0.28s ease;
 
     &:hover {
         transform: translateY(-4px) scale(1.04);
-        box-shadow: 0 16px 40px rgba(80, 134, 242, 0.5);
+        box-shadow: 0 16px 40px var(--shadow);
     }
 }
 
-/* Адаптив */
-@media (max-width: 900px) {
-    .heroContent {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .heroImageWrapper {
-        max-width: 100%;
-    }
-
-    .bigAuthButton {
-        width: 100%;
-        max-width: 360px;
-    }
-}
-
-
-// Приветственный блок
 .welcomeBox {
     margin: 3rem 0 4rem;
     display: flex;
@@ -219,13 +218,13 @@
 }
 
 .welcomeRectangle {
-    background: white;
+    background: var(--bg-card);
     color: var(--text-dark);
     border-radius: 20px;
     padding: 2.5rem 3rem;
     max-width: 820px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(136, 171, 242, 0.18);
+    box-shadow: 0 12px 36px var(--shadow);
+    border: 1px solid var(--border-light);
     text-align: center;
 }
 
@@ -242,20 +241,13 @@
     line-height: 1.7;
 }
 
-/* Адаптив */
-@media (max-width: 768px) {
-    .welcomeRectangle {
-        padding: 1.8rem 1.6rem;
-        margin: 0 1rem;
-    }
 
-    .welcomeTitle {
-        font-size: 1.7rem;
-    }
-
-    .welcomeText {
-        font-size: 1.05rem;
-    }
+.sectionAdvantagesTitle,
+.sectionTutorTitle,
+.sectionTitle {
+    font-size: 2.6rem;
+    margin-bottom: 3.5rem;
+    color: var(--text-dark);
 }
 
 
@@ -308,18 +300,18 @@
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); // мягкая тень для светлой темы
+    box-shadow: 0 8px 24px var(--shadow); // мягкая тень для светлой темы
 }
 
 .cardFront {
-    background: rgba(80, 134, 242, 0.12); // очень лёгкий синий фон
-    border: 1px solid rgba(80, 134, 242, 0.18);
+    background: rgba(var(--primary), 0.12);
+    border: 1px solid rgba(var(--primary), 0.18);
     transform: rotateY(0deg);
     color: var(--text-dark); // тёмный текст
 }
 
 .cardBack {
-    background: var(--bg-card); // белый/светлый фон (как у приветствия)
+    background: var(--bg-card);
     color: var(--text-dark);
     transform: rotateY(180deg);
     padding: 2.5rem;
@@ -501,13 +493,45 @@
 }
 
 
+
+/* Дисциплины: карточки в ряд с адаптивным переносом */
+.disciplinesSection {
+    margin: 4rem 0 6rem;
+    text-align: center;
+}
+
+.disciplinesGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .disciplinesGrid {
+        grid-template-columns: repeat(2, minmax(240px, 1fr));
+        gap: 1.6rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .disciplinesGrid {
+        grid-template-columns: 1fr;
+        gap: 1.6rem;
+    }
+}
+
+
 // Футер (подвал)
 .footer {
-    background: #f8f9ff; // очень светлый голубоватый фон
-    color: #2c2c54; // тёмно-синий/фиолетовый текст
+    background: var(--bg-card);
+    color: var(--text-dark);
     padding: 4rem 0 2rem;
     margin-top: 6rem;
-    border-top: 1px solid rgba(80, 134, 242, 0.12);
+    border-top: 1px solid var(--border-light);
     border-radius: 20px;
 
 }

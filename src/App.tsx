@@ -1,16 +1,36 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
+import { useEffect, useState } from 'react';
+import { useAuthStore } from './store/authStore';
+
 import Background from './components/Background/Background';
 import Sidebar from './components/SideBar/SideBar';
 
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Draw from './pages/Draw';
+
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
 import styles from './App.module.scss';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const loadFromLocalStorage = useAuthStore((state) => state.loadFromLocalStorage);
+
+
+  useEffect(() => {
+    // Инициализируем состояние из localStorage при первой загрузке
+    loadFromLocalStorage();
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
@@ -44,7 +64,8 @@ function App() {
 
                     {/* 2. блок: фото + кнопка */}
                     <section className={styles.heroSection}>
-                      <div className={styles.heroContent}>
+
+                      <div className={`${styles.heroContent} ${isAuthenticated ? styles.heroContentCentered : ''}`}>
                         <div className={styles.heroImageWrapper}>
                           <img
                             src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80"
@@ -52,13 +73,16 @@ function App() {
                             className={styles.heroImage}
                           />
                         </div>
-                        <div className={styles.heroAction}>
-                          <Link to="/login">
-                            <button className={styles.bigAuthButton}>
-                              Вход / Регистрация
-                            </button>
-                          </Link>
-                        </div>
+
+                        {!isAuthenticated && (
+                          <div className={styles.heroAction}>
+                            <Link to="/login">
+                              <button className={styles.bigAuthButton}>
+                                Вход / Регистрация
+                              </button>
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     </section>
 
@@ -294,6 +318,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+
+        <Route path="/draw" element={<Draw />} />
       </Routes>
     </BrowserRouter>
   );

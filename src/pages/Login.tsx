@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+
+import { authApi } from '../api/auth';
+
 import styles from './Auth.module.scss';
 
 import Background from '../components/Background/Background';
@@ -10,11 +13,15 @@ export default function Login() {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+
 
         // Простая валидация
         if (!phone || phone.length < 10) {
@@ -26,18 +33,18 @@ export default function Login() {
             return;
         }
 
-        // Имитация успешного входа (в будущем — запрос к бэкенду)
-        console.log('Вход выполнен:', { phone, password });
 
-        // Здесь можно передать реальные данные пользователя из ответа сервера
-        login({
-            firstName: 'Иван',
-            lastName: 'Петров',
-            phone,
-        });
+        setLoading(true);
+        try {
+            const data = await authApi.login(phone, password);
+            login(data.user, data.token);
+            navigate('/');
+        } catch (err) {
+            setError('Неверный номер телефона или пароль');
+        } finally {
+            setLoading(false);
+        }
 
-        // Перенаправление на главную страницу
-        navigate('/');
     };
 
     return (
@@ -72,7 +79,9 @@ export default function Login() {
 
                         {error && <p className={styles.error}>{error}</p>}
 
-                        <button type="submit">Войти</button>
+
+                        <button type="submit" disabled={loading}>{loading ? 'Загрузка...' : 'Войти'}</button>
+
                     </form>
 
                     <p>

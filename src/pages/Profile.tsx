@@ -1,20 +1,56 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
+import { authApi } from '../api/auth';
 
 import Sidebar from '../components/SideBar/SideBar';
-import Background from '../components/Background/Background'; // ← добавляем фон
+import Background from '../components/Background/Background';
 
 import styles from './Profile.module.scss';
 
+interface User {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phone: string;
+}
+
 export default function Profile() {
+    const navigate = useNavigate();
+    const { isAuthenticated, user: authUser, token } = useAuthStore();
+    const [user, setUser] = useState<User | null>(authUser);
     const [avatar, setAvatar] = useState<string>('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200');
     const [balance] = useState(1200);
+    const [loading, setLoading] = useState(true);
 
-    const user = {
-        firstName: 'Санечек',
-        lastName: 'Олейников',
-        phone: '+7 (999) 777-77-67',
-    };
+    useEffect(() => {
+        if (!isAuthenticated || !token) {
+            navigate('/login');
+            return;
+        }
+
+        const loadProfile = async () => {
+            try {
+                const data = await authApi.getProfile(token);
+                setUser(data.user);
+            } catch (error) {
+                console.error('Failed to load profile');
+                navigate('/login');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProfile();
+    }, [isAuthenticated, token, navigate]);
+
+    if (loading) {
+        return <div>Загрузка...</div>;
+    }
+
+    if (!user) {
+        return <div>Ошибка загрузки профиля</div>;
+    }
 
     const courses = [
         { id: 1, name: 'Математика ЕГЭ 2026', group: true, expires: '2025-08-31', price: 3800 },
@@ -138,7 +174,13 @@ export default function Profile() {
                     <section className={styles.section}>
                         <h2>Интерактивная доска</h2>
                         <div className={styles.boardPlaceholder}>
-                            <p>Интерактивная доска появится здесь (в будущем) </p>
+                            <button
+                                className={styles.openBoardBtn}
+                                onClick={() => window.open(`/draw?userId=${user.id}`, '_blank', 'noopener')}
+                            >
+                                Открыть доску
+                            </button>
+
                         </div>
                     </section>
 
