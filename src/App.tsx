@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-
 import { useEffect, useState } from 'react';
 import { useAuthStore } from './store/authStore';
 
@@ -10,17 +9,22 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Draw from './pages/Draw';
-
+import AdminPage from './pages/Admin';
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
 import styles from './App.module.scss';
+
+// импорт фотографий
+import student from './assets/pics/student.jpg'
+import mathPhoto from './assets/pics/math.jpg';
+import physicsPhoto from './assets/pics/fizika.jpg';
+import informaticsPhoto from './assets/pics/informatika.jpg';
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const loadFromLocalStorage = useAuthStore((state) => state.loadFromLocalStorage);
-
-
   useEffect(() => {
     // Инициализируем состояние из localStorage при первой загрузке
     loadFromLocalStorage();
@@ -64,16 +68,14 @@ function App() {
 
                     {/* 2. блок: фото + кнопка */}
                     <section className={styles.heroSection}>
-
                       <div className={`${styles.heroContent} ${isAuthenticated ? styles.heroContentCentered : ''}`}>
                         <div className={styles.heroImageWrapper}>
                           <img
-                            src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80"
-                            alt="Ученик учится онлайн с наушниками"
+                            src={student}
+                            alt="Ученик сидит за партой"
                             className={styles.heroImage}
                           />
                         </div>
-
                         {!isAuthenticated && (
                           <div className={styles.heroAction}>
                             <Link to="/login">
@@ -249,15 +251,15 @@ function App() {
                       <div className={styles.disciplinesGrid}>
                         <DisciplineCard
                           name="Математика"
-                          photoUrl="https://images.unsplash.com/photo-1635372722656-389f87a941b7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWF0aHxlbnwwfHwwfHx8Mg%3D%3D"
+                          photoUrl={mathPhoto}
                         />
                         <DisciplineCard
                           name="Физика"
-                          photoUrl="https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGh5c2ljfGVufDB8fDB8fHwy"
+                          photoUrl={physicsPhoto}
                         />
                         <DisciplineCard
                           name="Информатика"
-                          photoUrl="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800"
+                          photoUrl={informaticsPhoto}
                         />
                       </div>
                     </section>
@@ -318,7 +320,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
-
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/draw" element={<Draw />} />
       </Routes>
     </BrowserRouter>

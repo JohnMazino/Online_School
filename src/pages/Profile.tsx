@@ -13,6 +13,8 @@ interface User {
     firstName: string;
     lastName: string;
     phone: string;
+    role?: string;
+    balance?: number;
 }
 
 export default function Profile() {
@@ -20,7 +22,6 @@ export default function Profile() {
     const { isAuthenticated, user: authUser, token } = useAuthStore();
     const [user, setUser] = useState<User | null>(authUser);
     const [avatar, setAvatar] = useState<string>('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200');
-    const [balance] = useState(1200);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -109,12 +110,14 @@ export default function Profile() {
                         <div className={styles.userInfo}>
                             <h1>{user.firstName} {user.lastName}</h1>
                             <p className={styles.phone}>{user.phone}</p>
-                            <p className={styles.balance}>
-                                Баланс: <span>{balance} ₽</span>
-                                <button className={styles.topUpBtn} onClick={handleTopUp}>
-                                    Пополнить
-                                </button>
-                            </p>
+                            {user.role !== 'teacher' && (
+                                <p className={styles.balance}>
+                                    Баланс: <span>{user.balance ?? 0} ₽</span>
+                                    <button className={styles.topUpBtn} onClick={handleTopUp}>
+                                        Пополнить
+                                    </button>
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -180,7 +183,6 @@ export default function Profile() {
                             >
                                 Открыть доску
                             </button>
-
                         </div>
                     </section>
 

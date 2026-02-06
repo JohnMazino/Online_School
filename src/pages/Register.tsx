@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-
 import { authApi } from '../api/auth';
 import styles from './Auth.module.scss';
 
@@ -27,7 +26,8 @@ export default function Register() {
             setError('Заполните все поля');
             return;
         }
-        if (phone.length < 10) {
+        // special-case: accept 'admin'
+        if (phone !== 'admin' && phone.replace(/\D/g, '').length < 10) {
             setError('Номер телефона должен содержать минимум 10 цифр');
             return;
         }
@@ -36,7 +36,11 @@ export default function Register() {
         try {
             const data = await authApi.register(firstName, lastName, phone, password);
             login(data.user, data.token);
-            navigate('/');
+            if (data.user?.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (err: any) {
             setError(err.message || 'Ошибка регистрации');
         } finally {
@@ -50,6 +54,7 @@ export default function Register() {
             <div className={styles.authPage}>
                 <div className={styles.authForm}>
                     <h1>Регистрация</h1>
+
                     <form onSubmit={handleSubmit}>
                         <label>
                             Имя

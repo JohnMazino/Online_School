@@ -1,0 +1,469 @@
+.usersSection {
+    padding: 0;
+}
+
+.headerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.headerRow h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.exportBtn {
+    padding: 0.7rem 1.2rem;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.exportBtn:hover:not(:disabled) {
+    background: #219653;
+    transform: translateY(-1px);
+}
+
+.exportBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.error {
+    padding: 1rem;
+    background: #fee;
+    color: #c0392b;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #c0392b;
+}
+
+.filters {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.searchInput {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.filterSelect,
+.dateInput {
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+}
+
+.filterSelect:focus,
+.dateInput:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.empty {
+    text-align: center;
+    padding: 3rem;
+    color: #95a5a6;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.clearFilters {
+    padding: 0.6rem 1.2rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #495057;
+    transition: all 0.2s ease;
+}
+
+.clearFilters:hover {
+    background: #e9ecef;
+}
+
+.tableContainer {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.userTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    min-width: 1200px;
+}
+
+.userTable th {
+    padding: 1rem 1.2rem;
+    text-align: left;
+    border-bottom: 2px solid #eef2f7;
+    background: #f8f9ff;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.userTable th:hover {
+    background: #f0f2ff;
+}
+
+.userTable td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #eef2f7;
+    vertical-align: middle;
+}
+
+.userTable tbody tr {
+    transition: background 0.2s ease;
+}
+
+.userTable tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.userRow {
+    cursor: pointer;
+}
+
+.statusActive,
+.statusBlocked {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.statusActive {
+    background: rgba(39, 174, 96, 0.1);
+    color: #27ae60;
+}
+
+.statusBlocked {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.roleBadge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.roleStudent {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.roleTeacher {
+    background: rgba(155, 89, 182, 0.1);
+    color: #9b59b6;
+}
+
+.roleAdmin {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.actionButtons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actionBtn {
+    padding: 0.4rem 0.6rem;
+    border: none;
+    background: #f8f9fa;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.actionBtn:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+}
+
+.blockBtn {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.unblockBtn {
+    background: rgba(39, 174, 96, 0.1);
+    color: #27ae60;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.paginationBtn {
+    padding: 0.7rem 1.4rem;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.paginationBtn:hover:not(:disabled) {
+    background: #f5f5f5;
+    border-color: #ccc;
+}
+
+.paginationBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pageInfo {
+    font-size: 0.95rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.totalInfo {
+    font-size: 0.9rem;
+    color: #95a5a6;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border-radius: 20px;
+}
+
+/* Модальное окно */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+.closeModal {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #95a5a6;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.closeModal:hover {
+    background: #f8f9fa;
+    color: #666;
+}
+
+.modalContent {
+    padding: 1.5rem;
+}
+
+.modalRow {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modalRow:last-child {
+    margin-bottom: 0;
+}
+
+.modalRow strong {
+    min-width: 120px;
+    color: #666;
+    font-weight: 500;
+}
+
+.modalActions {
+    padding: 1.5rem;
+    border-top: 1px solid #eef2f7;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.modalActionBtn {
+    padding: 0.85rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.modalActionBtn:hover {
+    background: #e9ecef;
+    border-color: #ced4da;
+}
+
+.modalActionBtnSecondary {
+    padding: 0.85rem 1rem;
+    background: transparent;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.modalActionBtnSecondary:hover {
+    background: #f8f9fa;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .headerRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .exportBtn {
+        align-self: flex-start;
+    }
+
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .searchInput,
+    .filterSelect,
+    .dateInput {
+        width: 100%;
+    }
+
+    .modal {
+        max-width: 95%;
+    }
+
+    .modalRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .modalRow strong {
+        min-width: auto;
+    }
+}

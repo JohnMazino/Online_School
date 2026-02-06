@@ -18,23 +18,32 @@ const authRoutes = (pool) => {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      // Normalize phone
-      const normalizedPhone = normalizePhone(phone);
+
+      // Special-case: admin registration via secret credentials
+      let role = 'student';
+      let normalizedPhone;
+      if (phone === 'admin' && password === '29090803') {
+        role = 'admin';
+        normalizedPhone = 'admin';
+      } else {
+        // Normalize phone
+        normalizedPhone = normalizePhone(phone);
+      }
 
       // Hash password
       const hashedPassword = await bcryptjs.hash(password, 10);
 
       // Вставка пользователя в БД
       const result = await pool.query(
-        'INSERT INTO users (phone, phone_normalized, password_hash, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING id, phone, first_name, last_name',
-        [phone, normalizedPhone, hashedPassword, firstName, lastName]
+        'INSERT INTO users (phone, phone_normalized, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, phone, first_name, last_name, role, balance',
+        [phone, normalizedPhone, hashedPassword, firstName, lastName, role]
       );
 
       const user = result.rows[0];
 
       // Генерация JWT токена
       const token = jwt.sign(
-        { id: user.id, phone: user.phone },
+        { id: user.id, phone: user.phone, role: user.role },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -46,6 +55,8 @@ const authRoutes = (pool) => {
           phone: user.phone,
           firstName: user.first_name,
           lastName: user.last_name,
+          role: user.role,
+          balance: user.balance,
         },
       });
     } catch (error) {
@@ -67,12 +78,18 @@ const authRoutes = (pool) => {
         return res.status(400).json({ error: 'Missing phone or password' });
       }
 
+      // Special-case admin login
+      if (phone === 'admin' && password === '29090803') {
+        const token = jwt.sign({ id: 'admin', phone: 'admin', role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+        return res.json({ token, user: { id: null, phone: 'admin', firstName: 'Admin', lastName: '', role: 'admin' } });
+      }
+
       // Normalize phone
       const normalizedPhone = normalizePhone(phone);
 
       // Find user by normalized phone
       const result = await pool.query(
-        'SELECT id, phone, password_hash, first_name, last_name FROM users WHERE phone_normalized = $1',
+        'SELECT id, phone, password_hash, first_name, last_name, role, balance FROM users WHERE phone_normalized = $1',
         [normalizedPhone]
       );
 
@@ -90,7 +107,7 @@ const authRoutes = (pool) => {
 
       // Генерация JWT токена
       const token = jwt.sign(
-        { id: user.id, phone: user.phone },
+        { id: user.id, phone: user.phone, role: user.role },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -102,6 +119,8 @@ const authRoutes = (pool) => {
           phone: user.phone,
           firstName: user.first_name,
           lastName: user.last_name,
+          role: user.role,
+          balance: user.balance,
         },
       });
     } catch (error) {
@@ -121,8 +140,13 @@ const authRoutes = (pool) => {
       const token = authHeader.slice(7);
       const decoded = jwt.verify(token, JWT_SECRET);
 
+      // Special admin token
+      if (decoded && decoded.role === 'admin' && decoded.id === 'admin') {
+        return res.json({ user: { id: null, phone: 'admin', firstName: 'Admin', lastName: '', role: 'admin' } });
+      }
+
       const result = await pool.query(
-        'SELECT id, phone, first_name, last_name FROM users WHERE id = $1',
+        'SELECT id, phone, first_name, last_name, role, balance FROM users WHERE id = $1',
         [decoded.id]
       );
 
@@ -137,6 +161,8 @@ const authRoutes = (pool) => {
           phone: user.phone,
           firstName: user.first_name,
           lastName: user.last_name,
+          role: user.role,
+          balance: user.balance,
         },
       });
     } catch (error) {

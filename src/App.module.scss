@@ -2,67 +2,70 @@
    Глобальные переменные и темы
 ───────────────────────────────────────────────── */
 
-:root {
-    /* Основные акцентные цвета (остаются почти одинаковыми в обеих темах) */
-    --primary: #5086f2;
-    --primary-dark: #3a6bd1;
-    --secondary: #856fd7;
-    --accent: #88abf2;
+:global {
+    :root {
+        --primary: #5086f2;
+        --primary-dark: #3a6bd1;
+        --secondary: #856fd7;
+        --accent: #88abf2;
 
-    /* Переменные, которые будут меняться в зависимости от темы */
-    --bg-light: rgba(248, 249, 255);
-    --bg-card: rgba(255, 255, 255, 0.62);
-    --text-dark: #1e1e3f;
-    --text-light: #e0e0ff;
-    --shadow: rgba(0, 0, 0, 0.12);
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #2c2c54;
-    --border-light: rgba(80, 134, 242, 0.12);
+        /* Базовые значения (переопределяются в light/dark) */
+        --bg-body: #f8f9ff;
+        --bg-card: rgba(255, 255, 255, 0.92);
+        --text-primary: #2c2c54;
+        --text-secondary: #6b6b8f;
+        --shadow: rgba(0, 0, 0, 0.10);
+        --border: rgba(80, 134, 242, 0.15);
+        --sidebar-bg: rgba(255, 255, 255, 0.92);
+        --sidebar-text: #2c2c54;
+
+        /* Цвета для логотипа и акцентов */
+        --logo-gradient-start: var(--primary);
+        --logo-gradient-end: var(--secondary);
+    }
+
+    html.light {
+        --bg-body: #f8f9ff;
+        --bg-card: rgba(255, 255, 255, 0.42);
+        --text-primary: #2c2c54;
+        --text-secondary: #6b6b8f;
+        --shadow: rgba(0, 0, 0, 0.10);
+        --border: rgba(80, 134, 242, 0.15);
+        --sidebar-bg: rgba(255, 255, 255, 0.92);
+        --sidebar-text: #2c2c54;
+    }
+
+    html.dark {
+        --bg-body: #0f0f1a;
+        --bg-card: rgba(22, 33, 62, 0.42);
+        --text-primary: #e0e0ff;
+        --text-secondary: #b0b8ff;
+        --shadow: rgba(0, 0, 0, 0.45);
+        --border: rgba(80, 134, 242, 0.30);
+        --sidebar-bg: rgba(22, 33, 62, 0.92);
+        --sidebar-text: #e0e0ff;
+
+        --logo-gradient-start: #7aa8f5;
+        --logo-gradient-end: #a89cff;
+    }
+
+    body {
+        margin: 0;
+        background: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Inter', system-ui, sans-serif;
+        transition: background 0.4s ease, color 0.4s ease;
+    }
 }
-
-/* Светлая тема (по умолчанию) */
-:root,
-html.light {
-    --bg-light: rgba(248, 249, 255);
-    --bg-card: rgba(255, 255, 255, 0.62);
-    --text-dark: #2c2c54;
-    --text-light: #e0e0ff;
-    --shadow: rgba(0, 0, 0, 0.08);
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #2c2c54;
-    --border-light: rgba(80, 134, 242, 0.12);
-}
-
-/* Тёмная тема */
-html.dark {
-    --bg-light: #0f0f1a;
-    --bg-card: rgba(22, 33, 62, 0.62);
-    --text-dark: #e0e0ff;
-    --text-light: #b0b8ff;
-    --shadow: rgba(0, 0, 0, 0.4);
-    --sidebar-bg: #16213e;
-    --sidebar-text: #e0e0ff;
-    --border-light: rgba(80, 134, 242, 0.25);
-}
-
-/* Применяем базовые стили к body */
-body {
-    margin: 0;
-    background: var(--bg-light);
-    color: var(--text-dark);
-    font-family: 'Inter', system-ui, sans-serif;
-    transition: background 0.4s ease, color 0.4s ease;
-}
-
 
 /* ────────────────────────────────────────────────
-   Общие контейнеры
+   Остальные стили — уже модульные, их НЕ оборачиваем в :global
 ───────────────────────────────────────────────── */
-// боковое меню
+
 .appWrapper {
     display: flex;
     min-height: 100vh;
-    background: var(--bg-light);
+    background: var(--bg-body);
 }
 
 .sidebarZone {
@@ -80,20 +83,12 @@ body {
     overflow-x: hidden;
 }
 
-
-/* ────────────────────────────────────────────────
-   прямоугольник с контентом
-───────────────────────────────────────────────── */
 .contentRectangle {
-    /* Отступ сверху — совпадает с отступом меню */
     margin-top: 10vh;
     margin-left: 180px;
     margin-right: 80px;
     margin-bottom: 0;
-
-    /* Внутренние отступы внутри прямоугольника */
     padding: 2.5rem 2rem 3rem;
-
     background: var(--bg-card);
     border-radius: 20px;
     backdrop-filter: blur(10px);
@@ -108,6 +103,10 @@ body {
 
 .header {
     text-align: center;
+}
+
+.logo {
+    margin-top: -30px;
 }
 
 .logoAndTitle {
@@ -135,7 +134,7 @@ body {
     margin: 0;
     font-size: 4.8rem;
     font-weight: 700;
-    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+    background: linear-gradient(90deg, var(--logo-gradient-start), var(--logo-gradient-end), var(--accent), var(--logo-gradient-start));
     background-size: 300% 300%;
     -webkit-background-clip: text;
     background-clip: text;
@@ -171,11 +170,18 @@ body {
 
 .heroImageWrapper {
     flex: 1;
-    min-width: 320px;
-    max-width: 55%;
+    min-width: 620px;
+    // max-width: 75%;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 12px 32px var(--shadow);
+
+    transition: transform 0.6s ease, box-shadow 0.6s ease;
+
+    // Градиентная рамка + свечение
+    border: 5px solid transparent;
+    background: linear-gradient(var(--bg-light), var(--bg-light)) padding-box,
+        linear-gradient(45deg, var(--primary), var(--secondary), var(--accent)) border-box;
 }
 
 .heroImage {
@@ -183,18 +189,30 @@ body {
     height: auto;
     display: block;
     object-fit: cover;
+
+    transition: transform 8s ease-in-out;
+    transform: scale(1.05); // слегка увеличено изначально
+}
+
+.heroImageWrapper:hover {
+    transform: scale(1.03) translateY(-8px);
+    box-shadow: 0 24px 60px rgba(80, 134, 242, 0.35);
+}
+
+.heroImageWrapper:hover .heroImage {
+    transform: scale(1.0); // при наведении фото "успокаивается"
 }
 
 .heroAction {
     flex: 1;
-    min-width: 280px;
+    min-width: 380px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .bigAuthButton {
-    padding: 1.2rem 2.8rem;
+    padding: 1.2rem 3.8rem;
     font-size: 1.3rem;
     font-weight: 600;
     color: white;
@@ -232,7 +250,7 @@ body {
     margin: 0 0 1.4rem;
     font-size: 2.1rem;
     font-weight: 700;
-    color: #2c2c54;
+    color: --text-dark;
 }
 
 .welcomeText {
@@ -322,7 +340,7 @@ body {
 .iconWrapper {
     width: 80px;
     height: 80px;
-    background: rgba(80, 134, 242, 0.12); // лёгкий акцентный фон
+    background: rgba(var(--primary), 0.12); // лёгкий акцентный фон
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -336,7 +354,7 @@ body {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-dark); // тёмный заголовок
+    color: var(--text-primary); // тёмный заголовок
 }
 
 .cardBack p {
@@ -482,13 +500,13 @@ body {
     flex-direction: column;
     gap: 0.8rem;
     font-size: 0.95rem;
-    color: #4a4a6e;
+    color: var(--text-secondary);
 
     span {
         background: rgba(80, 134, 242, 0.08);
         padding: 0.5rem 1.2rem;
         border-radius: 10px;
-        color: var(--text-dark);
+        color: var(--text-primary);
     }
 }
 
@@ -528,11 +546,12 @@ body {
 // Футер (подвал)
 .footer {
     background: var(--bg-card);
-    color: var(--text-dark);
+    color: var(--text-primary);
     padding: 4rem 0 2rem;
     margin-top: 6rem;
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid var(--border);
     border-radius: 20px;
+    transition: background 0.4s ease, color 0.4s ease;
 
 }
 
@@ -562,14 +581,21 @@ body {
     margin: 0;
     font-size: 1.6rem;
     font-weight: 700;
-    color: #5086f2; // акцентный синий
+    color: var(--primary); // акцентный синий
+}
+
+.footerSubtitle,
+.linkColumn h5,
+.linkColumn a,
+.copyright {
+    color: var(--text-secondary);
 }
 
 .footerSubtitle {
     margin: 0.3rem 0 0;
     font-size: 0.95rem;
     opacity: 0.75;
-    color: #4a4a6e;
+    // color: #4a4a6e;
 }
 
 .footerLinks {
@@ -585,12 +611,12 @@ body {
         margin: 0 0 1.2rem;
         font-size: 1.1rem;
         font-weight: 600;
-        color: #3a3a6e;
+        // color: #3a3a6e;
     }
 
     a {
         display: block;
-        color: #4a4a6e;
+        // color: #4a4a6e;
         text-decoration: none;
         margin-bottom: 0.7rem;
         font-size: 0.95rem;
@@ -609,7 +635,7 @@ body {
     justify-content: flex-start;
 
     a {
-        color: #4a4a6e;
+        // color: #4a4a6e;
         font-size: 1.4rem;
         transition: color 0.2s;
 
@@ -625,5 +651,5 @@ body {
     padding-top: 2rem;
     border-top: 1px solid rgba(136, 171, 242, 0.12);
     font-size: 0.9rem;
-    color: #6b6b8f;
+    // color: #6b6b8f;
 }

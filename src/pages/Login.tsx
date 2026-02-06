@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-
 import { authApi } from '../api/auth';
-
 import styles from './Auth.module.scss';
 
 import Background from '../components/Background/Background';
@@ -13,7 +11,6 @@ export default function Login() {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
@@ -21,10 +18,8 @@ export default function Login() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-
-
         // Простая валидация
-        if (!phone || phone.length < 10) {
+        if (!phone || (phone !== 'admin' && phone.replace(/\D/g, '').length < 10)) {
             setError('Введите корректный номер телефона');
             return;
         }
@@ -33,18 +28,21 @@ export default function Login() {
             return;
         }
 
-
         setLoading(true);
         try {
             const data = await authApi.login(phone, password);
             login(data.user, data.token);
-            navigate('/');
+
+            if (data.user?.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError('Неверный номер телефона или пароль');
         } finally {
             setLoading(false);
         }
-
     };
 
     return (
@@ -81,7 +79,6 @@ export default function Login() {
 
 
                         <button type="submit" disabled={loading}>{loading ? 'Загрузка...' : 'Войти'}</button>
-
                     </form>
 
                     <p>
