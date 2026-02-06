@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 const { initializeDatabase } = require('./db/init');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const testsRoutes = require('./routes/tests');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ module.exports = pool;
 // Маршруты
 app.use('/api/auth', authRoutes(pool));
 app.use('/api/admin', adminRoutes(pool));
+app.use('/api/tests', testsRoutes(pool));
 
 // Запуск сервера
 const startServer = async () => {

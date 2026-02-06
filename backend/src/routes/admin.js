@@ -26,7 +26,8 @@ const adminRoutes = (pool) => {
   };
 
   // Получить список пользователей (поддерживает поиск по q + пагинацию)
-  router.get('/users', verifyToken, adminOnly, async (req, res) => {
+  // Public endpoint: allow anyone to view non-sensitive user info (id, phone, name, created_at)
+  router.get('/users', async (req, res) => {
     try {
       const q = (req.query.q || '').toString().trim();
       const page = Math.max(1, parseInt(req.query.page || '1'));
@@ -45,7 +46,7 @@ const adminRoutes = (pool) => {
         total = parseInt(countRes.rows[0].count, 10);
 
         rowsResult = await pool.query(
-          `SELECT id, phone, first_name, last_name, role, balance, created_at
+          `SELECT id, phone, first_name, last_name, created_at
            FROM users
            WHERE phone ILIKE $1 OR phone_normalized ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1
            ORDER BY id DESC
@@ -57,7 +58,7 @@ const adminRoutes = (pool) => {
         total = parseInt(countRes.rows[0].count, 10);
 
         rowsResult = await pool.query(
-          'SELECT id, phone, first_name, last_name, role, balance, created_at FROM users ORDER BY id DESC LIMIT $1 OFFSET $2',
+          'SELECT id, phone, first_name, last_name, created_at FROM users ORDER BY id DESC LIMIT $1 OFFSET $2',
           [perPage, offset]
         );
       }

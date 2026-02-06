@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import styles from './TestConstructor.module.scss';
+import { useAuthStore } from '../../store/authStore';
+import { authApi } from '../../api/auth';
+import { testsApi } from '../../api/tests';
 
 interface Test {
     id?: number;
@@ -117,18 +120,43 @@ export default function TestConstructor() {
         setAutoSaveStatus('unsaved');
     };
 
+    const token = useAuthStore((s:any)=>s.token);
+    const currentUser = useAuthStore((s:any)=>s.user);
+
     const saveTest = async () => {
         setAutoSaveStatus('saving');
         try {
-            console.log('Сохранение теста:', test);
-            // await api.saveTest(test);
-            setTimeout(() => {
-                setAutoSaveStatus('saved');
-                alert('Тест успешно сохранён');
-            }, 500);
-        } catch (error) {
+            const payload = { ...test };
+            payload.sections = test.sections.map((s) => ({
+                title: s.title,
+                description: s.description,
+                max_points: s.max_points,
+                time_limit: s.time_limit,
+                questions: s.questions.map((q) => ({
+                    type: q.type,
+                    text: q.text,
+                    points: q.points,
+                    time: q.time,
+                    variants: q.variants,
+                    matches: q.matches,
+                    orderItems: q.orderItems,
+                    fileTypes: q.fileTypes,
+                    explanation: q.explanation,
+                    correctAnswer: q.correctAnswer,
+                })),
+            }));
+
+            const res = await testsApi.createTest(token, { ...payload, created_by: currentUser?.id });
+            // set test id so we can assign immediately
+            setTest(prev => ({ ...prev, id: res.test_id }));
+
+            setAutoSaveStatus('saved');
+            alert('Тест успешно сохранён (ID: ' + res.test_id + ')');
+            return res;
+        } catch (error:any) {
             setAutoSaveStatus('unsaved');
-            alert('Ошибка при сохранении теста');
+            alert('Ошибка при сохранении теста: ' + (error.message||error));
+            throw error;
         }
     };
 
@@ -382,10 +410,135 @@ export default function TestConstructor() {
         </div>
     );
 
+    // Модалка назначения теста пользователям
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [availableUsers, setAvailableUsers] = useState<any[]>([]);
+    const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+    const [assignDueDate, setAssignDueDate] = useState<string>('');
+
+    const [userSearch, setUserSearch] = useState('');
+    const [fallbackUserId, setFallbackUserId] = useState<number | ''>('');
+
+    const [assignLoading, setAssignLoading] = useState(false);
+
+    const openAssignModal = async () => {
+        console.log('openAssignModal called');
+        setAssignLoading(true);
+        setShowAssignModal(true);
+
+        if (!test.id) {
+            // если тест ещё не сохранён, сохраним
+            try {
+                console.log('saving test before assign...');
+                await saveTest();
+                console.log('test saved, id=', test.id);
+            } catch (e) {
+                alert('Не удалось сохранить тест. Назначение остановлено.');
+                setAssignLoading(false);
+                setShowAssignModal(false);
+                return;
+            }
+        }
+
+        try {
+            const usersRes = await authApi.getAllUsers(token, '', 1, 200);
+            const users = usersRes.users || usersRes;
+            setAvailableUsers(users);
+            console.log('loaded users:', users.length);
+        } catch (e:any) {
+            console.error('Failed to load users', e);
+            // Преференция: продолжим, но покажем поиск по id/телефону
+            setAvailableUsers([]);
+        } finally {
+            setAssignLoading(false);
+        }
+    };
+
+    const toggleSelectUser = (id:number) => {
+        setSelectedUserIds(prev => prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id]);
+    };
+
+    const searchUsers = async () => {
+        try {
+            const usersRes = await authApi.getAllUsers(token, userSearch, 1, 50);
+            const users = usersRes.users || usersRes;
+            setAvailableUsers(users);
+        } catch (e) {
+            console.warn('Search failed', e);
+            alert('Поиск пользователей недоступен (нет прав)');
+        }
+    };
+
+    const confirmAssign = async () => {
+        if (!test.id) { alert('Нет id теста'); return; }
+        const toAssign = [...selectedUserIds];
+        if (fallbackUserId) toAssign.push(Number(fallbackUserId));
+        if (toAssign.length === 0) { alert('Выберите пользователей или введите ID/телефон'); return; }
+
+        try {
+            await testsApi.assignBatch(token, { test_id: test.id, assigned_to: toAssign, assigned_by: currentUser?.id, due_date: assignDueDate || null });
+            alert('Тест успешно назначен');
+            setShowAssignModal(false);
+            setSelectedUserIds([]);
+            setAssignDueDate('');
+            setFallbackUserId('');
+            setUserSearch('');
+        } catch (e:any) {
+            alert('Ошибка назначения: ' + (e.message||e));
+        }
+    };
+
+    const AssignModal = () => (
+        <div className={styles.modalOverlay} onClick={() => setShowAssignModal(false)} style={{zIndex:9999}}>
+            <div className={styles.modalContent} onClick={e => e.stopPropagation()} style={{maxWidth:800}}>
+                <div className={styles.modalHeader}>
+                    <h3>Назначить тест пользователям</h3>
+                    <button className={styles.closeModalBtn} onClick={() => setShowAssignModal(false)}>✕</button>
+                </div>
+                <div className={styles.modalBody}>
+                    {assignLoading ? (
+                        <div style={{padding:'1rem'}}>Сохранение теста и загрузка пользователей…</div>
+                    ) : (
+                        <>
+                            <div style={{marginBottom: '1rem'}}>
+                                <label>Дедлайн: <input type="date" value={assignDueDate} onChange={e=>setAssignDueDate(e.target.value)} /></label>
+                            </div>
+
+                            <div style={{display:'flex', gap:'0.5rem', marginBottom:'0.75rem'}}>
+                                <input placeholder="Поиск по имени или телефону" value={userSearch} onChange={e=>setUserSearch(e.target.value)} />
+                                <button onClick={searchUsers}>Поиск</button>
+                            </div>
+
+                            <div style={{maxHeight: '40vh', overflow: 'auto', border: '1px solid var(--border)'}}>
+                                {availableUsers.length === 0 && <div style={{padding:'1rem', color:'var(--text-secondary)'}}>Список пользователей недоступен. Введите ID пользователя вручную ниже.</div>}
+                                {availableUsers.map(u => (
+                                    <div key={u.id} style={{display:'flex', alignItems:'center', gap:'0.5rem', padding:'0.5rem'}}>
+                                        <input type="checkbox" checked={selectedUserIds.includes(u.id)} onChange={()=>toggleSelectUser(u.id)} />
+                                        <div>{u.first_name || u.firstName || (u.first_name+' '+u.last_name) || (u.firstName+' '+u.lastName) || u.phone}</div>
+                                        <div style={{marginLeft:'auto', color:'var(--text-secondary)'}}>#{u.id}</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{marginTop:'0.75rem'}}>
+                                <label>Или укажите ID пользователя/телефон вручную: <input value={fallbackUserId as any} onChange={e=>setFallbackUserId(e.target.value ? Number(e.target.value) : '')} placeholder="ID или телефон" /></label>
+                            </div>
+                        </>
+                    )}
+                </div>
+                <div className={styles.modalActions}>
+                    <button onClick={confirmAssign} className={styles.saveBtn} disabled={assignLoading}>📤 Назначить</button>
+                    <button onClick={()=>setShowAssignModal(false)} className={styles.cancelBtn}>Отмена</button>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
         <div className={styles.testConstructor}>
             {/* Модальное окно выбора типа вопроса */}
             {showQuestionTypeModal && <QuestionTypeModal />}
+            {showAssignModal && <AssignModal />}
 
             {/* Верхняя панель */}
             <header className={styles.header}>
@@ -445,7 +598,7 @@ export default function TestConstructor() {
                                 autoSaveStatus === 'saved' ? '✅ Сохранено' : '💾 Сохранить'}
                         </button>
                         <button
-                            onClick={() => alert('Назначение теста (функциональность в разработке)')}
+                            onClick={openAssignModal}
                             className={styles.assignBtn}
                         >
                             📤 Назначить ученикам

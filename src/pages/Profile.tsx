@@ -23,6 +23,8 @@ export default function Profile() {
     const [user, setUser] = useState<User | null>(authUser);
     const [avatar, setAvatar] = useState<string>('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200');
     const [loading, setLoading] = useState(true);
+    const [assignedTasks, setAssignedTasks] = useState<any[]>([]);
+    const [completedTasks, setCompletedTasks] = useState<any[]>([]);
 
     useEffect(() => {
         if (!isAuthenticated || !token) {
@@ -34,6 +36,23 @@ export default function Profile() {
             try {
                 const data = await authApi.getProfile(token);
                 setUser(data.user);
+
+                // Load assigned tests and completed attempts
+                const userId = data.user.id;
+                try {
+                    const assigned = await (await fetch(`http://localhost:5000/api/tests/assigned/user/${userId}`)).json();
+                    setAssignedTasks(assigned || []);
+                } catch (e) {
+                    console.warn('Failed to load assigned tasks', e);
+                }
+
+                try {
+                    const attempts = await (await fetch(`http://localhost:5000/api/tests/attempts/user/${userId}`)).json();
+                    setCompletedTasks(attempts || []);
+                } catch (e) {
+                    console.warn('Failed to load attempts', e);
+                }
+
             } catch (error) {
                 console.error('Failed to load profile');
                 navigate('/login');
@@ -57,17 +76,6 @@ export default function Profile() {
         { id: 1, name: 'Математика ЕГЭ 2026', group: true, expires: '2025-08-31', price: 3800 },
         { id: 2, name: 'Физика ОГЭ', group: true, expires: '2025-07-15', price: 3800 },
         { id: 3, name: 'Информатика (индивидуально)', group: false, expires: null, price: 1200 },
-    ];
-
-    const assignedTasks = [
-        { type: 'лекция', title: 'Лекция по алгебре №5', deadline: '2025-07-10', link: '/lecture/5' },
-        { type: 'тест', title: 'Тест по геометрии', deadline: '2025-07-11', link: '/test/3' },
-        { type: 'срез', title: 'Срез знаний по физике', deadline: '2025-07-12', link: '/test/4' },
-    ];
-
-    const completedTasks = [
-        { type: 'лекция', title: 'Лекция по алгебре №4', date: '2025-07-05' },
-        { type: 'тест', title: 'Тест по тригонометрии', date: '2025-07-03', score: '95%' },
     ];
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,24 +157,26 @@ export default function Profile() {
                         <div className={styles.tasksContainer}>
                             <div className={styles.taskColumn}>
                                 <h3>Назначенные</h3>
-                                {assignedTasks.map(task => (
-                                    <div key={task.title} className={styles.taskItem}>
-                                        <span className={styles.taskType}>{task.type.toUpperCase()}</span>
-                                        <Link to={task.link} className={styles.taskLink}>
-                                            {task.title}
+                                {assignedTasks.length === 0 && <div className={styles.empty}>Нет назначенных заданий</div>}
+                                {assignedTasks.map((task:any) => (
+                                    <div key={task.id} className={styles.taskItem}>
+                                        <span className={styles.taskType}>{task.is_active ? 'ТЕСТ' : 'ТЕСТ (скрыт)'}</span>
+                                        <Link to={`/student/test/${task.test_id}`} className={styles.taskLink}>
+                                            {task.title || task.test_title}
                                         </Link>
-                                        <p className={styles.deadline}>Дедлайн: {task.deadline}</p>
+                                        <p className={styles.deadline}>Дедлайн: {task.due_date ? new Date(task.due_date).toLocaleDateString('ru-RU') : new Date(task.assigned_at).toLocaleDateString('ru-RU')}</p>
                                     </div>
                                 ))}
                             </div>
 
                             <div className={styles.taskColumn}>
                                 <h3>Прошедшие</h3>
-                                {completedTasks.map(task => (
-                                    <div key={task.title} className={styles.taskItem}>
-                                        <span className={styles.taskType}>{task.type.toUpperCase()}</span>
+                                {completedTasks.length === 0 && <div className={styles.empty}>Нет пройденных</div>}
+                                {completedTasks.map((task:any) => (
+                                    <div key={task.id} className={styles.taskItem}>
+                                        <span className={styles.taskType}>ТЕСТ</span>
                                         <span>{task.title}</span>
-                                        <p className={styles.completedDate}>Пройдено: {task.date} {task.score ? `(${task.score})` : ''}</p>
+                                        <p className={styles.completedDate}>Пройдено: {task.finished_at ? new Date(task.finished_at).toLocaleDateString('ru-RU') : ''} {task.score ? `(${task.score})` : ''}</p>
                                     </div>
                                 ))}
                             </div>

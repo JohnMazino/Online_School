@@ -11,6 +11,14 @@ import Profile from './pages/Profile';
 import Draw from './pages/Draw';
 import AdminPage from './pages/Admin';
 import TestConstructor from './pages/teacher/TestConstructor';
+import StudentTest from './pages/StudentTest';
+import { useParams } from 'react-router-dom';
+
+const StudentTestWrapper = () => {
+  const { id } = useParams();
+  if(!id) return <div>Invalid test id</div>;
+  return <StudentTest testId={Number(id)} />;
+};
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
 import styles from './App.module.scss';
@@ -324,6 +332,7 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/draw" element={<Draw />} />
         <Route path="/teacher/tests" element={<TestConstructor />} />
+        <Route path="/student/test/:id" element={<StudentTestWrapper />} />
       </Routes>
     </BrowserRouter>
   );
