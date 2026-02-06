@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Draw from './pages/Draw';
 import AdminPage from './pages/Admin';
+import TestConstructor from './pages/teacher/TestConstructor';
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
 import styles from './App.module.scss';
@@ -322,6 +323,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/draw" element={<Draw />} />
+        <Route path="/teacher/tests" element={<TestConstructor />} />
       </Routes>
     </BrowserRouter>
   );

@@ -202,6 +202,16 @@ export default function Profile() {
                             <button className={styles.supportBtn}>Открыть чат</button>
                         </Link>
                     </section>
+
+                    {/* Конструктор тестов */}
+                    <section className={styles.section}>
+                        <h2>Конструктор тестов</h2>
+                        {/* {user.role === 'student' && ( */}
+                        <Link to="/teacher/tests" className={styles.testConstructorBtn}>
+                            Конструктор тестов и материалов
+                        </Link>
+                        {/* )} */}
+                    </section>
                 </div>
             </div>
         </>
