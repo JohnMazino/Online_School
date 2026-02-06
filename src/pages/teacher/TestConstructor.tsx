@@ -36,8 +36,6 @@ interface Question {
     orderItems?: OrderItem[];
     correctAnswer?: string | string[] | number[] | Record<string, string> | string[];
     explanation?: string;
-    topic_ids?: number[];
-    difficulty?: 'easy' | 'medium' | 'hard';
     fileTypes?: string[];
     maxFileSize?: number;
 }
@@ -60,14 +58,6 @@ interface OrderItem {
     correctPosition: number;
 }
 
-// Моковые темы для демонстрации
-const MOCK_TOPICS = [
-    { id: 1, name: 'Алгебра', subject: 'Математика' },
-    { id: 2, name: 'Геометрия', subject: 'Математика' },
-    { id: 3, name: 'Тригонометрия', subject: 'Математика' },
-    { id: 4, name: 'Синтаксис', subject: 'Русский язык' },
-    { id: 5, name: 'Пунктуация', subject: 'Русский язык' },
-];
 
 export default function TestConstructor() {
     const [test, setTest] = useState<Test>({
@@ -83,6 +73,7 @@ export default function TestConstructor() {
     const [previewMode, setPreviewMode] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+    const [showQuestionTypeModal, setShowQuestionTypeModal] = useState(false); // Добавил состояние для модалки
 
     // Автосохранение
     useEffect(() => {
@@ -159,7 +150,6 @@ export default function TestConstructor() {
             type: type,
             text: 'Новый вопрос',
             points: 1,
-            difficulty: 'medium',
         };
 
         // Инициализация данных в зависимости от типа вопроса
@@ -341,8 +331,62 @@ export default function TestConstructor() {
     const currentSection = test.sections.find(s => s.id === activeSectionId);
     const currentQuestion = currentSection?.questions.find(q => q.id === activeQuestionId);
 
+    // Модальное окно выбора типа вопроса
+    const QuestionTypeModal = () => (
+        <div className={styles.modalOverlay} onClick={() => setShowQuestionTypeModal(false)}>
+            <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                <div className={styles.modalHeader}>
+                    <h3>Выберите тип вопроса</h3>
+                    <button
+                        className={styles.closeModalBtn}
+                        onClick={() => setShowQuestionTypeModal(false)}
+                    >
+                        ✕
+                    </button>
+                </div>
+                <div className={styles.modalBody}>
+                    <div className={styles.typeGrid}>
+                        <button onClick={() => addQuestion('single')} className={styles.typeCard}>
+                            <div className={styles.typeIcon}>○</div>
+                            <h5>Одиночный выбор</h5>
+                            <p>Один правильный вариант</p>
+                        </button>
+                        <button onClick={() => addQuestion('multiple')} className={styles.typeCard}>
+                            <div className={styles.typeIcon}>□</div>
+                            <h5>Множественный выбор</h5>
+                            <p>Несколько правильных вариантов</p>
+                        </button>
+                        <button onClick={() => addQuestion('open')} className={styles.typeCard}>
+                            <div className={styles.typeIcon}>📝</div>
+                            <h5>Открытый ответ</h5>
+                            <p>Текстовый ответ</p>
+                        </button>
+                        <button onClick={() => addQuestion('match')} className={styles.typeCard}>
+                            <div className={styles.typeIcon}>🔗</div>
+                            <h5>Сопоставление</h5>
+                            <p>Установить соответствие</p>
+                        </button>
+                        <button onClick={() => addQuestion('order')} className={styles.typeCard}>
+                            <div className={styles.typeIcon}>🔢</div>
+                            <h5>Последовательность</h5>
+                            <p>Расположить в правильном порядке</p>
+                        </button>
+                        <button onClick={() => addQuestion('file')} className={styles.typeCard}>
+                            <div className={styles.typeIcon}>📎</div>
+                            <h5>Загрузка файла</h5>
+                            <p>Ответ в виде файла</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
         <div className={styles.testConstructor}>
+            {/* Модальное окно выбора типа вопроса */}
+            {showQuestionTypeModal && <QuestionTypeModal />}
+
             {/* Верхняя панель */}
             <header className={styles.header}>
                 <div className={styles.headerLeft}>
@@ -414,10 +458,15 @@ export default function TestConstructor() {
                 {/* Левая панель — структура теста */}
                 <aside className={styles.structurePanel}>
                     <div className={styles.panelHeader}>
-                        <h3>📚 Структура теста</h3>
-                        <button onClick={addSection} className={styles.addSectionBtn}>
-                            + Раздел
-                        </button>
+                        <h3>Структура теста</h3>
+                        <div className={styles.panelHeaderButtons}>
+                            <button onClick={() => setShowQuestionTypeModal(true)} className={styles.addQuestionBtn}>
+                                + Вопрос
+                            </button>
+                            <button onClick={addSection} className={styles.addSectionBtn}>
+                                + Раздел
+                            </button>
+                        </div>
                     </div>
                     <div className={styles.stats}>
                         <div className={styles.stat}>
@@ -504,7 +553,10 @@ export default function TestConstructor() {
                                 </div>
                                 {test.sections.map((section, idx) => (
                                     <div key={section.id} className={styles.previewSection}>
-                                        <h3>{idx + 1}. {section.title}</h3>
+                                        <div className={styles.sectionHeaderRow}>
+                                            <h3>{idx + 1}. {section.title}</h3>
+                                            <span className={styles.questionCount}>({section.questions.length} вопросов)</span>
+                                        </div>
                                         {section.questions.map((question, qIdx) => (
                                             <div key={question.id} className={styles.previewQuestion}>
                                                 <div className={styles.questionHeader}>
@@ -938,6 +990,7 @@ export default function TestConstructor() {
                 </main>
 
                 {/* Правая панель — свойства */}
+                {/* Правая панель — свойства */}
                 <aside className={styles.propertiesPanel}>
                     <div className={styles.panelHeader}>
                         <h3>⚙️ Свойства</h3>
@@ -969,43 +1022,6 @@ export default function TestConstructor() {
                                         className={styles.propertyInput}
                                         placeholder="не ограничено"
                                     />
-                                </div>
-                                <div className={styles.property}>
-                                    <label>Сложность:</label>
-                                    <select
-                                        value={currentQuestion.difficulty || 'medium'}
-                                        onChange={e => updateQuestion({ difficulty: e.target.value as any })}
-                                        className={styles.propertySelect}
-                                    >
-                                        <option value="easy">🟢 Легко</option>
-                                        <option value="medium">🟡 Средне</option>
-                                        <option value="hard">🔴 Сложно</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className={styles.propertyGroup}>
-                                <h4>Тематика</h4>
-                                <div className={styles.property}>
-                                    <label>Темы:</label>
-                                    <div className={styles.topicsList}>
-                                        {MOCK_TOPICS.map(topic => (
-                                            <label key={topic.id} className={styles.topicItem}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={currentQuestion.topic_ids?.includes(topic.id) || false}
-                                                    onChange={e => {
-                                                        const topics = currentQuestion.topic_ids || [];
-                                                        const newTopics = e.target.checked
-                                                            ? [...topics, topic.id]
-                                                            : topics.filter(id => id !== topic.id);
-                                                        updateQuestion({ topic_ids: newTopics });
-                                                    }}
-                                                />
-                                                {topic.name}
-                                            </label>
-                                        ))}
-                                    </div>
                                 </div>
                             </div>
 

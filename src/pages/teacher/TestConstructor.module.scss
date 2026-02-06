@@ -101,17 +101,59 @@ body {
     background-clip: text;
     border: none;
     width: 100%;
-    padding: 0.5rem 0;
+    padding: 0.75rem 1rem;
     margin-bottom: 1.25rem;
     transition: all var(--transition);
     letter-spacing: -0.5px;
+    cursor: text;
+    border: 2px solid transparent;
+    border-radius: var(--border-radius-small);
+    background-color: var(--bg-card);
+    backdrop-filter: var(--blur);
+    position: relative;
+
+    &:hover {
+        border-color: var(--border);
+        background-color: rgba(80, 134, 242, 0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px rgba(80, 134, 242, 0.1);
+    }
 
     &:focus {
         outline: none;
+        border-color: var(--primary);
         background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        box-shadow: 0 0 0 4px rgba(80, 134, 242, 0.2);
+        transform: translateY(-2px);
+        background-color: var(--bg-card);
+    }
+
+    &::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    &::after {
+        content: '✏️';
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        transition: opacity var(--transition);
+        font-size: 1rem;
+    }
+
+    &:hover::after {
+        opacity: 0.5;
+    }
+
+    &:focus::after {
+        opacity: 1;
+        color: var(--primary);
     }
 }
 
@@ -323,6 +365,78 @@ body {
     }
 }
 
+/* Стили для кнопки "Добавить вопрос" */
+.addQuestionBtn {
+    padding: 0.625rem 0.85rem;
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    min-height: 40px;
+    position: relative;
+    overflow: hidden;
+    bottom: 10px;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(46, 204, 113, 0.3);
+        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    }
+
+    &:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
+    }
+
+    &::before {
+        content: '';
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-right: 0.25rem;
+    }
+
+    /* Эффект свечения при наведении */
+    &::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        border-radius: calc(var(--border-radius-small) + 2px);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity var(--transition);
+    }
+
+    &:hover::after {
+        opacity: 0.3;
+    }
+
+    /* Для маленьких кнопок внутри разделов */
+    &.small {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+        min-height: 32px;
+
+        &::before {
+            font-size: 1rem;
+            margin-right: 0.2rem;
+        }
+    }
+}
+
+/* Стили для кнопки "Добавить раздел" */
 .addSectionBtn {
     padding: 0.625rem 1.25rem;
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
@@ -333,10 +447,45 @@ body {
     font-size: var(--font-size-small);
     font-weight: 600;
     transition: all var(--transition);
+    white-space: nowrap;
+    min-height: 40px;
+    position: relative;
+    overflow: hidden;
 
     &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 20px rgba(133, 111, 215, 0.3);
+    }
+
+    &:active {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 10px rgba(133, 111, 215, 0.3);
+    }
+
+    &::before {
+        content: '';
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-right: 0.25rem;
+    }
+
+    /* Эффект свечения при наведении */
+    &::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: calc(var(--border-radius-small) + 2px);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity var(--transition);
+    }
+
+    &:hover::after {
+        opacity: 0.3;
     }
 }
 
