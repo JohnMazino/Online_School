@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore';
 import {
     LineChart,
     Line,
@@ -74,12 +75,12 @@ const CustomPieTooltip = ({ active, payload }: TooltipProps) => {
 export default function Statistics() {
     // Метрики
     const [metrics, setMetrics] = useState({
-        totalUsers: 1250,
-        active24h: 342,
-        newWeek: 87,
-        totalAttempts: 4560,
-        avgScore: 68.4,
-        totalTasks: 420,
+        totalUsers: 0,
+        active24h: 0,
+        newWeek: 0,
+        totalAttempts: 0,
+        avgScore: 0,
+        totalTasks: 0,
     });
 
     const [registrationStats, setRegistrationStats] = useState<RegistrationStat[]>([]);
@@ -90,72 +91,48 @@ export default function Statistics() {
     // Цвета для PieChart
     const COLORS = ['#5086f2', '#856fd7', '#88abf2', '#3a6bd1', '#e74c3c', '#27ae60', '#f39c12', '#9b59b6'];
 
+    const token = useAuthStore(state => state.token);
+
     useEffect(() => {
-        // Имитация загрузки данных
+        // Load real stats from backend
         const loadData = async () => {
+            if (!token) return;
             setLoading(true);
+            try {
+                const res = await (await fetch('http://localhost:5000/api/admin/stats', { headers: { 'Authorization': `Bearer ${token}` } })).json();
 
-            await new Promise(resolve => setTimeout(resolve, 800)); // Имитация задержки
+                setRegistrationStats(res.registrationStats || []);
+                setTopSubjects(res.topSubjects?.map((s: any) => ({ subject: s.subject, activity: s.count })) || []);
+                setClassDistribution(res.classDistribution || []);
 
-            setRegistrationStats([
-                { month: 'Янв', registrations: 120 },
-                { month: 'Фев', registrations: 180 },
-                { month: 'Мар', registrations: 250 },
-                { month: 'Апр', registrations: 320 },
-                { month: 'Май', registrations: 400 },
-                { month: 'Июн', registrations: 450 },
-                { month: 'Июл', registrations: 380 },
-                { month: 'Авг', registrations: 310 },
-                { month: 'Сен', registrations: 280 },
-                { month: 'Окт', registrations: 220 },
-                { month: 'Ноя', registrations: 190 },
-                { month: 'Дек', registrations: 150 },
-            ]);
-
-            setTopSubjects([
-                { subject: 'Математика', activity: 1450 },
-                { subject: 'Русский язык', activity: 980 },
-                { subject: 'Физика', activity: 720 },
-                { subject: 'Информатика', activity: 650 },
-                { subject: 'Химия', activity: 420 },
-                { subject: 'Биология', activity: 380 },
-                { subject: 'История', activity: 290 },
-                { subject: 'География', activity: 210 },
-            ]);
-
-            setClassDistribution([
-                { class: '9 класс', users: 420 },
-                { class: '10 класс', users: 580 },
-                { class: '11 класс', users: 650 },
-                { class: '8 класс', users: 220 },
-                { class: '7 класс', users: 180 },
-                { class: 'Другое', users: 100 },
-            ]);
-
-            // Обновляем метрики с "живыми" данными
-            setMetrics(prev => ({
-                ...prev,
-                totalUsers: 1250 + Math.floor(Math.random() * 50),
-                active24h: 342 + Math.floor(Math.random() * 30),
-                totalAttempts: 4560 + Math.floor(Math.random() * 200),
-            }));
-
-            setLoading(false);
+                setMetrics(prev => ({
+                    ...prev,
+                    totalUsers: res.usersTotal || prev.totalUsers,
+                    active24h: res.active24h || prev.active24h,
+                    newWeek: res.newWeek || prev.newWeek,
+                    totalAttempts: res.totalAttempts || prev.totalAttempts,
+                    totalTasks: res.tasksCreated || prev.totalTasks,
+                    avgScore: res.avgScore !== undefined ? res.avgScore : prev.avgScore,
+                }));
+            } catch (err) {
+                console.error('Failed to load statistics', err);
+            } finally {
+                setLoading(false);
+            }
         };
 
         loadData();
 
-        // Обновление данных каждые 30 секунд (опционально)
         const interval = setInterval(() => {
-            // Можно добавить обновление только метрик
-            setMetrics(prev => ({
-                ...prev,
-                active24h: 342 + Math.floor(Math.random() * 30),
-            }));
+            // refresh metrics only
+            if (!token) return;
+            fetch('http://localhost:5000/api/admin/stats', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).then(res => {
+                setMetrics(prev => ({ ...prev, active24h: res.active24h || prev.active24h }));
+            }).catch(() => {});
         }, 30000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [token]);
 
     // Форматирование чисел
     const formatNumber = (num: number) => {
@@ -384,15 +361,50 @@ export default function Statistics() {
                             <div className={styles.exportContent}>
                                 <p>Экспортируйте статистику для аналитики</p>
                                 <div className={styles.exportButtons}>
-                                    <button className={styles.exportBtn}>
+                                    <button
+                                        className={styles.exportBtn}
+                                        onClick={async () => {
+                                            if (!token) { alert('Требуется авторизация администратора'); return; }
+                                            try {
+                                                const tokenLocal = token || '';
+                                                const blob = await (await fetch(`http://localhost:5000/api/admin/export?format=csv`, { headers: { 'Authorization': `Bearer ${tokenLocal}` } })).blob();
+                                                const url = window.URL.createObjectURL(blob);
+                                                const a = document.createElement('a');
+                                                a.href = url;
+                                                a.download = 'users.csv';
+                                                document.body.appendChild(a);
+                                                a.click();
+                                                a.remove();
+                                                window.URL.revokeObjectURL(url);
+                                            } catch (err) {
+                                                console.error('Export failed', err);
+                                                alert('Экспорт не удался');
+                                            }
+                                        }}
+                                    >
                                         📄 CSV
                                     </button>
-                                    <button className={styles.exportBtn}>
+                                    <button className={styles.exportBtn} disabled={!token} onClick={async () => {
+                                            if (!token) { alert('Требуется авторизация администратора'); return; }
+                                            try {
+                                                const tokenLocal = token || '';
+                                                const blob = await (await fetch(`http://localhost:5000/api/admin/export?format=xlsx`, { headers: { 'Authorization': `Bearer ${tokenLocal}` } })).blob();
+                                                const url = window.URL.createObjectURL(blob);
+                                                const a = document.createElement('a');
+                                                a.href = url;
+                                                a.download = 'users.xlsx';
+                                                document.body.appendChild(a);
+                                                a.click();
+                                                a.remove();
+                                                window.URL.revokeObjectURL(url);
+                                            } catch (err) {
+                                                console.error('Excel export failed', err);
+                                                alert('Экспорт Excel не удался');
+                                            }
+                                        }}>
                                         📊 Excel
                                     </button>
-                                    <button className={styles.exportBtn}>
-                                        📈 PDF
-                                    </button>
+
                                 </div>
                             </div>
                         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuthStore } from '../../store/authStore';
 import {
     LineChart,
     Line,
@@ -32,28 +33,38 @@ interface DashboardProps {
     };
 }
 
-export default function Dashboard({ stats }: DashboardProps) {
+export default function Dashboard() {
+    const [stats, setStats] = useState({ usersTotal: 0, active24h: 0, newWeek: 0, tasksCreated: 0, totalAttempts: 0, avgScore: 0 });
     const [registrationData, setRegistrationData] = useState<RegistrationData[]>([]);
     const [topSubjectsData, setTopSubjectsData] = useState<SubjectData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const token = useAuthStore(state => state.token);
 
     useEffect(() => {
-        setRegistrationData([
-            { month: 'Янв', registrations: 120 },
-            { month: 'Фев', registrations: 180 },
-            { month: 'Мар', registrations: 250 },
-            { month: 'Апр', registrations: 320 },
-            { month: 'Май', registrations: 400 },
-            { month: 'Июн', registrations: 450 },
-        ]);
-
-        setTopSubjectsData([
-            { subject: 'Математика', count: 320 },
-            { subject: 'Русский', count: 280 },
-            { subject: 'Физика', count: 210 },
-            { subject: 'Информатика', count: 190 },
-            { subject: 'Химия', count: 150 },
-        ]);
-    }, []);
+        const load = async () => {
+            if (!token) return;
+            setLoading(true);
+            try {
+                const res = await (await fetch('http://localhost:5000/api/admin/stats', { headers: { 'Authorization': `Bearer ${token}` } })).json();
+                setStats({
+                    usersTotal: res.usersTotal || 0,
+                    active24h: res.active24h || 0,
+                    newWeek: res.newWeek || 0,
+                    tasksCreated: res.tasksCreated || 0,
+                    totalAttempts: res.totalAttempts || 0,
+                    avgScore: (res.avgScore !== undefined ? res.avgScore : 0)
+                });
+                setRegistrationData(res.registrationStats || []);
+                setTopSubjectsData(res.topSubjects || []);
+            } catch (err) {
+                console.error('Failed to load dashboard stats', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
+    }, [token]);
 
     return (
         <div className={styles.dashboard}>
@@ -62,19 +73,27 @@ export default function Dashboard({ stats }: DashboardProps) {
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                     <h3>Пользователей всего</h3>
-                    <p>{stats.usersTotal}</p>
+                    <p>{loading ? '...' : stats.usersTotal}</p>
                 </div>
                 <div className={styles.statCard}>
                     <h3>Активных за 24ч</h3>
-                    <p>{stats.active24h}</p>
+                    <p>{loading ? '...' : stats.active24h}</p>
                 </div>
                 <div className={styles.statCard}>
                     <h3>Новых за неделю</h3>
-                    <p>{stats.newWeek}</p>
+                    <p>{loading ? '...' : stats.newWeek}</p>
                 </div>
                 <div className={styles.statCard}>
                     <h3>Создано заданий</h3>
-                    <p>{stats.tasksCreated}</p>
+                    <p>{loading ? '...' : stats.tasksCreated}</p>
+                </div>
+                <div className={styles.statCard}>
+                    <h3>Попыток тестов</h3>
+                    <p>{loading ? '...' : stats.totalAttempts}</p>
+                </div>
+                <div className={styles.statCard}>
+                    <h3>Средний балл</h3>
+                    <p>{loading ? '...' : (stats.avgScore || 0) + '%'}</p>
                 </div>
             </div>
 

@@ -32,6 +32,21 @@ export default function Register() {
             return;
         }
 
+        // Client-side password length validation using public settings
+        try {
+            const settingsRes = await fetch('http://localhost:5000/api/auth/public/settings');
+            if (settingsRes.ok) {
+                const settings = await settingsRes.json();
+                const minPass = settings.minPasswordLength || 8;
+                if (password.length < minPass) {
+                    setError(`Пароль должен быть не менее ${minPass} символов`);
+                    return;
+                }
+            }
+        } catch (err) {
+            // ignore and let server validate
+        }
+
         setLoading(true);
         try {
             const data = await authApi.register(firstName, lastName, phone, password);

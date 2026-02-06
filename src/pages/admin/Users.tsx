@@ -60,22 +60,25 @@ export default function Users() {
         }
     };
 
-    // Временная функция для блокировки/разблокировки (если нет в API)
     const toggleUserBlock = async (token: string, userId: number, block: boolean) => {
-        // Имитация API вызова
-        console.log(`Toggle user ${userId} block to: ${block}`);
-        return new Promise(resolve => {
-            setTimeout(() => resolve({ success: true }), 500);
-        });
+        // Real API call
+        try {
+            const res = await authApi.blockUser(token, userId, block);
+            return res;
+        } catch (err) {
+            console.error('Toggle block failed', err);
+            throw err;
+        }
     };
 
-    // Временная функция для сброса пароля (если нет в API)
     const resetPassword = async (token: string, userId: number) => {
-        // Имитация API вызова
-        console.log(`Reset password for user ${userId}`);
-        return new Promise(resolve => {
-            setTimeout(() => resolve({ success: true }), 500);
-        });
+        try {
+            const res = await authApi.resetUserPassword(token, userId);
+            return res;
+        } catch (err) {
+            console.error('Reset password failed', err);
+            throw err;
+        }
     };
 
     const loadUsers = useCallback(async () => {
@@ -102,7 +105,17 @@ export default function Users() {
             }
 
             // Если getAllUsers не поддерживает сортировку, мы можем сортировать на клиенте
-            const data = await authApi.getAllUsers(token, searchQuery.trim(), page, perPage);
+            const data = await authApi.getAllUsers(token, {
+                q: query || undefined,
+                role: filters.role || undefined,
+                status: filters.status || undefined,
+                date_from: filters.dateFrom || undefined,
+                date_to: filters.dateTo || undefined,
+                page,
+                per_page: perPage,
+                sort_by: sortBy,
+                sort_order: sortOrder,
+            });
 
             if (data && data.users) {
                 let usersData = data.users;
@@ -214,12 +227,17 @@ export default function Users() {
     const handleBlockToggle = async (userId: number, currentStatus: boolean) => {
         if (!token || !confirm(`Вы уверены, что хотите ${currentStatus ? 'заблокировать' : 'разблокировать'} пользователя?`)) return;
         try {
-            // Используем временную функцию, пока нет в API
-            await toggleUserBlock(token, userId, !currentStatus);
-            // Обновляем локально
-            setUsers(prev => prev.map(user =>
-                user.id === userId ? { ...user, is_active: !currentStatus } : user
-            ));
+            const res: any = await toggleUserBlock(token, userId, !currentStatus);
+            if (res && res.user) {
+                setUsers(prev => prev.map(user =>
+                    user.id === userId ? { ...user, is_active: res.user.is_active } : user
+                ));
+            } else {
+                // fallback toggle
+                setUsers(prev => prev.map(user =>
+                    user.id === userId ? { ...user, is_active: !currentStatus } : user
+                ));
+            }
         } catch (err: any) {
             setError(err.message || 'Ошибка изменения статуса');
         }
@@ -228,9 +246,12 @@ export default function Users() {
     const handleResetPassword = async (userId: number) => {
         if (!token || !confirm('Сбросить пароль пользователя? Новый пароль будет отправлен на телефон')) return;
         try {
-            // Используем временную функцию
-            await resetPassword(token, userId);
-            alert('Пароль сброшен и отправлен пользователю');
+            const res: any = await resetPassword(token, userId);
+            if (res && res.tempPassword) {
+                alert(`Пароль сброшен. Временный пароль: ${res.tempPassword}`);
+            } else {
+                alert('Пароль сброшен');
+            }
         } catch (err: any) {
             setError(err.message || 'Ошибка сброса пароля');
         }

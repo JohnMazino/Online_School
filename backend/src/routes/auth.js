@@ -30,6 +30,19 @@ const authRoutes = (pool) => {
         normalizedPhone = normalizePhone(phone);
       }
 
+      // Enforce minimum password length from settings
+      try {
+        const settingsRes = await pool.query("SELECT value FROM settings WHERE key = 'platform_defaults' LIMIT 1");
+        const defaults = settingsRes.rows.length ? settingsRes.rows[0].value : { minPasswordLength: 8 };
+        const minLen = defaults.minPasswordLength || 8;
+        if (password.length < minLen) {
+          return res.status(400).json({ error: `Password must be at least ${minLen} characters` });
+        }
+      } catch (err) {
+        // If settings table missing or error, just continue with default rules
+        console.warn('Could not read settings for min password length', err);
+      }
+
       // Hash password
       const hashedPassword = await bcryptjs.hash(password, 10);
 
@@ -125,6 +138,18 @@ const authRoutes = (pool) => {
       });
     } catch (error) {
       console.error('Login error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Public settings endpoint (non-authenticated)
+  router.get('/public/settings', async (req, res) => {
+    try {
+      const settingsRes = await pool.query("SELECT value FROM settings WHERE key = 'platform_defaults' LIMIT 1");
+      const defaults = settingsRes.rows.length ? settingsRes.rows[0].value : { minPasswordLength: 8 };
+      return res.json(defaults);
+    } catch (err) {
+      console.error('Public settings error:', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });

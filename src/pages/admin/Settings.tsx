@@ -14,13 +14,29 @@ interface Settings {
     smsNotifications: boolean;
 }
 
-// Временные API функции для настроек
+// API функций для настроек (реально через бэкенд)
 const settingsApi = {
     getSettings: async (token: string) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const res = await fetch('http://localhost:5000/api/admin/settings', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Failed to load settings');
+        return await res.json();
+    },
 
-        // Дефолтные настройки
-        const defaultSettings: Settings = {
+    updateSettings: async (token: string, settings: Settings) => {
+        const res = await fetch('http://localhost:5000/api/admin/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(settings)
+        });
+        if (!res.ok) throw new Error('Failed to save settings');
+        return await res.json();
+    },
+
+    resetSettings: async (token: string) => {
+        // Reset to defaults stored on server (we'll re-insert defaults on backend)
+        const defaults = {
             platformName: 'Платформа Знаний',
             logoUrl: '/logo.svg',
             primaryColor: '#5086f2',
@@ -31,34 +47,13 @@ const settingsApi = {
             emailNotifications: true,
             smsNotifications: false,
         };
-
-        // Попытка загрузить из localStorage (для демо)
-        const saved = localStorage.getItem('platform_settings');
-        if (saved) {
-            try {
-                return JSON.parse(saved);
-            } catch {
-                return defaultSettings;
-            }
-        }
-
-        return defaultSettings;
-    },
-
-    updateSettings: async (token: string, settings: Settings) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        console.log('Update settings:', settings);
-        // Сохраняем в localStorage для демо
-        localStorage.setItem('platform_settings', JSON.stringify(settings));
-        return settings;
-    },
-
-    resetSettings: async (token: string) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        console.log('Reset settings');
-        // Удаляем сохраненные настройки
-        localStorage.removeItem('platform_settings');
-        return settingsApi.getSettings(token);
+        const res = await fetch('http://localhost:5000/api/admin/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(defaults)
+        });
+        if (!res.ok) throw new Error('Failed to reset settings');
+        return await res.json();
     }
 };
 
@@ -138,6 +133,12 @@ export default function Settings() {
 
         if (!changed) {
             setError('Нет изменений для сохранения');
+            return;
+        }
+
+        // Client-side validation
+        if (!Number.isInteger(settings.minPasswordLength) || settings.minPasswordLength < 6 || settings.minPasswordLength > 128) {
+            setError('Минимальная длина пароля должна быть целым числом от 6 до 128');
             return;
         }
 
