@@ -1,0 +1,407 @@
+.statisticsSection {
+    padding: 0;
+}
+
+.statisticsSection h1 {
+    margin: 0 0 2rem 0;
+    font-size: 1.8rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* Метрики */
+.metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.metricCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid #eef2f7;
+}
+
+.metricCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.metricIcon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #f8f9ff;
+}
+
+.card1 .metricIcon {
+    background: rgba(80, 134, 242, 0.1);
+    color: #5086f2;
+}
+
+.card2 .metricIcon {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.card3 .metricIcon {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.card4 .metricIcon {
+    background: rgba(155, 89, 182, 0.1);
+    color: #9b59b6;
+}
+
+.card5 .metricIcon {
+    background: rgba(241, 196, 15, 0.1);
+    color: #f1c40f;
+}
+
+.card6 .metricIcon {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.metricContent {
+    flex: 1;
+}
+
+.metricContent h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metricContent p {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+}
+
+/* Графики */
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.chartCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef2f7;
+    transition: all 0.3s ease;
+}
+
+.chartCard:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.chartHeader {
+    margin-bottom: 1.5rem;
+}
+
+.chartHeader h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chartInfo {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.infoItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.infoDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Кастомные тултипы */
+.customTooltip {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+}
+
+.tooltipLabel {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tooltipItem {
+    margin: 0.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tooltipItem strong {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Сводная статистика */
+.statsSummary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.summaryCard,
+.exportCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eef2f7;
+}
+
+.summaryCard h3,
+.exportCard h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summaryContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.summaryRow:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.summaryRow span {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.summaryRow strong {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.exportContent p {
+    margin: 0 0 1.5rem 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.exportButtons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.exportBtn {
+    padding: 0.7rem 1.2rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #495057;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.exportBtn:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .chartsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .metricCard {
+        padding: 1.25rem;
+    }
+
+    .metricIcon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .metricContent h3 {
+        font-size: 0.85rem;
+    }
+
+    .metricContent p {
+        font-size: 1.7rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .metricsGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .statsSummary {
+        grid-template-columns: 1fr;
+    }
+
+    .chartCard {
+        padding: 1rem;
+    }
+
+    .chartHeader h3 {
+        font-size: 1rem;
+    }
+
+    .exportButtons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .metricCard {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .metricIcon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .metricContent h3 {
+        font-size: 0.8rem;
+    }
+
+    .metricContent p {
+        font-size: 1.8rem;
+    }
+}
+
+/* Анимация загрузки */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.metricCard,
+.chartCard,
+.summaryCard,
+.exportCard {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.metricCard:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.metricCard:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.metricCard:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.metricCard:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.metricCard:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.metricCard:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.chartCard:nth-child(1) {
+    animation-delay: 0.7s;
+}
+
+.chartCard:nth-child(2) {
+    animation-delay: 0.8s;
+}
+
+.chartCard:nth-child(3) {
+    animation-delay: 0.9s;
+}

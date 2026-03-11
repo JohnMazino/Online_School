@@ -1,9 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 const { Pool } = require('pg');
 const { initializeDatabase } = require('./db/init');
 const authRoutes = require('./routes/auth');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,13 +22,14 @@ module.exports = pool;
 
 // Маршруты
 app.use('/api/auth', authRoutes(pool));
+app.use('/api/admin', adminRoutes(pool));
 
 // Запуск сервера
 const startServer = async () => {
   try {
     // Инициализация базы данных
     await initializeDatabase(pool);
-    
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

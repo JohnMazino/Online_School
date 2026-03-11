@@ -82,6 +82,7 @@ body {
 :root {
     --sidebar-width-collapsed: 70px;
     --sidebar-width-expanded: 240px;
+    --primary-rgb: 80, 134, 242; // для rgba в hover
 
     .app-wrapper {
         display: flex;
