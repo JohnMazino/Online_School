@@ -111,9 +111,7 @@ export default function Sidebar() {
                     {/* Кнопка смены темы — всегда внизу */}
                     <li className={`${styles.menuItem} ${styles.themeToggle}`}>
                         <button onClick={toggleTheme} className={styles.themeButton}>
-                            <span className={styles.icon}>
-                                {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-                            </span>
+                            {theme === 'light' ? <MoonIcon className={styles.icon} /> : <SunIcon className={styles.icon} />}
                             <span className={styles.text}>
                                 {theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}
                             </span>

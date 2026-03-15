@@ -14,10 +14,12 @@
         --bg-card: rgba(255, 255, 255, 0.92);
         --text-primary: #2c2c54;
         --text-secondary: #6b6b8f;
+        --text-dark: #2c2c54;
         --shadow: rgba(0, 0, 0, 0.10);
         --border: rgba(80, 134, 242, 0.15);
-        --sidebar-bg: rgba(255, 255, 255, 0.92);
+        --sidebar-bg: rgba(255, 255, 255, 0.42);
         --sidebar-text: #2c2c54;
+        --circle-size: 650px;
 
         /* Цвета для логотипа и акцентов */
         --logo-gradient-start: var(--primary);
@@ -29,10 +31,25 @@
         --bg-card: rgba(255, 255, 255, 0.42);
         --text-primary: #2c2c54;
         --text-secondary: #6b6b8f;
+        --text-dark: #2c2c54;
         --shadow: rgba(0, 0, 0, 0.10);
         --border: rgba(80, 134, 242, 0.15);
-        --sidebar-bg: rgba(255, 255, 255, 0.92);
+        --sidebar-bg: rgba(255, 255, 255, 0.42);
         --sidebar-text: #2c2c54;
+        --sidebar-icon: #2c2c54;
+
+        --color-bg1: #f1f6ff;
+        --color-bg2: #cde4ff;
+        --color1: 53, 21, 176;
+        --color2: 103, 73, 215;
+        --color3: 133, 111, 215;
+        --color4: 136, 171, 242;
+        --color5: 80, 134, 242;
+        --color6: 120, 80, 220;
+        --color7: 70, 120, 240;
+        --color8: 140, 90, 200;
+        --color-interactive: 80, 134, 242;
+        --blending: screen;
     }
 
     html.dark {
@@ -40,10 +57,25 @@
         --bg-card: rgba(22, 33, 62, 0.42);
         --text-primary: #e0e0ff;
         --text-secondary: #b0b8ff;
+        --text-dark: #e0e0ff;
         --shadow: rgba(0, 0, 0, 0.45);
         --border: rgba(80, 134, 242, 0.30);
-        --sidebar-bg: rgba(22, 33, 62, 0.92);
+        --sidebar-bg: rgba(22, 33, 62, 0.42);
         --sidebar-text: #e0e0ff;
+        --sidebar-icon: #b8c8ff;
+
+        --color-bg1: #070a1b;
+        --color-bg2: #101d3f;
+        --color1: 90, 120, 220;
+        --color2: 110, 140, 230;
+        --color3: 130, 150, 230;
+        --color4: 80, 100, 210;
+        --color5: 45, 65, 160;
+        --color6: 30, 40, 120;
+        --color7: 38, 55, 115;
+        --color8: 70, 85, 145;
+        --color-interactive: 150, 170, 230;
+        --blending: lighten;
 
         --logo-gradient-start: #7aa8f5;
         --logo-gradient-end: #a89cff;
