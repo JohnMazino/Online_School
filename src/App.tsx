@@ -12,6 +12,7 @@ import Draw from './pages/Draw';
 import AdminPage from './pages/Admin';
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
+
 import styles from './App.module.scss';
 
 // импорт фотографий
@@ -19,6 +20,11 @@ import student from './assets/pics/student.jpg'
 import mathPhoto from './assets/pics/math.jpg';
 import physicsPhoto from './assets/pics/fizika.jpg';
 import informaticsPhoto from './assets/pics/informatika.jpg';
+
+// импорт иконок
+import RepetitorIcon from './assets/icons/repetitorBold.svg?react';
+import DollarIcon from './assets/icons/dollar.svg?react';
+import BookIcon from './assets/icons/book.svg?react';
 
 
 function App() {
@@ -107,12 +113,7 @@ function App() {
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
-                              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                              </svg>
+                              <RepetitorIcon width="48" height="48" />
                             </div>
                             <h3 className={styles.cardTitle}>Репетиторы</h3>
                           </div>
@@ -128,12 +129,7 @@ function App() {
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
-                              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="2" y="4" width="20" height="16" rx="2" />
-                                <path d="M7 2v4" />
-                                <path d="M17 2v4" />
-                                <path d="M2 10h20" />
-                              </svg>
+                              <DollarIcon width="48" height="48" />
                             </div>
                             <h3 className={styles.cardTitle}>Оплата</h3>
                           </div>
@@ -149,10 +145,7 @@ function App() {
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
-                              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M12 2v20M2 12h20" />
-                                <circle cx="12" cy="12" r="10" />
-                              </svg>
+                              <BookIcon width="48" height="48" />
                             </div>
                             <h3 className={styles.cardTitle}>Подход</h3>
                           </div>

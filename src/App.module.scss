@@ -20,6 +20,7 @@
         --sidebar-bg: rgba(255, 255, 255, 0.42);
         --sidebar-text: #2c2c54;
         --circle-size: 650px;
+        --modal-window-bg: rgba(255, 255, 255, 0.92);
 
         /* Цвета для логотипа и акцентов */
         --logo-gradient-start: var(--primary);
@@ -37,6 +38,7 @@
         --sidebar-bg: rgba(255, 255, 255, 0.42);
         --sidebar-text: #2c2c54;
         --sidebar-icon: #2c2c54;
+        --modal-window-bg: rgba(255, 255, 255, 0.62);
 
         --color-bg1: #f1f6ff;
         --color-bg2: #cde4ff;
@@ -63,6 +65,7 @@
         --sidebar-bg: rgba(22, 33, 62, 0.42);
         --sidebar-text: #e0e0ff;
         --sidebar-icon: #b8c8ff;
+        --modal-window-bg: rgba(22, 33, 62, 0.62);
 
         --color-bg1: #070a1b;
         --color-bg2: #101d3f;
@@ -372,14 +375,35 @@
 .iconWrapper {
     width: 80px;
     height: 80px;
-    background: rgba(var(--primary), 0.12); // лёгкий акцентный фон
+    // background: rgba(var(--accent), 0.15); // акцентный фон
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.2rem;
-    color: var(--primary); // синий цвет иконки (#5086f2)
+    color: var(--primary); // акцентный цвет для иконки
     font-size: 2rem;
+}
+
+.iconWrapper svg {
+    width: 48px;
+    height: 48px;
+    display: block;
+    color: inherit;
+}
+
+.iconWrapper svg path,
+.iconWrapper svg circle,
+.iconWrapper svg rect,
+.iconWrapper svg line,
+.iconWrapper svg polyline,
+.iconWrapper svg polygon,
+.iconWrapper svg g,
+.iconWrapper svg ellipse,
+.iconWrapper svg * {
+    fill: currentColor !important;
+    // stroke: currentColor !important;
+    // stroke-width: 0.6 !important;
 }
 
 .cardTitle {

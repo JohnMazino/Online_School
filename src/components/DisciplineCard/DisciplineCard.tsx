@@ -66,8 +66,8 @@ export default function DisciplineCard({ name, photoUrl, className = '' }: Disci
                             </div>
                         )}
 
-                        {/* Шаг 2: Выбор вида занятий + стоимость/описание */}
-                        {selectedPrep && (
+                        {/* Шаг 2: Выбор вида занятий */}
+                        {selectedPrep && !selectedType && (
                             <div className={styles.step}>
                                 <h3>Выберите вид занятий</h3>
                                 <div className={styles.buttonGroup}>
@@ -79,12 +79,12 @@ export default function DisciplineCard({ name, photoUrl, className = '' }: Disci
                                     </button>
                                 </div>
                                 <button className={styles.backBtn} onClick={() => setSelectedPrep(null)}>
-                                    ← Назад
+                                    ← К выбору подготовки
                                 </button>
                             </div>
                         )}
 
-                        {/* Показ стоимости и описания сразу после выбора типа занятий */}
+                        {/* Шаг 3: Информация о выбранном типе занятий */}
                         {selectedType === 'individual' && (
                             <div className={styles.step}>
                                 <h3>Индивидуальные занятия</h3>
@@ -92,10 +92,12 @@ export default function DisciplineCard({ name, photoUrl, className = '' }: Disci
                                 <p className={styles.description}>
                                     Возможность выбора количества занятий в неделю, в какие дни и время.
                                 </p>
-                                <button className={styles.confirmBtn}>Выбрать</button>
-                                <button className={styles.backBtn} onClick={() => setSelectedType(null)}>
-                                    ← Назад
-                                </button>
+                                <div className={styles.actions}>
+                                    <button className={styles.confirmBtn}>Выбрать</button>
+                                    <button className={styles.backBtn} onClick={() => setSelectedType(null)}>
+                                        Изменить выбор
+                                    </button>
+                                </div>
                             </div>
                         )}
 
@@ -106,10 +108,12 @@ export default function DisciplineCard({ name, photoUrl, className = '' }: Disci
                                 <p className={styles.description}>
                                     2 лекции в неделю, 3 среза знаний в неделю, 1 контрольная в месяц, 1 пробник за месяц.
                                 </p>
-                                <button className={styles.confirmBtn}>Выбрать</button>
-                                <button className={styles.backBtn} onClick={() => setSelectedType(null)}>
-                                    ← Назад
-                                </button>
+                                <div className={styles.actions}>
+                                    <button className={styles.confirmBtn}>Выбрать</button>
+                                    <button className={styles.backBtn} onClick={() => setSelectedType(null)}>
+                                        Изменить выбор
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

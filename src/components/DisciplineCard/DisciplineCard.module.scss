@@ -80,7 +80,7 @@
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.65);
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
     z-index: 1000;
     display: flex;
@@ -90,7 +90,7 @@
 
 .modalContent {
     position: relative;
-    background: var(--bg-card);
+    background: var(--modal-window-bg);
     border-radius: 20px;
     padding: 2.5rem;
     width: 90%;
@@ -101,6 +101,11 @@
     color: var(--text-primary);
     transition: background 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
     animation: modalAppear 0.4s ease-out;
+}
+
+:global(html.dark) .modalContent {
+    background: var(--modal-window-bg);
+    color: var(--text-primary);
 }
 
 @keyframes modalAppear {
@@ -165,10 +170,77 @@ button {
 .confirmBtn {
     background: var(--primary);
     color: white;
+    margin-top: 1.8rem;
 
     &:hover {
         background: var(--primary-dark);
         transform: translateY(-2px);
+    }
+}
+
+.selectedBtn {
+    background: var(--primary) !important;
+    color: white !important;
+    border: 1px solid var(--primary) !important;
+
+    &:hover {
+        background: var(--primary-dark) !important;
+    }
+}
+
+html.dark .selectedBtn {
+    background: rgba(80, 134, 242, 0.9) !important;
+    color: white !important;
+    border: 1px solid rgba(173, 199, 255, 0.8) !important;
+
+    &:hover {
+        background: rgba(80, 134, 242, 1) !important;
+    }
+}
+
+.selectedInfo {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(var(--primary), 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(var(--primary), 0.2);
+    animation: fadeInUp 0.4s ease-out;
+
+    h4 {
+        margin: 0 0 1rem 0;
+        font-size: 1.3rem;
+        color: var(--text-primary);
+    }
+
+    .backBtn {
+        margin-top: 1rem;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html.dark .selectedInfo {
+    background: rgba(80, 134, 242, 0.15);
+    border: 1px solid rgba(173, 199, 255, 0.3);
+}
+
+html.dark .confirmBtn {
+    background: rgba(80, 134, 242, 0.9);
+    color: white;
+    border: 1px solid rgba(173, 199, 255, 0.8);
+
+    &:hover {
+        background: rgba(80, 134, 242, 1);
     }
 }
 
@@ -182,13 +254,32 @@ button {
     }
 }
 
-html.dark .backBtn {
-    background: rgba(22, 33, 62, 0.8);
-    color: #e0e0ff;
+.backBtn:last-child {
+    margin-top: 2rem;
+    opacity: 0.8;
+    font-size: 1rem;
 
     &:hover {
-        background: rgba(22, 33, 62, 1);
+        opacity: 1;
     }
+}
+
+html.dark .backBtn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0ff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
 }
 
 .price {
@@ -224,4 +315,5 @@ select {
     display: flex;
     gap: 1rem;
     justify-content: center;
+    align-items: center;
 }
