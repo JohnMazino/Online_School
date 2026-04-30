@@ -282,38 +282,142 @@ html.dark .backBtn {
     align-items: center;
 }
 
-.price {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin: 0.5rem 0 1rem;
+/* Улучшенное отображение описания занятий и цен */
+.pricingInfo {
+    margin: 1.5rem 0 2rem;
+    padding: 1.2rem;
+    background: rgba(var(--primary), 0.08);
+    border-radius: 16px;
+    border: 1px solid rgba(var(--primary), 0.15);
+    transition: all 0.3s ease;
 }
 
-.description {
-    font-size: 1.05rem;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-}
-
-label {
-    display: block;
-    margin: 1.2rem 0 0.4rem;
-    font-weight: 500;
-}
-
-input,
-select {
-    width: 100%;
-    padding: 0.7rem;
-    border: 1px solid rgba(80, 134, 242, 0.3);
-    border-radius: 10px;
-    font-size: 1rem;
-}
-
-.actions {
-    margin-top: 2rem;
+.priceItem {
     display: flex;
-    gap: 1rem;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(var(--primary), 0.12);
+    
+    &:last-child {
+        border-bottom: none;
+    }
+    
+    span {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+    
+    strong {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+}
+
+/* Детальное описание дисциплины */
+.disciplineDetails {
+    margin: 1rem 0 1.5rem;
+    padding: 1rem;
+    background: rgba(var(--primary), 0.04);
+    border-radius: 12px;
+    text-align: left;
+}
+
+.disciplineDetails p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.disciplineDetails strong {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Стили для кнопки оплаты */
+.paymentBtn {
+    width: 100%;
+    padding: 1rem 1.8rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(80, 134, 242, 0.3);
+    }
+    
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+/* Стили для списка преимуществ */
+.featuresList {
+    text-align: left;
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+    
+    li {
+        padding: 0.4rem 0;
+        font-size: 0.95rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        &::before {
+            content: "✓";
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .priceItem {
+        flex-direction: column;
+        gap: 0.3rem;
+        
+        strong {
+            font-size: 1.1rem;
+        }
+    }
+    
+    .paymentBtn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Поддержка темной темы */
+:global(html.dark) {
+    .pricingInfo {
+        background: rgba(80, 134, 242, 0.12);
+        border-color: rgba(80, 134, 242, 0.25);
+    }
+    
+    .disciplineDetails {
+        background: rgba(80, 134, 242, 0.08);
+    }
+    
+    .priceItem {
+        border-bottom-color: rgba(80, 134, 242, 0.2);
+        
+        span {
+            color: var(--text-secondary);
+        }
+    }
 }

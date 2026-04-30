@@ -31,6 +31,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const loadFromLocalStorage = useAuthStore((state) => state.loadFromLocalStorage);
+  
   useEffect(() => {
     // Инициализируем состояние из localStorage при первой загрузке
     loadFromLocalStorage();
@@ -72,17 +73,17 @@ function App() {
                       </div>
                     </header>
 
-                    {/* 2. блок: фото + кнопка */}
-                    <section className={styles.heroSection}>
-                      <div className={`${styles.heroContent} ${isAuthenticated ? styles.heroContentCentered : ''}`}>
-                        <div className={styles.heroImageWrapper}>
-                          <img
-                            src={student}
-                            alt="Ученик сидит за партой"
-                            className={styles.heroImage}
-                          />
-                        </div>
-                        {!isAuthenticated && (
+                    {/* 2. блок: фото + кнопка - показываем только если не авторизован */}
+                    {!isAuthenticated && (
+                      <section className={styles.heroSection}>
+                        <div className={styles.heroContent}>
+                          <div className={styles.heroImageWrapper}>
+                            <img
+                              src={student}
+                              alt="Ученик сидит за партой"
+                              className={styles.heroImage}
+                            />
+                          </div>
                           <div className={styles.heroAction}>
                             <Link to="/login">
                               <button className={styles.bigAuthButton}>
@@ -90,11 +91,11 @@ function App() {
                               </button>
                             </Link>
                           </div>
-                        )}
-                      </div>
-                    </section>
+                        </div>
+                      </section>
+                    )}
 
-                    {/* 3. Новый блок — приветственный текст в белом прямоугольнике */}
+                    {/* 3. приветственный текст в белом прямоугольнике */}
                     <section className={styles.welcomeBox}>
                       <div className={styles.welcomeRectangle}>
                         <h2 className={styles.welcomeTitle}>Рады приветствовать вас!</h2>
@@ -160,83 +161,83 @@ function App() {
                     </section>
 
                     {/* 5. Наши репетиторы */}
-                    <section className={styles.tutorsSection}>
-                      <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
+                      <section id="tutors-section" className={styles.tutorsSection}>
+                        <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
 
-                      <div className={styles.tutorsGrid}>
-                        {/* Репетитор 1 */}
-                        <div className={styles.tutorCard}>
-                          <div className={styles.cardContent}>
-                            <img
-                              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop"
-                              alt="Иван Петров"
-                              className={styles.tutorPhoto}
-                            />
-                            <h3 className={styles.tutorNameFront}>Иван Петров</h3>
-                            <div className={styles.infoOverlay}>
-                              <h3 className={styles.tutorName}>Иван Петров</h3>
-                              <p className={styles.tutorInfo}>
-                                Магистр МГУ по математике и физике<br />
-                                12 лет опыта, автор методик ЕГЭ 90+ баллов<br />
-                                Подготовка к ЕГЭ / ОГЭ / олимпиадам
-                              </p>
-                              <div className={styles.documents}>
-                                <span>Диплом МГУ (2010)</span>
-                                <span>Свидетельство о повышении квалификации (2023)</span>
+                        <div className={styles.tutorsGrid}>
+                          {/* Репетитор 1 */}
+                          <div className={styles.tutorCard}>
+                            <div className={styles.cardContent}>
+                              <img
+                                src=""
+                                alt="Иван Петров"
+                                className={styles.tutorPhoto}
+                              />
+                              <h3 className={styles.tutorNameFront}>Иван Петров</h3>
+                              <div className={styles.infoOverlay}>
+                                <h3 className={styles.tutorName}>Иван Петров</h3>
+                                <p className={styles.tutorInfo}>
+                                  Магистр МГУ по математике и физике<br />
+                                  12 лет опыта, автор методик ЕГЭ 90+ баллов<br />
+                                  Подготовка к ЕГЭ / ОГЭ / олимпиадам
+                                </p>
+                                <div className={styles.documents}>
+                                  <span>Диплом МГУ (2010)</span>
+                                  <span>Свидетельство о повышении квалификации (2023)</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Репетитор 2 */}
+                          <div className={styles.tutorCard}>
+                            <div className={styles.cardContent}>
+                              <img
+                                src=""
+                                alt="Анна Смирнова"
+                                className={styles.tutorPhoto}
+                              />
+                              <h3 className={styles.tutorNameFront}>Анна Смирнова</h3>
+                              <div className={styles.infoOverlay}>
+                                <h3 className={styles.tutorName}>Анна Смирнова</h3>
+                                <p className={styles.tutorInfo}>
+                                  Носитель языка (США)<br />
+                                  IELTS 8.5, TOEFL 115<br />
+                                  Разговорный английский, бизнес, подготовка к экзаменам
+                                </p>
+                                <div className={styles.documents}>
+                                  <span>TEFL / TESOL сертификат</span>
+                                  <span>Диплом University of California</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Репетитор 3 */}
+                          <div className={styles.tutorCard}>
+                            <div className={styles.cardContent}>
+                              <img
+                                src=""
+                                alt="Елена Ковалёва"
+                                className={styles.tutorPhoto}
+                              />
+                              <h3 className={styles.tutorNameFront}>Елена Ковалёва</h3>
+                              <div className={styles.infoOverlay}>
+                                <h3 className={styles.tutorName}>Елена Ковалёва</h3>
+                                <p className={styles.tutorInfo}>
+                                  Кандидат филологических наук<br />
+                                  15 лет стажа, автор учебных пособий<br />
+                                  Русский язык, литература, подготовка к ЕГЭ
+                                </p>
+                                <div className={styles.documents}>
+                                  <span>Кандидатская диссертация (2008)</span>
+                                  <span>Грант Минпросвещения РФ</span>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-
-                        {/* Репетитор 2 */}
-                        <div className={styles.tutorCard}>
-                          <div className={styles.cardContent}>
-                            <img
-                              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop"
-                              alt="Анна Смирнова"
-                              className={styles.tutorPhoto}
-                            />
-                            <h3 className={styles.tutorNameFront}>Анна Смирнова</h3>
-                            <div className={styles.infoOverlay}>
-                              <h3 className={styles.tutorName}>Анна Смирнова</h3>
-                              <p className={styles.tutorInfo}>
-                                Носитель языка (США)<br />
-                                IELTS 8.5, TOEFL 115<br />
-                                Разговорный английский, бизнес, подготовка к экзаменам
-                              </p>
-                              <div className={styles.documents}>
-                                <span>TEFL / TESOL сертификат</span>
-                                <span>Диплом University of California</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Репетитор 3 */}
-                        <div className={styles.tutorCard}>
-                          <div className={styles.cardContent}>
-                            <img
-                              src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=800&auto=format&fit=crop"
-                              alt="Елена Ковалёва"
-                              className={styles.tutorPhoto}
-                            />
-                            <h3 className={styles.tutorNameFront}>Елена Ковалёва</h3>
-                            <div className={styles.infoOverlay}>
-                              <h3 className={styles.tutorName}>Елена Ковалёва</h3>
-                              <p className={styles.tutorInfo}>
-                                Кандидат филологических наук<br />
-                                15 лет стажа, автор учебных пособий<br />
-                                Русский язык, литература, подготовка к ЕГЭ
-                              </p>
-                              <div className={styles.documents}>
-                                <span>Кандидатская диссертация (2008)</span>
-                                <span>Грант Минпросвещения РФ</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </section>
+                      </section>
 
                     {/* 6. Дисциплины */}
                     <section className={styles.disciplinesSection}>
