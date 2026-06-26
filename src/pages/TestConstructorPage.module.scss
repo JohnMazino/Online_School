@@ -1,0 +1,160 @@
+/* Основная сетка страницы конструктора */
+.constructorPage {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Основной контент (справа от Sidebar) */
+.constructorContent {
+    flex: 1;
+    margin-left: var(--sidebar-width, 240px);
+    padding: 2rem 3rem;
+    min-height: 100vh;
+    box-sizing: border-box;
+    background: var(--bg-light);
+}
+
+/* Заголовок страницы */
+.constructorHeader {
+    background: rgba(255, 255, 255, 0.62);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    border-left: 5px solid var(--primary);
+}
+
+.headerContent {
+    max-width: 100%;
+}
+
+.pageTitle {
+    margin: 0 0 0.5rem;
+    font-size: 2.2rem;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+.pageSubtitle {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #6b6b8f;
+}
+
+/* Навигация по вкладкам */
+.tabNavigation {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.tabButton {
+    padding: 0.8rem 1.6rem;
+    background: rgba(255, 255, 255, 0.62);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b6b8f;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    &.active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 6px 20px rgba(80, 134, 242, 0.3);
+    }
+}
+
+/* Контент вкладок */
+.tabContent {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Статус загрузки */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-size: 1.2rem;
+    color: var(--text-dark);
+}
+
+/* Адаптивный дизайн для мобильных устройств */
+@media (max-width: 768px) {
+    .constructorContent {
+        margin-left: 0;
+        padding: 1rem 1.5rem;
+    }
+
+    .constructorHeader {
+        padding: 1.5rem;
+    }
+
+    .pageTitle {
+        font-size: 1.8rem;
+    }
+
+    .pageSubtitle {
+        font-size: 0.95rem;
+    }
+
+    .tabNavigation {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .tabButton {
+        width: 100%;
+        text-align: left;
+    }
+}
+
+/* Dark theme support */
+:global(html.dark) {
+    .constructorContent {
+        background: var(--bg-light);
+    }
+
+    .constructorHeader,
+    .tabButton {
+        background: var(--bg-card);
+        color: var(--text-dark);
+    }
+
+    .pageSubtitle {
+        color: var(--text-light);
+    }
+
+    .tabButton:hover {
+        background: rgba(80, 134, 242, 0.15);
+    }
+
+    .tabButton.active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+}

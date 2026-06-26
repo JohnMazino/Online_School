@@ -1,0 +1,111 @@
+html,
+body,
+#root {
+    font-family: 'Dongle', 'sans-serif';
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+
+// Подгрузка Шрифта
+html,
+body,
+#root,
+button,
+input,
+textarea,
+select,
+a,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+div,
+li,
+ul,
+ol,
+label {
+    font-family: 'Martel Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+
+body {
+    min-height: 100vh;
+    background: transparent; // важно, чтобы не было белого фона
+}
+
+#root,
+.app-wrapper {
+    min-height: 100vh;
+    position: relative; // для позиционирования потомков
+}
+
+
+/* Сам фон — фиксированный на весь экран */
+.gradientBg {
+    position: fixed !important;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -2; // под всем контентом
+    pointer-events: none; // не мешает кликам
+    overflow: hidden;
+    background: linear-gradient(48deg, var(--color-bg1), var(--color-bg2));
+}
+
+/* Контейнер с кругами тоже фиксированный */
+.gradientsContainer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: url(#goo) blur(40px);
+    z-index: -1;
+}
+
+/* Контент поверх фона */
+.mainContent,
+.contentRectangle {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+}
+
+
+// Для бокового меню
+:root {
+    --sidebar-width-collapsed: 70px;
+    --sidebar-width-expanded: 240px;
+
+    .app-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar-zone {
+        width: var(--sidebar-collapsed);
+        flex-shrink: 0;
+        transition: width 0.35s ease;
+    }
+
+    .sidebar:hover~.sidebar-zone {
+        width: var(--sidebar-expanded);
+    }
+
+    .main-content {
+        flex: 1;
+        min-width: 0;
+        transition: padding-left 0.35s ease;
+        padding-left: var(--sidebar-collapsed);
+    }
+
+    .sidebar:hover~.main-content {
+        padding-left: var(--sidebar-expanded);
+    }
+}
