@@ -2,67 +2,110 @@
    Глобальные переменные и темы
 ───────────────────────────────────────────────── */
 
-:global(:root) {
-    /* Основные акцентные цвета (остаются почти одинаковыми в обеих темах) */
-    --primary: #5086f2;
-    --primary-dark: #3a6bd1;
-    --secondary: #856fd7;
-    --accent: #88abf2;
+:global {
+    :root {
+        --primary: #5086f2;
+        --primary-dark: #3a6bd1;
+        --secondary: #856fd7;
+        --accent: #757cff;
 
-    /* Переменные, которые будут меняться в зависимости от темы */
-    --bg-light: rgba(248, 249, 255);
-    --bg-card: rgba(255, 255, 255, 0.62);
-    --text-dark: #1e1e3f;
-    --text-light: #e0e0ff;
-    --shadow: rgba(0, 0, 0, 0.12);
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #2c2c54;
-    --border-light: rgba(80, 134, 242, 0.12);
+        /* Базовые значения (переопределяются в light/dark) */
+        --bg-body: #f8f9ff;
+        --bg-card: rgba(255, 255, 255, 0.92);
+        --text-primary: #2c2c54;
+        --text-secondary: #6b6b8f;
+        --text-dark: #2c2c54;
+        --shadow: rgba(0, 0, 0, 0.10);
+        --border: rgba(80, 134, 242, 0.15);
+        --sidebar-bg: rgba(255, 255, 255, 0.42);
+        --sidebar-text: #2c2c54;
+        --circle-size: 650px;
+        --modal-window-bg: rgba(255, 255, 255, 0.92);
+
+        /* Цвета для логотипа и акцентов */
+        --logo-gradient-start: var(--primary);
+        --logo-gradient-end: var(--secondary);
+        
+        /* Новые переменные */
+        --gradient-primary: linear-gradient(135deg, #5086f2, #856fd7);
+        --gradient-secondary: linear-gradient(135deg, #8375ff, #5086f2);
+    }
+
+    html.light {
+        --bg-body: #f8f9ff;
+        --bg-card: rgba(255, 255, 255, 0.42);
+        --text-primary: #2c2c54;
+        --text-secondary: #6b6b8f;
+        --text-dark: #2c2c54;
+        --shadow: rgba(0, 0, 0, 0.10);
+        --border: rgba(80, 134, 242, 0.15);
+        --sidebar-bg: rgba(255, 255, 255, 0.42);
+        --sidebar-text: #2c2c54;
+        --sidebar-icon: #2c2c54;
+        --modal-window-bg: rgba(255, 255, 255, 0.62);
+
+        --color-bg1: #f1f6ff;
+        --color-bg2: #cde4ff;
+        --color1: 53, 21, 176;
+        --color2: 103, 73, 215;
+        --color3: 133, 111, 215;
+        --color4: 136, 171, 242;
+        --color5: 80, 134, 242;
+        --color6: 120, 80, 220;
+        --color7: 70, 120, 240;
+        --color8: 140, 90, 200;
+        --color-interactive: 80, 134, 242;
+        --blending: screen;
+    }
+
+    html.dark {
+        --bg-body: #0f0f1a;
+        --bg-card: rgba(22, 33, 62, 0.42);
+        --text-primary: #e0e0ff;
+        --text-secondary: #b0b8ff;
+        --text-dark: #e0e0ff;
+        --shadow: rgba(0, 0, 0, 0.45);
+        --border: rgba(80, 134, 242, 0.30);
+        --sidebar-bg: rgba(22, 33, 62, 0.42);
+        --sidebar-text: #e0e0ff;
+        --sidebar-icon: #b8c8ff;
+        --modal-window-bg: rgba(22, 33, 62, 0.62);
+
+        --color-bg1: #070a1b;
+        --color-bg2: #101d3f;
+        --color1: 110, 130, 230;
+        --color2: 120, 140, 240;
+        --color3: 130, 150, 250;
+        --color4: 90, 110, 220;
+        --color5: 55, 75, 170;
+        --color6: 40, 50, 130;
+        --color7: 48, 65, 125;
+        --color8: 80, 95, 155;
+        --color-interactive: 150, 170, 230;
+        --blending: lighten;
+
+        --logo-gradient-start: #7aa8f5;
+        --logo-gradient-end: #a89cff;
+    }
+
+    body {
+        margin: 0;
+        background: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        transition: background 0.4s ease, color 0.4s ease;
+    }
 }
-
-/* Светлая тема (по умолчанию) */
-:global(:root),
-:global(html.light) {
-    --bg-light: rgba(248, 249, 255);
-    --bg-card: rgba(255, 255, 255, 0.62);
-    --text-dark: #2c2c54;
-    --text-light: #e0e0ff;
-    --shadow: rgba(0, 0, 0, 0.08);
-    --sidebar-bg: #ffffff;
-    --sidebar-text: #2c2c54;
-    --border-light: rgba(80, 134, 242, 0.12);
-}
-
-/* Тёмная тема */
-:global(html.dark) {
-    --bg-light: #0f0f1a;
-    --bg-card: rgba(22, 33, 62, 0.62);
-    --text-dark: #e0e0ff;
-    --text-light: #b0b8ff;
-    --shadow: rgba(0, 0, 0, 0.4);
-    --sidebar-bg: #16213e;
-    --sidebar-text: #e0e0ff;
-    --border-light: rgba(80, 134, 242, 0.25);
-}
-
-/* Применяем базовые стили к body */
-body {
-    margin: 0;
-    background: var(--bg-light);
-    color: var(--text-dark);
-    font-family: 'Inter', system-ui, sans-serif;
-    transition: background 0.4s ease, color 0.4s ease;
-}
-
 
 /* ────────────────────────────────────────────────
-   Общие контейнеры
+   Остальные стили — уже модульные, их НЕ оборачиваем в :global
 ───────────────────────────────────────────────── */
-// боковое меню
+
 .appWrapper {
     display: flex;
     min-height: 100vh;
-    background: var(--bg-light);
+    background: var(--bg-body);
 }
 
 .sidebarZone {
@@ -80,25 +123,20 @@ body {
     overflow-x: hidden;
 }
 
-
-/* ────────────────────────────────────────────────
-   прямоугольник с контентом
-───────────────────────────────────────────────── */
 .contentRectangle {
-    /* Отступ сверху — совпадает с отступом меню */
     margin-top: 10vh;
     margin-left: 180px;
     margin-right: 80px;
     margin-bottom: 0;
-
-    /* Внутренние отступы внутри прямоугольника */
-    padding: 2.5rem 2rem 3rem;
-
+    padding: 3rem 4rem;
     background: var(--bg-card);
-    border-radius: 20px;
+    border-radius: 30px;
     backdrop-filter: blur(10px);
-    box-shadow: 0 12px 40px var(--shadow);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
     min-height: calc(100vh - 14vh);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
     transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
@@ -108,6 +146,10 @@ body {
 
 .header {
     text-align: center;
+}
+
+.logo {
+    margin-top: -30px;
 }
 
 .logoAndTitle {
@@ -133,14 +175,13 @@ body {
 
 .appName {
     margin: 0;
-    font-size: 4.8rem;
+    font-size: 5.2rem;
     font-weight: 700;
-    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent), var(--primary));
-    background-size: 300% 300%;
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: gradientFlow 10s ease infinite;
+    animation: gradientFlow 8s infinite;
 }
 
 @keyframes gradientFlow {
@@ -162,20 +203,32 @@ body {
 }
 
 .heroContent {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
     align-items: center;
-    justify-content: space-between;
-    gap: 2.5rem;
-    flex-wrap: wrap;
 }
 
 .heroImageWrapper {
+    position: relative;
     flex: 1;
-    min-width: 320px;
-    max-width: 55%;
-    border-radius: 16px;
+    min-width: 620px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 12px 32px var(--shadow);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1), 0 15px 30px rgba(0, 0, 0, 0.15);
+    transition: transform 0.6s ease, box-shadow 0.6s ease;
+    border: 5px solid transparent;
+    background: linear-gradient(var(--bg-light), var(--bg-light)) padding-box,
+        linear-gradient(45deg, var(--primary), var(--secondary), var(--accent)) border-box;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.2);
+        pointer-events: none;
+        z-index: 1;
+    }
 }
 
 .heroImage {
@@ -183,31 +236,42 @@ body {
     height: auto;
     display: block;
     object-fit: cover;
+    transition: transform 8s ease-in-out;
+    transform: scale(1.05);
+}
+
+.heroImageWrapper:hover {
+    transform: scale(1.03) translateY(-8px);
+    box-shadow: 0 24px 60px rgba(80, 134, 242, 0.35);
+}
+
+.heroImageWrapper:hover .heroImage {
+    transform: scale(1.0);
 }
 
 .heroAction {
     flex: 1;
-    min-width: 280px;
+    min-width: 380px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .bigAuthButton {
-    padding: 1.2rem 2.8rem;
-    font-size: 1.3rem;
+    padding: 1.5rem 4rem;
+    font-size: 1.4rem;
     font-weight: 600;
     color: white;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    background: var(--gradient-secondary);
     border: none;
-    border-radius: 16px;
+    border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 8px 24px var(--shadow);
-    transition: all 0.28s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-        transform: translateY(-4px) scale(1.04);
-        box-shadow: 0 16px 40px var(--shadow);
+        transform: translateY(-4px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.2);
     }
 }
 
@@ -223,8 +287,8 @@ body {
     border-radius: 20px;
     padding: 2.5rem 3rem;
     max-width: 820px;
-    box-shadow: 0 12px 36px var(--shadow);
-    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
     text-align: center;
 }
 
@@ -232,7 +296,7 @@ body {
     margin: 0 0 1.4rem;
     font-size: 2.1rem;
     font-weight: 700;
-    color: #2c2c54;
+    color: var(--text-dark);
 }
 
 .welcomeText {
@@ -241,7 +305,6 @@ body {
     line-height: 1.7;
 }
 
-
 .sectionAdvantagesTitle,
 .sectionTutorTitle,
 .sectionTitle {
@@ -249,7 +312,6 @@ body {
     margin-bottom: 3.5rem;
     color: var(--text-dark);
 }
-
 
 // Карточки "Наши преимущества"
 .advantagesSection {
@@ -260,20 +322,21 @@ body {
 .sectionAdvantagesTitle {
     font-size: 2.6rem;
     margin-bottom: 3.5rem;
-    color: var(--text-dark); // тёмный текст для заголовка секции
+    color: var(--text-dark);
 }
 
 .advantagesGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
+    gap: 3rem;
+    margin-top: 6rem;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .advantageCard {
     position: relative;
-    height: 220px; // фиксированная высота
+    height: 220px;
     perspective: 1000px;
     cursor: pointer;
     color: var(--text-dark);
@@ -293,21 +356,21 @@ body {
     inset: 0;
     backface-visibility: hidden;
     transition: transform 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    box-shadow: 0 8px 24px var(--shadow); // мягкая тень для светлой темы
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .cardFront {
     background: rgba(var(--primary), 0.12);
     border: 1px solid rgba(var(--primary), 0.18);
     transform: rotateY(0deg);
-    color: var(--text-dark); // тёмный текст
+    color: var(--text-dark);
 }
 
 .cardBack {
@@ -322,21 +385,41 @@ body {
 .iconWrapper {
     width: 80px;
     height: 80px;
-    background: rgba(80, 134, 242, 0.12); // лёгкий акцентный фон
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.2rem;
-    color: var(--primary); // синий цвет иконки (#5086f2)
+    color: var(--primary);
     font-size: 2rem;
+}
+
+.iconWrapper svg {
+    width: 48px;
+    height: 48px;
+    display: block;
+    color: inherit;
+    shape-rendering: auto;
+    transform: translateZ(0);
+}
+
+.iconWrapper svg path,
+.iconWrapper svg circle,
+.iconWrapper svg rect,
+.iconWrapper svg line,
+.iconWrapper svg polyline,
+.iconWrapper svg polygon,
+.iconWrapper svg g,
+.iconWrapper svg ellipse,
+.iconWrapper svg * {
+    fill: currentColor !important;
 }
 
 .cardTitle {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-dark); // тёмный заголовок
+    color: var(--text-primary);
 }
 
 .cardBack p {
@@ -357,7 +440,6 @@ body {
     }
 }
 
-
 // Карточки "Наши репетиторы"
 .tutorsSection {
     margin: 5rem 0 7rem;
@@ -367,13 +449,14 @@ body {
 .sectionTutorTitle {
     font-size: 2.8rem;
     margin-bottom: 3.5rem;
-    color: var(--text-dark); // тёмный заголовок секции
+    color: var(--text-dark);
 }
 
 .tutorsGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2.2rem 2.4rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
+    margin-top: 6rem;
     max-width: 1400px;
     margin: 0 auto;
 
@@ -392,14 +475,28 @@ body {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); // мягкая тень для светлой темы
-    transition: all 0.4s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
     aspect-ratio: 3 / 4;
     height: auto;
 
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+    }
+
     &:hover {
-        transform: translateY(-16px) scale(1.04);
-        box-shadow: 0 24px 60px rgba(80, 134, 242, 0.22);
+        transform: translateY(-8px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 15px 30px rgba(0, 0, 0, 0.15);
+
+        &::before {
+            opacity: 1;
+        }
     }
 }
 
@@ -445,7 +542,7 @@ body {
 .infoOverlay {
     position: absolute;
     inset: 0;
-    background: var(--bg-card); // светлый фон (белый/полупрозрачный)
+    background: var(--bg-card);
     color: var(--text-dark);
     opacity: 0;
     display: flex;
@@ -456,6 +553,7 @@ body {
     text-align: center;
     transition: opacity 0.55s ease;
     border-radius: 20px;
+    z-index: 2;
 }
 
 .tutorCard:hover .infoOverlay {
@@ -482,17 +580,15 @@ body {
     flex-direction: column;
     gap: 0.8rem;
     font-size: 0.95rem;
-    color: #4a4a6e;
+    color: var(--text-secondary);
 
     span {
         background: rgba(80, 134, 242, 0.08);
         padding: 0.5rem 1.2rem;
         border-radius: 10px;
-        color: var(--text-dark);
+        color: var(--text-primary);
     }
 }
-
-
 
 /* Дисциплины: карточки в ряд с адаптивным переносом */
 .disciplinesSection {
@@ -524,16 +620,16 @@ body {
     }
 }
 
-
 // Футер (подвал)
 .footer {
     background: var(--bg-card);
-    color: var(--text-dark);
-    padding: 4rem 0 2rem;
+    color: var(--text-primary);
+    padding: 4rem 2rem;
     margin-top: 6rem;
-    border-top: 1px solid var(--border-light);
-    border-radius: 20px;
-
+    border-top: 1px solid var(--border);
+    border-radius: 30px 30px 30px 30px;
+    transition: background 0.4s ease, color 0.4s ease;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05), 0 -10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .footerContainer {
@@ -562,14 +658,20 @@ body {
     margin: 0;
     font-size: 1.6rem;
     font-weight: 700;
-    color: #5086f2; // акцентный синий
+    color: var(--primary);
+}
+
+.footerSubtitle,
+.linkColumn h5,
+.linkColumn a,
+.copyright {
+    color: var(--text-secondary);
 }
 
 .footerSubtitle {
     margin: 0.3rem 0 0;
     font-size: 0.95rem;
     opacity: 0.75;
-    color: #4a4a6e;
 }
 
 .footerLinks {
@@ -585,12 +687,10 @@ body {
         margin: 0 0 1.2rem;
         font-size: 1.1rem;
         font-weight: 600;
-        color: #3a3a6e;
     }
 
     a {
         display: block;
-        color: #4a4a6e;
         text-decoration: none;
         margin-bottom: 0.7rem;
         font-size: 0.95rem;
@@ -609,7 +709,6 @@ body {
     justify-content: flex-start;
 
     a {
-        color: #4a4a6e;
         font-size: 1.4rem;
         transition: color 0.2s;
 
@@ -625,5 +724,4 @@ body {
     padding-top: 2rem;
     border-top: 1px solid rgba(136, 171, 242, 0.12);
     font-size: 0.9rem;
-    color: #6b6b8f;
 }

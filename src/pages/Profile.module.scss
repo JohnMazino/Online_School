@@ -8,22 +8,47 @@
 /* Основной контент профиля (справа от Sidebar) */
 .profileContent {
     flex: 1;
-    margin-left: var(--sidebar-width, 240px); // ← отступ слева = ширине Sidebar
-    padding: 2rem 3rem;
+    margin-left: var(--sidebar-width, 240px);
+    padding: 3rem 4rem;
     min-height: 100vh;
     box-sizing: border-box;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100px;
+        width: 400px;
+        height: 400px;
+        background: rgba(80, 134, 242, 0.08);
+        border-radius: 50%;
+        filter: blur(80px);
+        transform: translateX(-50%);
+        z-index: 0;
+        pointer-events: none;
+    }
 }
 
 /* Шапка профиля (аватар + имя + баланс) */
 .profileHeader {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 2.5rem;
+    gap: 3rem;
+    padding: 3rem;
+    background: var(--bg-card);
+    border-radius: 30px;
+    box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.08),
+        0 16px 32px rgba(0, 0, 0, 0.1);
+    z-index: 1;
     margin-bottom: 3rem;
-    background: rgba(255, 255, 255, 0.62);
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+.profileHeader h1 {
+    color: var(--text-primary);
 }
 
 .avatarWrapper {
@@ -31,28 +56,37 @@
     flex-shrink: 0;
 
     .avatar {
-        width: 140px;
-        height: 140px;
+        width: 160px;
+        height: 160px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid var(--primary-light, #e6f0ff);
+        border: 6px solid rgba(80, 134, 242, 0.2);
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.1),
+            0 8px 16px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
     }
 
     .avatarUpload {
         position: absolute;
-        bottom: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.65);
+        bottom: 10px;
+        right: 10px;
+        background: var(--primary);
         color: white;
-        font-size: 0.85rem;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+        border-radius: 50%;
         cursor: pointer;
-        white-space: nowrap;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
-        input {
-            display: none;
+        &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background: var(--primary-dark);
         }
     }
 }
@@ -62,226 +96,73 @@
 
     h1 {
         margin: 0 0 0.5rem;
-        font-size: 2.4rem;
+        font-size: 2.8rem;
         color: var(--text-dark);
     }
 
     .phone {
         margin: 0 0 1rem;
-        color: #6b6b8f;
+        color: var(--text-secondary);
         font-size: 1.1rem;
     }
 
     .balance {
-        font-size: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        background: var(--gradient-primary, linear-gradient(135deg, #5086f2, #856fd7));
+        padding: 0.8rem 1.6rem;
+        border-radius: 20px;
+        color: white;
+        font-size: 1.6rem;
         font-weight: 600;
-        color: var(--primary);
+        gap: 1rem;
 
         span {
-            color: var(--primary-dark);
+            color: white;
         }
 
         .topUpBtn {
-            margin-left: 1.2rem;
-            padding: 0.7rem 1.4rem;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            color: white;
+            margin-left: 0;
+            background: white;
+            color: var(--primary);
+            padding: 0.6rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
             border: none;
             border-radius: 12px;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
 
             &:hover {
+                background: var(--primary);
+                color: white;
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(80, 134, 242, 0.3);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
         }
     }
 }
 
-/* Секции (курсы, задачи, доска, обратная связь, поддержка) */
+/* Секции (курсы, задачи, доска, обратная связь) */
 .section {
-    margin-bottom: 3rem;
-    background: rgba(255, 255, 255, 0.62);
-    padding: 2rem;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    position: relative;
+    margin-bottom: 4rem;
+    background: var(--bg-card);
+    padding: 3rem;
+    border-radius: 30px;
+    box-shadow:
+        0 6px 12px rgba(0, 0, 0, 0.08),
+        0 12px 24px rgba(0, 0, 0, 0.1);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+    z-index: 1;
 
     h2 {
-        margin: 0 0 1.5rem;
-        font-size: 1.8rem;
+        margin: 0 0 2rem;
+        font-size: 2rem;
         color: var(--text-dark);
     }
-}
-
-.folderToolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.folderBreadcrumb,
-.currentFolderLabel {
-    color: var(--text-dark);
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-
-.folderGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-}
-
-.folderCard {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 22px;
-    border: 1px solid rgba(80, 134, 242, 0.18);
-    overflow: hidden;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.folderCard:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
-}
-
-.folderHeader {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.4rem 1.6rem;
-    background: rgba(80, 134, 242, 0.08);
-    border: none;
-    color: var(--text-dark);
-    font-size: 1rem;
-    font-weight: 700;
-    text-align: left;
-}
-
-.folderHint {
-    margin: 0;
-    padding: 1.4rem 1.6rem 1.8rem;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    background: rgba(248, 249, 255, 0.96);
-}
-
-.folderTitle {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.folderMeta {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-}
-
-.folderCounter {
-    padding: 0.25rem 0.75rem;
-    background: rgba(255, 255, 255, 0.75);
-    border-radius: 999px;
-}
-
-.folderArrow {
-    font-size: 1.1rem;
-}
-
-.folderContent {
-    padding: 0;
-}
-
-.folderView {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.fileItem {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.2rem;
-    background: rgba(248, 249, 255, 0.95);
-    border: 1px solid rgba(80, 134, 242, 0.12);
-    border-radius: 16px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s ease;
-}
-
-.fileItem:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 20px rgba(80, 134, 242, 0.12);
-}
-
-.fileItem:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.fileItem:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 25px rgba(80, 134, 242, 0.12);
-}
-
-.fileItem:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.fileInfo {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.35rem;
-    flex: 1;
-}
-
-.fileName {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-dark);
-}
-
-.fileSubtitle {
-    color: var(--text-secondary);
-    font-size: 0.92rem;
-    line-height: 1.4;
-}
-
-.fileTag {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem 0.85rem;
-    border-radius: 999px;
-    background: rgba(80, 134, 242, 0.12);
-    color: var(--primary);
-    font-size: 0.86rem;
-    font-weight: 600;
-}
-
-.emptyFolder {
-    color: var(--text-secondary);
-    font-style: italic;
-    padding: 1rem 0.5rem;
 }
 
 .coursesGrid {
@@ -291,19 +172,23 @@
 }
 
 .courseCard {
-    background: #f8f9ff;
-    padding: 1.8rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 
     h3 {
         margin: 0 0 1rem;
-        font-size: 1.4rem;
+        font-size: 1.6rem;
+        color: var(--text-primary);
     }
 
     p {
         margin: 0.5rem 0;
-        color: #555;
+        color: var(--text-secondary);
     }
 
     .extendBtn {
@@ -319,7 +204,15 @@
         &:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(80, 134, 242, 0.3);
         }
+    }
+
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow:
+            0 8px 16px rgba(0, 0, 0, 0.15),
+            0 16px 32px rgba(0, 0, 0, 0.2);
     }
 }
 
@@ -351,16 +244,23 @@
 
     .taskType {
         font-weight: bold;
-        color: var(--primary-dark);
+        color: var(--text-dark);
         margin-right: 0.8rem;
         text-transform: uppercase;
         font-size: 0.9rem;
+        background: rgba(80, 134, 242, 0.15);
+        color: var(--primary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 12px;
+        display: inline-block;
     }
 
     .taskLink {
         color: var(--primary);
         text-decoration: none;
         font-weight: 500;
+        display: inline-block;
+        margin-left: 0.5rem;
 
         &:hover {
             text-decoration: underline;
@@ -376,21 +276,31 @@
     .completedDate {
         color: #27ae60;
         font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.1),
+            0 8px 16px rgba(0, 0, 0, 0.15);
     }
 }
 
 /* Заглушки (доска, обратная связь) */
 .boardPlaceholder,
 .feedbackPlaceholder {
-    background: #f8f9ff;
+    background: var(--bg-card);
     padding: 3rem 2rem;
-    border-radius: 16px;
+    border-radius: 20px;
     text-align: center;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 8px 16px rgba(0, 0, 0, 0.1);
 
     p {
         margin: 0 0 1.5rem;
-        color: #555;
+        color: var(--text-secondary);
     }
 
     button {
@@ -400,981 +310,132 @@
         border: none;
         border-radius: 12px;
         cursor: pointer;
-    }
-}
-
-/* Конструктор тестов (для репетиторов) */
-.constructorPlaceholder {
-    background: linear-gradient(135deg, rgba(80, 134, 242, 0.1), rgba(133, 111, 215, 0.08));
-    padding: 2rem;
-    border-radius: 16px;
-    text-align: center;
-    border: 2px solid rgba(80, 134, 242, 0.2);
-
-    p {
-        margin: 0 0 1.5rem;
-        color: #6b6b8f;
-        font-size: 1.05rem;
-    }
-
-    .constructorBtn {
-        padding: 1rem 2rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 1rem;
         transition: all 0.3s ease;
 
         &:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(80, 134, 242, 0.3);
-        }
-
-        &:active {
-            transform: translateY(-1px);
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(80, 134, 242, 0.3);
         }
     }
 }
 
-/* Раздел назначенных тестов */
-.testsContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-}
-
-.testCard {
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 12px;
-    padding: 1.5rem;
-    border-left: 4px solid var(--primary);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-    &.new {
-        border-left-color: #3b82f6;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.02));
-    }
-
-    &.in-progress {
-        border-left-color: #f59e0b;
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.02));
-    }
-
-    &.completed {
-        border-left-color: #10b981;
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
-    }
-
-    &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    }
-}
-
-.testHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    gap: 1rem;
-
-    h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        color: var(--text-dark);
-        flex: 1;
-    }
-}
-
-.testStatus {
-    display: inline-block;
-    padding: 0.35rem 0.75rem;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    white-space: nowrap;
-    flex-shrink: 0;
-
-    &.new {
-        color: #3b82f6;
-        background: rgba(59, 130, 246, 0.1);
-    }
-
-    &.in-progress {
-        color: #f59e0b;
-        background: rgba(245, 158, 11, 0.1);
-    }
-
-    &.completed {
-        color: #10b981;
-        background: rgba(16, 185, 129, 0.1);
-    }
-}
-
-.testDeadline {
-    margin: 0.5rem 0;
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-
-    strong {
-        color: var(--text-dark);
-        font-weight: 600;
-    }
-}
-
-.testGrade {
-    margin: 0.5rem 0 1rem 0;
-    font-size: 0.95rem;
-    color: var(--text-dark);
-
-    strong {
-        font-weight: 600;
-    }
-
-    span {
-        color: #10b981;
-        font-weight: 700;
-    }
-}
-
-.testActions {
-    margin-top: 1rem;
-    display: flex;
-    gap: 0.75rem;
-}
-
-.startTestBtn,
-.continueTestBtn,
-.viewResultsBtn {
-    flex: 1;
-    padding: 0.65rem 1rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.startTestBtn,
-.continueTestBtn {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+.openBoardBtn {
+    padding: 0.9rem 1.8rem;
+    background: var(--gradient-primary, linear-gradient(135deg, #5086f2, #856fd7));
     color: white;
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(80, 134, 242, 0.3);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-}
-
-.viewResultsBtn {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-    border: 1px solid #10b981;
-
-    &:hover {
-        background: rgba(16, 185, 129, 0.2);
-        transform: translateY(-2px);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-}
-
-.noTests {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-secondary);
-    font-style: italic;
-    background: rgba(255, 255, 255, 0.5);
+    border: none;
     border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(80, 134, 242, 0.4);
+    }
 }
 
 /* Чат с поддержкой */
 .supportLink {
     display: block;
     text-align: center;
-    margin-top: 1rem;
 
     .supportBtn {
-        padding: 1rem 2.5rem;
-        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        padding: 1.2rem 3rem;
+        background: var(--gradient-secondary, linear-gradient(135deg, #ff75d1, #5086f2));
         color: white;
         border: none;
-        border-radius: 12px;
-        font-size: 1.1rem;
+        border-radius: 30px;
+        font-size: 1.2rem;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.1),
+            0 8px 16px rgba(0, 0, 0, 0.15);
 
         &:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(80, 134, 242, 0.3);
+            transform: translateY(-4px);
+            box-shadow:
+                0 6px 12px rgba(0, 0, 0, 0.15),
+                0 12px 24px rgba(0, 0, 0, 0.2);
         }
     }
 }
 
-/* ============================================================
- * TEST PLAYER STYLES (для прохождения тестов студентом)
- * ============================================================ */
-
-.testPlayerContainer {
-    max-width: 900px;
-    margin: 0 auto;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 3rem;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.testHeader {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
-    border-bottom: 2px solid rgba(80, 134, 242, 0.2);
-
-    h1 {
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
+/* Адаптив для мобильных устройств */
+@media (max-width: 768px) {
+    .profileContent {
+        padding: 2rem 1.5rem;
+        margin-left: 0;
     }
 
-    p {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        margin-bottom: 1.5rem;
-    }
-}
-
-.testProgress {
-    display: inline-block;
-    background: rgba(80, 134, 242, 0.1);
-    color: var(--primary);
-    padding: 0.5rem 1.5rem;
-    border-radius: 20px;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-.testQuestion {
-    margin-bottom: 2.5rem;
-}
-
-.questionText {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
-}
-
-.questionPoints {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-}
-
-/* Варианты ответов (для single/multiple questions) */
-.answersContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.answerOption {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.5);
-    border: 2px solid transparent;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    input {
-        margin-top: 0.25rem;
-        cursor: pointer;
-        width: 20px;
-        height: 20px;
-        flex-shrink: 0;
+    .profileHeader {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+        gap: 1.5rem;
     }
 
-    &:hover {
-        background: rgba(80, 134, 242, 0.05);
-        border-color: rgba(80, 134, 242, 0.2);
-    }
+    .userInfo {
+        text-align: center;
 
-    &:has(input:checked) {
-        background: rgba(80, 134, 242, 0.1);
-        border-color: var(--primary);
-    }
-}
+        h1 {
+            font-size: 2rem;
+        }
 
-.answerText {
-    color: var(--text-primary);
-    line-height: 1.5;
-    flex: 1;
-}
+        .balance {
+            font-size: 1.2rem;
+            padding: 0.6rem 1.2rem;
 
-/* Пары для сопоставления (для matching questions) */
-.matchingContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.matchingRow {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 1rem;
-    align-items: center;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
-}
-
-.leftItem {
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.matchingSelect {
-    padding: 0.5rem 1rem;
-    border: 2px solid rgba(80, 134, 242, 0.2);
-    border-radius: 8px;
-    background: white;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover,
-    &:focus {
-        border-color: var(--primary);
-        outline: none;
-    }
-
-    &:focus {
-        box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.1);
-    }
-}
-
-/* Кнопки навигации */
-.testActions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 2px solid rgba(80, 134, 242, 0.1);
-}
-
-.prevBtn,
-.nextBtn,
-.submitBtn {
-    padding: 0.75rem 2rem;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.prevBtn {
-    background: rgba(107, 114, 128, 0.1);
-    color: var(--text-primary);
-    border: 1px solid rgba(107, 114, 128, 0.2);
-
-    &:hover:not(:disabled) {
-        background: rgba(107, 114, 128, 0.2);
-        transform: translateY(-2px);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-}
-
-.nextBtn {
-    background: rgba(80, 134, 242, 0.1);
-    color: var(--primary);
-    border: 1px solid var(--primary);
-
-    &:hover {
-        background: rgba(80, 134, 242, 0.2);
-        transform: translateY(-2px);
-    }
-}
-
-.submitBtn {
-    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-    color: white;
-    border: none;
-
-    &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(80, 134, 242, 0.3);
-    }
-
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-}
-
-.successMessage {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: rgba(16, 185, 129, 0.1);
-    border: 2px solid #10b981;
-    border-radius: 12px;
-    text-align: center;
-    color: #10b981;
-    font-weight: 500;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ============================================================
- * TEST RESULTS PAGE REDESIGN STYLES
- * ============================================================ */
-
-.testResultsContainer {
-    max-width: 1000px;
-}
-
-.resultsHeader {
-    margin-bottom: 2.5rem;
-
-    h1 {
-        margin: 0 0 0.5rem;
-        font-size: 2rem;
-        color: var(--text-dark);
-    }
-
-    .testTitle {
-        margin: 0;
-        font-size: 1.1rem;
-        color: var(--text-secondary);
-    }
-}
-
-/* Summary Table */
-.summaryTableWrapper {
-    margin-bottom: 3rem;
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.summaryTable {
-    width: 100%;
-    border-collapse: collapse;
-    
-    tr {
-        border-bottom: 1px solid #f0f0f0;
-
-        &:last-child {
-            border-bottom: none;
+            .topUpBtn {
+                padding: 0.4rem 1rem;
+                font-size: 0.8rem;
+            }
         }
     }
 
-    td {
-        padding: 1rem 1.5rem;
+    .avatarWrapper .avatar {
+        width: 120px;
+        height: 120px;
     }
-}
 
-.labelCell {
-    font-weight: 600;
-    color: var(--text-dark);
-    width: 200px;
-    background: #f8f9fa;
-}
+    .section {
+        padding: 1.5rem;
 
-.valueCell {
-    color: var(--text-primary);
-    font-size: 0.95rem;
-
-    strong {
-        font-weight: 600;
-        color: var(--primary-dark);
-    }
-}
-
-/* Questions Review Section */
-.questionsReviewSection {
-    h2 {
-        margin: 0 0 1.5rem;
-        font-size: 1.5rem;
-        color: var(--text-dark);
-    }
-}
-
-/* Test Question Card - Unified Style */
-.testQuestionCard {
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border-left: 4px solid #cbd5e1;
-    transition: all 0.2s ease;
-
-    .questionHeader {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.75rem;
-        
-        h3 {
-            margin: 0;
-            font-size: 1rem;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        .questionPoints {
-            margin-left: auto;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            font-weight: 500;
+        h2 {
+            font-size: 1.5rem;
         }
     }
 
-    .questionTextBlock {
-        margin-bottom: 1rem;
-        font-size: 0.95rem;
-        color: var(--text-primary);
-        line-height: 1.5;
+    .courseCard h3 {
+        font-size: 1.3rem;
+    }
+
+    .supportBtn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
     }
 }
 
-/* Status Indicator */
-.statusIndicator {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-
-    &.correct {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
+/* Поддержка темной темы */
+:global(html.dark) {
+    .profileHeader,
+    .section,
+    .courseCard,
+    .taskItem {
+        background: rgba(22, 33, 62, 0.6);
     }
 
-    &.partial {
-        background: rgba(245, 158, 11, 0.1);
-        color: #f59e0b;
-    }
-
-    &.incorrect {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-    }
-
-    .statusIcon {
-        font-size: 0.9rem;
-    }
-
-    .statusPoints {
-        font-size: 0.85rem;
-        opacity: 0.8;
+    .balance {
+        background: linear-gradient(135deg, #6a8fe0, #7a5fc0);
     }
 }
 
-/* Answer options styling for results */
-.answerOption {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    background: #f8f9ff;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 0.5rem;
-
-    input {
-        margin-top: 0.25rem;
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-    }
-
-    &.answerCorrect {
-        background: rgba(16, 185, 129, 0.08);
-        border-color: #10b981;
-    }
-
-    &.answerIncorrect {
-        background: rgba(239, 68, 68, 0.08);
-        border-color: #ef4444;
-    }
-
-    &.answerSelected {
-        background: rgba(16, 185, 129, 0.12);
-        border-color: #10b981;
-    }
-
-    .answerText {
-        color: var(--text-primary);
-        line-height: 1.5;
-        flex: 1;
-    }
-
-    .badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        font-size: 0.85rem;
-        font-weight: 700;
-        flex-shrink: 0;
-        color: white;
-    }
-
-    .answerCorrect .badge {
-        background: #10b981;
-    }
-
-    .answerIncorrect .badge {
-        background: #ef4444;
+:global(html.light) {
+    .profileHeader,
+    .section,
+    .courseCard,
+    .taskItem {
+        background: rgba(255, 255, 255, 0.8);
     }
 }
-
-/* Matching display for results */
-.matchingRow {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 1rem;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: #f8f9ff;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-
-    .leftItem {
-        color: var(--text-primary);
-        font-weight: 500;
-    }
-
-    .matchingArrow {
-        color: #999;
-        font-size: 1.1rem;
-    }
-
-    .matchingSelect {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--text-primary);
-        font-weight: 500;
-        padding: 0.5rem 0.75rem;
-        background: white;
-        border-radius: 6px;
-
-        &.matchingCorrect {
-            color: #10b981;
-            background: rgba(16, 185, 129, 0.08);
-        }
-
-        &.matchingIncorrect {
-            color: #ef4444;
-            background: rgba(239, 68, 68, 0.08);
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: white;
-            margin-left: auto;
-        }
-
-        &.matchingCorrect .badge {
-            background: #10b981;
-        }
-
-        &.matchingIncorrect .badge {
-            background: #ef4444;
-        }
-    }
-}
-
-/* Correct answer section for matching */
-.correctAnswerSection {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 2px solid #f0f0f0;
-
-    .correctLabel {
-        margin: 0 0 0.75rem;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-dark);
-        font-weight: 600;
-    }
-}
-
-/* Back Button */
-.backButton {
-    display: inline-block;
-    margin-top: 2rem;
-    padding: 0.8rem 1.6rem;
-    background: white;
-    color: var(--primary);
-    border: 1px solid var(--primary);
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-        background: var(--primary);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(80, 134, 242, 0.2);
-    }
-
-    &:active {
-        transform: translateY(0);
-    }
-}
-
-/* ============================================================
- * GAMES / QUIZ SECTION
- * ============================================================ */
-
-.gamesSubtitle {
-    margin: 0 0 1.5rem;
-    color: #6b6b8f;
-    font-size: 1.05rem;
-}
-
-.gamesGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-}
-
-.gameCard {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 14px;
-    border-left: 4px solid var(--primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
-
-    &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-}
-
-.gameInfo {
-    flex: 1;
-}
-
-.gameTitle {
-    margin: 0 0 0.3rem;
-    font-size: 1.15rem;
-    color: var(--text-dark);
-    font-weight: 700;
-}
-
-.gameDesc {
-    margin: 0 0 0.5rem;
-    color: #6b6b8f;
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
-
-.gameQuestions {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    background: rgba(80, 134, 242, 0.1);
-    color: var(--primary);
-    border-radius: 16px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-right: 0.5rem;
-}
-
-.gameTeacher {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    background: rgba(133, 111, 215, 0.1);
-    color: var(--secondary);
-    border-radius: 16px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.playBtn {
-    padding: 0.7rem 1.5rem;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-left: 1rem;
-
-    &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(80, 134, 242, 0.3);
-    }
-
-    &:active:not(:disabled) {
-        transform: translateY(0);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: #6b6b8f;
-    }
-}
-
-/* Loading and Error Messages */
-.loading {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: var(--text-secondary);
-    font-size: 1.05rem;
-}
-
-.errorMessage {
-    background: rgba(239, 68, 68, 0.1);
-    border: 2px solid #ef4444;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    color: #ef4444;
-
-    p {
-        margin: 0 0 1.5rem;
-        font-size: 1.05rem;
-        font-weight: 500;
-    }
-
-    .backButton {
-        background: #ef4444;
-        color: white;
-        border-color: #ef4444;
-
-        &:hover {
-            background: #dc2626;
-        }
-    }
-}
-
-/* Test Player Header */
-.testPlayerHeader {
-    margin-bottom: 2rem;
-
-    h1 {
-        margin: 0 0 0.5rem;
-        font-size: 1.8rem;
-        color: var(--text-dark);
-    }
-
-    p {
-        margin: 0.5rem 0 0;
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-    }
-
-    .timer {
-        display: inline-block;
-        margin-top: 1rem;
-        padding: 0.75rem 1.5rem;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text-dark);
-    }
-}
-
-/* Test Questions Container */
-.testQuestionsContainer {
-    max-width: 900px;
-}
-
-/* Test Actions - Submit button */
-.testActionsSubmit {
-    display: flex;
-    justify-content: center;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid #f0f0f0;
-}
-
-.submitBtn {
-    padding: 0.8rem 2rem;
-    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(80, 134, 242, 0.3);
-    }
-
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-}
-

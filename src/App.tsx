@@ -18,7 +18,20 @@ import MatchingPlay from './components/Games/MatchingPlay';
 import BlockBlast from './components/Games/BlockBlast';
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
+
 import styles from './App.module.scss';
+
+// импорт фотографий
+import student from './assets/pics/student.jpg'
+import mathPhoto from './assets/pics/math.jpg';
+import physicsPhoto from './assets/pics/fizika.jpg';
+import informaticsPhoto from './assets/pics/informatika.jpg';
+
+// импорт иконок
+import RepetitorIcon from './assets/icons/repetitorBold.svg?react';
+import DollarIcon from './assets/icons/dollar.svg?react';
+import BookIcon from './assets/icons/book.svg?react';
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +43,7 @@ function App() {
     // Инициализируем состояние из localStorage при первой загрузке
     loadFromLocalStorage();
     setIsLoading(false);
-    
+
     // Отладочная информация
     console.log('App initialized - Auth State:', {
       isAuthenticated,
@@ -74,17 +87,17 @@ function App() {
                       </div>
                     </header>
 
-                    {/* 2. блок: фото + кнопка */}
-                    <section className={styles.heroSection}>
-                      <div className={`${styles.heroContent} ${isAuthenticated ? styles.heroContentCentered : ''}`}>
-                        <div className={styles.heroImageWrapper}>
-                          <img
-                            src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&auto=format&fit=crop&q=80"
-                            alt="Ученик учится онлайн с наушниками"
-                            className={styles.heroImage}
-                          />
-                        </div>
-                        {!isAuthenticated && (
+                    {/* 2. блок: фото + кнопка - показываем только если не авторизован */}
+                    {!isAuthenticated && (
+                      <section className={styles.heroSection}>
+                        <div className={styles.heroContent}>
+                          <div className={styles.heroImageWrapper}>
+                            <img
+                              src={student}
+                              alt="Ученик сидит за партой"
+                              className={styles.heroImage}
+                            />
+                          </div>
                           <div className={styles.heroAction}>
                             <Link to="/login">
                               <button className={styles.bigAuthButton}>
@@ -92,11 +105,11 @@ function App() {
                               </button>
                             </Link>
                           </div>
-                        )}
-                      </div>
-                    </section>
+                        </div>
+                      </section>
+                    )}
 
-                    {/* 3. Новый блок — приветственный текст в белом прямоугольнике */}
+                    {/* 3. приветственный текст в белом прямоугольнике */}
                     <section className={styles.welcomeBox}>
                       <div className={styles.welcomeRectangle}>
                         <h2 className={styles.welcomeTitle}>Рады приветствовать вас!</h2>
@@ -115,12 +128,7 @@ function App() {
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
-                              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                <circle cx="9" cy="7" r="4" />
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                              </svg>
+                              <RepetitorIcon width="48" height="48" />
                             </div>
                             <h3 className={styles.cardTitle}>Репетиторы</h3>
                           </div>
@@ -136,12 +144,7 @@ function App() {
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
-                              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="2" y="4" width="20" height="16" rx="2" />
-                                <path d="M7 2v4" />
-                                <path d="M17 2v4" />
-                                <path d="M2 10h20" />
-                              </svg>
+                              <DollarIcon width="48" height="48" />
                             </div>
                             <h3 className={styles.cardTitle}>Оплата</h3>
                           </div>
@@ -157,10 +160,7 @@ function App() {
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
-                              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M12 2v20M2 12h20" />
-                                <circle cx="12" cy="12" r="10" />
-                              </svg>
+                              <BookIcon width="48" height="48" />
                             </div>
                             <h3 className={styles.cardTitle}>Подход</h3>
                           </div>
@@ -175,83 +175,83 @@ function App() {
                     </section>
 
                     {/* 5. Наши репетиторы */}
-                    <section className={styles.tutorsSection}>
-                      <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
+                      <section id="tutors-section" className={styles.tutorsSection}>
+                        <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
 
-                      <div className={styles.tutorsGrid}>
-                        {/* Репетитор 1 */}
-                        <div className={styles.tutorCard}>
-                          <div className={styles.cardContent}>
-                            <img
-                              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop"
-                              alt="Иван Петров"
-                              className={styles.tutorPhoto}
-                            />
-                            <h3 className={styles.tutorNameFront}>Иван Петров</h3>
-                            <div className={styles.infoOverlay}>
-                              <h3 className={styles.tutorName}>Иван Петров</h3>
-                              <p className={styles.tutorInfo}>
-                                Магистр МГУ по математике и физике<br />
-                                12 лет опыта, автор методик ЕГЭ 90+ баллов<br />
-                                Подготовка к ЕГЭ / ОГЭ / олимпиадам
-                              </p>
-                              <div className={styles.documents}>
-                                <span>Диплом МГУ (2010)</span>
-                                <span>Свидетельство о повышении квалификации (2023)</span>
+                        <div className={styles.tutorsGrid}>
+                          {/* Репетитор 1 */}
+                          <div className={styles.tutorCard}>
+                            <div className={styles.cardContent}>
+                              <img
+                                src=""
+                                alt="Иван Петров"
+                                className={styles.tutorPhoto}
+                              />
+                              <h3 className={styles.tutorNameFront}>Иван Петров</h3>
+                              <div className={styles.infoOverlay}>
+                                <h3 className={styles.tutorName}>Иван Петров</h3>
+                                <p className={styles.tutorInfo}>
+                                  Магистр МГУ по математике и физике<br />
+                                  12 лет опыта, автор методик ЕГЭ 90+ баллов<br />
+                                  Подготовка к ЕГЭ / ОГЭ / олимпиадам
+                                </p>
+                                <div className={styles.documents}>
+                                  <span>Диплом МГУ (2010)</span>
+                                  <span>Свидетельство о повышении квалификации (2023)</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Репетитор 2 */}
+                          <div className={styles.tutorCard}>
+                            <div className={styles.cardContent}>
+                              <img
+                                src=""
+                                alt="Анна Смирнова"
+                                className={styles.tutorPhoto}
+                              />
+                              <h3 className={styles.tutorNameFront}>Анна Смирнова</h3>
+                              <div className={styles.infoOverlay}>
+                                <h3 className={styles.tutorName}>Анна Смирнова</h3>
+                                <p className={styles.tutorInfo}>
+                                  Носитель языка (США)<br />
+                                  IELTS 8.5, TOEFL 115<br />
+                                  Разговорный английский, бизнес, подготовка к экзаменам
+                                </p>
+                                <div className={styles.documents}>
+                                  <span>TEFL / TESOL сертификат</span>
+                                  <span>Диплом University of California</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Репетитор 3 */}
+                          <div className={styles.tutorCard}>
+                            <div className={styles.cardContent}>
+                              <img
+                                src=""
+                                alt="Елена Ковалёва"
+                                className={styles.tutorPhoto}
+                              />
+                              <h3 className={styles.tutorNameFront}>Елена Ковалёва</h3>
+                              <div className={styles.infoOverlay}>
+                                <h3 className={styles.tutorName}>Елена Ковалёва</h3>
+                                <p className={styles.tutorInfo}>
+                                  Кандидат филологических наук<br />
+                                  15 лет стажа, автор учебных пособий<br />
+                                  Русский язык, литература, подготовка к ЕГЭ
+                                </p>
+                                <div className={styles.documents}>
+                                  <span>Кандидатская диссертация (2008)</span>
+                                  <span>Грант Минпросвещения РФ</span>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-
-                        {/* Репетитор 2 */}
-                        <div className={styles.tutorCard}>
-                          <div className={styles.cardContent}>
-                            <img
-                              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop"
-                              alt="Анна Смирнова"
-                              className={styles.tutorPhoto}
-                            />
-                            <h3 className={styles.tutorNameFront}>Анна Смирнова</h3>
-                            <div className={styles.infoOverlay}>
-                              <h3 className={styles.tutorName}>Анна Смирнова</h3>
-                              <p className={styles.tutorInfo}>
-                                Носитель языка (США)<br />
-                                IELTS 8.5, TOEFL 115<br />
-                                Разговорный английский, бизнес, подготовка к экзаменам
-                              </p>
-                              <div className={styles.documents}>
-                                <span>TEFL / TESOL сертификат</span>
-                                <span>Диплом University of California</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Репетитор 3 */}
-                        <div className={styles.tutorCard}>
-                          <div className={styles.cardContent}>
-                            <img
-                              src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=800&auto=format&fit=crop"
-                              alt="Елена Ковалёва"
-                              className={styles.tutorPhoto}
-                            />
-                            <h3 className={styles.tutorNameFront}>Елена Ковалёва</h3>
-                            <div className={styles.infoOverlay}>
-                              <h3 className={styles.tutorName}>Елена Ковалёва</h3>
-                              <p className={styles.tutorInfo}>
-                                Кандидат филологических наук<br />
-                                15 лет стажа, автор учебных пособий<br />
-                                Русский язык, литература, подготовка к ЕГЭ
-                              </p>
-                              <div className={styles.documents}>
-                                <span>Кандидатская диссертация (2008)</span>
-                                <span>Грант Минпросвещения РФ</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </section>
+                      </section>
 
                     {/* 6. Дисциплины */}
                     <section className={styles.disciplinesSection}>
@@ -259,15 +259,15 @@ function App() {
                       <div className={styles.disciplinesGrid}>
                         <DisciplineCard
                           name="Математика"
-                          photoUrl="https://images.unsplash.com/photo-1635372722656-389f87a941b7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWF0aHxlbnwwfHwwfHx8Mg%3D%3D"
+                          photoUrl={mathPhoto}
                         />
                         <DisciplineCard
                           name="Физика"
-                          photoUrl="https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGh5c2ljfGVufDB8fDB8fHwy"
+                          photoUrl={physicsPhoto}
                         />
                         <DisciplineCard
                           name="Информатика"
-                          photoUrl="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800"
+                          photoUrl={informaticsPhoto}
                         />
                       </div>
                     </section>

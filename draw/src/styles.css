@@ -31,7 +31,7 @@ a {
 
 .flex {
   display: flex;
-  color: rgb(0, 0, 0);
+  color: aliceblue;
 }
 
 .space-between {
@@ -49,12 +49,12 @@ a {
   right: 0;
   top: 40px;
 }
-/*
+/* Контейнер всего приложения (фон холста уже работает, оставляем) */
 .tldraw.custom-theme .tl-canvas,
 .tldraw.custom-theme .tl-canvas-container,
 .tldraw.custom-theme .tl-background {
-  background: #101011 !important;   /* тёмный холст
-}*/
+  background: #101011 !important;   /* тёмный холст */
+}
 /* Кнопка Image
 #TD-PrimaryTools-Image,
 button[id*="TD-PrimaryTools-Image"],
@@ -67,7 +67,7 @@ button[id*="TD-PrimaryTools-Image"],
 /* Убираем кнопку "?" / Help иконку полностью */
 .tldraw .c-yILjc,
 .tldraw button[aria-controls^="radix-"][aria-haspopup="dialog"],
-.tldraw button:has(svg path[d*="M5.07505 4.10001"]) { 
+.tldraw button:has(svg path[d*="M5.07505 4.10001"]) {
   display: none !important;
 }
 

@@ -33,6 +33,7 @@ export default function Login() {
         try {
             const data = await authApi.login(phone, password);
             login(data.user, data.token);
+
             if (data.user?.role === 'admin') {
                 navigate('/admin');
             } else {
