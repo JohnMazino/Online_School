@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import type { Test, Question, StudentAnswer, TestResult } from '../types/TestConstructor';
+import type { Test, Question, StudentAnswer } from '../types/TestConstructor';
 import { testsApi } from '../api/tests';
 import Sidebar from '../components/SideBar/SideBar';
 import Background from '../components/Background/Background';
@@ -26,7 +26,6 @@ export default function TestPlayer() {
     const [answers, setAnswers] = useState<StudentAnswer[]>([]);
     const [startTime] = useState(new Date());
     const [submitted, setSubmitted] = useState(false);
-    const [testResult, setTestResult] = useState<TestResult | null>(null);
     const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
     const [randomizedTest, setRandomizedTest] = useState<RandomizedTest | null>(null);
     const [submitError, setSubmitError] = useState<string | null>(null);
@@ -179,7 +178,6 @@ export default function TestPlayer() {
             }
 
             const result = await testsApi.submitTestResult(token, payload);
-            setTestResult(result as TestResult);
             setSubmitted(true);
 
             navigate(`/test/${testId}/results`, { 

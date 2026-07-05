@@ -14,6 +14,8 @@ import TestConstructorPage from './pages/TestConstructorPage';
 import TestPlayer from './pages/TestPlayer';
 import TestResults from './pages/TestResults';
 import QuizPlay from './components/Games/QuizPlay';
+import MatchingPlay from './components/Games/MatchingPlay';
+import BlockBlast from './components/Games/BlockBlast';
 
 import DisciplineCard from './components/DisciplineCard/DisciplineCard';
 import styles from './App.module.scss';
@@ -330,7 +332,8 @@ function App() {
         <Route path="/test/:testId/results" element={<TestResults />} />
         <Route path="/test/:testId" element={<TestPlayer />} />
         <Route path="/quiz/:topicId" element={<QuizPlay />} />
-        
+        <Route path="/matching/:topicId" element={<MatchingPlay />} />
+        <Route path="/blockblast" element={<BlockBlast />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/draw" element={<Draw />} />
       </Routes>
