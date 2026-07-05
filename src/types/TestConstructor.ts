@@ -74,7 +74,7 @@ export interface Student {
     phone?: string;
 }
 
-// ===== Квизи (Игры) =====
+// Квизи (Игры)
 
 // Тема квизи
 export interface QuizTopic {
@@ -83,6 +83,7 @@ export interface QuizTopic {
     description: string;
     teacherId: number;
     createdAt: string;
+    gameType: 'quiz' | 'matching';
 }
 
 // Вопрос квизи
@@ -91,7 +92,13 @@ export interface QuizQuestion {
     topicId: number;
     text: string;
     options: string[];        // варианты ответов (минимум 2)
-    correctIndex: number;     // индекс правильного ответа
+    correctIndex?: number;    // индекс правильного ответа для обычного квиза
+    type?: 'single' | 'matching';
+    matchingPairs?: Array<{
+        id: number;
+        left: string;
+        right: string;
+    }>;
 }
 
 // Ответ ученика на один вопрос квизи

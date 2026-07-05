@@ -127,9 +127,18 @@ const initializeDatabase = async (pool) => {
         teacher_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         name VARCHAR(255) NOT NULL,
         description TEXT DEFAULT '',
+        game_type VARCHAR(20) NOT NULL DEFAULT 'quiz',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    try {
+      await client.query(`ALTER TABLE quiz_topics ADD COLUMN IF NOT EXISTS game_type VARCHAR(20) NOT NULL DEFAULT 'quiz';`);
+    } catch (err) {
+      if (!err.message.includes('already exists')) {
+        console.warn('Could not add quiz_topics.game_type column:', err.message);
+      }
+    }
 
     // Вопросы квизи
     await client.query(`
@@ -138,10 +147,24 @@ const initializeDatabase = async (pool) => {
         topic_id INTEGER NOT NULL REFERENCES quiz_topics(id) ON DELETE CASCADE,
         text TEXT NOT NULL,
         options JSONB NOT NULL,
-        correct_index INTEGER NOT NULL,
+        correct_index INTEGER DEFAULT 0,
         UNIQUE(topic_id, text)
       );
     `);
+
+    try {
+      await client.query(`ALTER TABLE quiz_questions ALTER COLUMN correct_index DROP NOT NULL;`);
+    } catch (err) {
+      if (!err.message.includes('does not exist')) {
+        console.warn('Could not relax quiz_questions.correct_index constraint:', err.message);
+      }
+    }
+
+    try {
+      await client.query(`ALTER TABLE quiz_questions ALTER COLUMN correct_index SET DEFAULT 0;`);
+    } catch (err) {
+      console.warn('Could not set quiz_questions.correct_index default:', err.message);
+    }
 
     console.log('Database initialized successfully');
   } catch (error) {

@@ -18,11 +18,14 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
     // Форма создания темы
     const [topicName, setTopicName] = useState('');
     const [topicDesc, setTopicDesc] = useState('');
+    const [topicGameType, setTopicGameType] = useState<'quiz' | 'matching'>('quiz');
 
     // Форма создания вопроса
     const [questionText, setQuestionText] = useState('');
+    const [questionType, setQuestionType] = useState<'single' | 'matching'>('single');
     const [questionOptions, setQuestionOptions] = useState(['', '', '', '']);
     const [correctIndex, setCorrectIndex] = useState(0);
+    const [matchingPairs, setMatchingPairs] = useState([{ id: 1, left: '', right: '' }]);
 
     // Загрузка тем
     useEffect(() => {
@@ -57,6 +60,14 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
         }
     };
 
+    const resetQuestionForm = () => {
+        setQuestionText('');
+        setQuestionType('single');
+        setQuestionOptions(['', '', '', '']);
+        setCorrectIndex(0);
+        setMatchingPairs([{ id: 1, left: '', right: '' }]);
+    };
+
     // Создание темы
     const handleCreateTopic = async () => {
         if (!topicName.trim()) {
@@ -69,6 +80,7 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                 name: topicName,
                 description: topicDesc,
                 teacherId,
+                gameType: topicGameType,
             });
             setTopics([newTopic, ...topics]);
             setTopicName('');
@@ -105,28 +117,49 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
             return;
         }
 
-        const filledOptions = questionOptions.filter(o => o.trim());
-        if (filledOptions.length < 2) {
-            alert('Минимум 2 варианта ответа');
-            return;
-        }
-
         try {
-            // Адаптируем индекс правильного ответа если были пустые варианты
-            const nonEmptyOptions = questionOptions.filter(o => o.trim());
-            let adjustedCorrectIndex = correctIndex;
+            let newQuestion;
+            const shouldUseMatching = selectedTopic.gameType === 'matching' || questionType === 'matching';
 
-            const newQuestion = await quizzesApi.createQuestion(token, {
-                topicId: selectedTopic.id,
-                text: questionText,
-                options: nonEmptyOptions.map(o => o.trim()),
-                correctIndex: adjustedCorrectIndex >= nonEmptyOptions.length ? 0 : adjustedCorrectIndex,
-            });
+            if (shouldUseMatching) {
+                const filledPairs = matchingPairs.filter(pair => pair.left.trim() && pair.right.trim());
+                if (filledPairs.length < 2) {
+                    alert('Минимум 2 пары для сопоставления');
+                    return;
+                }
+
+                newQuestion = await quizzesApi.createQuestion(token, {
+                    topicId: selectedTopic.id,
+                    text: questionText,
+                    type: 'matching',
+                    matchingPairs: filledPairs.map(pair => ({
+                        id: Date.now() + Math.random(),
+                        left: pair.left.trim(),
+                        right: pair.right.trim(),
+                    })),
+                    options: filledPairs.map(pair => pair.right.trim()),
+                });
+            } else {
+                const filledOptions = questionOptions.filter(o => o.trim());
+                if (filledOptions.length < 2) {
+                    alert('Минимум 2 варианта ответа');
+                    return;
+                }
+
+                const nonEmptyOptions = questionOptions.filter(o => o.trim());
+                const adjustedCorrectIndex = correctIndex >= nonEmptyOptions.length ? 0 : correctIndex;
+
+                newQuestion = await quizzesApi.createQuestion(token, {
+                    topicId: selectedTopic.id,
+                    text: questionText,
+                    type: 'single',
+                    options: nonEmptyOptions.map(o => o.trim()),
+                    correctIndex: adjustedCorrectIndex,
+                });
+            }
 
             setQuestions([...questions, newQuestion]);
-            setQuestionText('');
-            setQuestionOptions(['', '', '', '']);
-            setCorrectIndex(0);
+            resetQuestionForm();
             setActiveView('questions');
         } catch (error) {
             console.error('Error creating question:', error);
@@ -161,9 +194,6 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
         <div className={styles.quizManager}>
             {/* Навигация внутри квизи */}
             <div className={styles.breadcrumb}>
-                {activeView === 'topics' && (
-                    <span className={styles.breadcrumbItem}>📂 Темы квизи</span>
-                )}
                 {activeView === 'questions' && selectedTopic && (
                     <>
                         <button className={styles.breadcrumbLink} onClick={() => { setActiveView('topics'); setSelectedTopic(null); }}>
@@ -201,9 +231,9 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
             {activeView === 'topics' && (
                 <div className={styles.viewContainer}>
                     <div className={styles.viewHeader}>
-                        <h2>Темы квизи</h2>
+                        <h2>Темы игр</h2>
                         <button className={styles.createBtn} onClick={() => setActiveView('create-topic')}>
-                            ➕ Создать тему
+                            Создать тему игры
                         </button>
                     </div>
 
@@ -221,7 +251,7 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                                             <p className={styles.topicDesc}>{topic.description}</p>
                                         )}
                                         <span className={styles.questionCount}>
-                                            📝 {getQuestionCount(topic.id)} вопросов
+                                            {getQuestionCount(topic.id)} вопроса
                                         </span>
                                     </div>
                                     <div className={styles.topicActions}>
@@ -229,6 +259,7 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                                             className={styles.openBtn}
                                             onClick={() => {
                                                 setSelectedTopic(topic);
+                                                setQuestionType(topic.gameType === 'matching' ? 'matching' : 'single');
                                                 setActiveView('questions');
                                             }}
                                         >
@@ -261,7 +292,7 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                             <input
                                 type="text"
                                 className={styles.input}
-                                placeholder="Напр., Математика 7 класс"
+                                placeholder="Напр., Как устроен мир?"
                                 value={topicName}
                                 onChange={(e) => setTopicName(e.target.value)}
                             />
@@ -278,12 +309,24 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                             />
                         </div>
 
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Тип игры</label>
+                            <select
+                                className={styles.select}
+                                value={topicGameType}
+                                onChange={(e) => setTopicGameType(e.target.value as 'quiz' | 'matching')}
+                            >
+                                <option value="quiz">Квиз</option>
+                                <option value="matching">Сопоставление</option>
+                            </select>
+                        </div>
+
                         <div className={styles.actionButtons}>
                             <button className={styles.saveBtn} onClick={handleCreateTopic}>
-                                💾 Создать тему
+                                Создать тему
                             </button>
                             <button className={styles.cancelBtn} onClick={() => setActiveView('topics')}>
-                                ✕ Отмена
+                                Отмена
                             </button>
                         </div>
                     </div>
@@ -313,14 +356,22 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                                         <span className={styles.questionText}>{q.text}</span>
                                     </div>
                                     <div className={styles.questionOptions}>
-                                        {q.options.map((opt, i) => (
-                                            <span
-                                                key={i}
-                                                className={`${styles.optionBadge} ${i === q.correctIndex ? styles.correct : ''}`}
-                                            >
-                                                {i === q.correctIndex ? '✓ ' : ''}{opt}
-                                            </span>
-                                        ))}
+                                        {q.type === 'matching' && q.matchingPairs ? (
+                                            q.matchingPairs.map(pair => (
+                                                <span key={pair.id} className={styles.optionBadge}>
+                                                    {pair.left} → {pair.right}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            q.options.map((opt, i) => (
+                                                <span
+                                                    key={i}
+                                                    className={`${styles.optionBadge} ${i === q.correctIndex ? styles.correct : ''}`}
+                                                >
+                                                    {i === q.correctIndex ? '✓ ' : ''}{opt}
+                                                </span>
+                                            ))
+                                        )}
                                     </div>
                                     <button
                                         className={styles.deleteQuestionBtn}
@@ -354,67 +405,134 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                             />
                         </div>
 
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>
-                                Варианты ответов <span className={styles.required}>*</span>
-                                <span className={styles.hint}> — выберите правильный ответ</span>
-                            </label>
-                            <div className={styles.optionsEditor}>
-                                {questionOptions.map((opt, idx) => (
-                                    <div key={idx} className={styles.optionRow}>
-                                        <input
-                                            type="radio"
-                                            name="correctAnswer"
-                                            checked={correctIndex === idx}
-                                            onChange={() => setCorrectIndex(idx)}
-                                            className={styles.radioInput}
-                                        />
-                                        <input
-                                            type="text"
-                                            className={styles.optionInput}
-                                            placeholder={`Вариант ${idx + 1}`}
-                                            value={opt}
-                                            onChange={(e) => {
-                                                const newOpts = [...questionOptions];
-                                                newOpts[idx] = e.target.value;
-                                                setQuestionOptions(newOpts);
-                                            }}
-                                        />
-                                        {questionOptions.length > 2 && (
-                                            <button
-                                                className={styles.removeOptionBtn}
-                                                onClick={() => {
-                                                    const newOpts = questionOptions.filter((_, i) => i !== idx);
+                        {selectedTopic.gameType === 'matching' ? (
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>Тип вопроса</label>
+                                <p className={styles.hint}>Тема сопоставления — этот вопрос будет сохраняться как matching.</p>
+                            </div>
+                        ) : (
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>Тип вопроса</label>
+                                <p className={styles.hint}>Тема квиза поддерживает только одиночный выбор.</p>
+                            </div>
+                        )}
+
+                        {selectedTopic.gameType === 'quiz' ? (
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>
+                                    Варианты ответов <span className={styles.required}>*</span>
+                                    <span className={styles.hint}> — выберите правильный ответ</span>
+                                </label>
+                                <div className={styles.optionsEditor}>
+                                    {questionOptions.map((opt, idx) => (
+                                        <div key={idx} className={styles.optionRow}>
+                                            <input
+                                                type="radio"
+                                                name="correctAnswer"
+                                                checked={correctIndex === idx}
+                                                onChange={() => setCorrectIndex(idx)}
+                                                className={styles.radioInput}
+                                            />
+                                            <input
+                                                type="text"
+                                                className={styles.optionInput}
+                                                placeholder={`Вариант ${idx + 1}`}
+                                                value={opt}
+                                                onChange={(e) => {
+                                                    const newOpts = [...questionOptions];
+                                                    newOpts[idx] = e.target.value;
                                                     setQuestionOptions(newOpts);
-                                                    if (correctIndex >= newOpts.length) {
-                                                        setCorrectIndex(0);
-                                                    } else if (correctIndex === idx) {
-                                                        setCorrectIndex(0);
-                                                    }
                                                 }}
-                                            >
-                                                ✕
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-                                {questionOptions.length < 8 && (
+                                            />
+                                            {questionOptions.length > 2 && (
+                                                <button
+                                                    className={styles.removeOptionBtn}
+                                                    onClick={() => {
+                                                        const newOpts = questionOptions.filter((_, i) => i !== idx);
+                                                        setQuestionOptions(newOpts);
+                                                        if (correctIndex >= newOpts.length) {
+                                                            setCorrectIndex(0);
+                                                        } else if (correctIndex === idx) {
+                                                            setCorrectIndex(0);
+                                                        }
+                                                    }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {questionOptions.length < 8 && (
+                                        <button
+                                            className={styles.addOptionBtn}
+                                            onClick={() => setQuestionOptions([...questionOptions, ''])}
+                                        >
+                                            + Добавить вариант
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className={styles.formGroup}>
+                                <label className={styles.label}>
+                                    Пары для сопоставления <span className={styles.required}>*</span>
+                                    <span className={styles.hint}> — левая часть и правильный вариант справа</span>
+                                </label>
+                                <div className={styles.matchingPairsEditor}>
+                                    {matchingPairs.map((pair, idx) => (
+                                        <div key={pair.id} className={styles.matchingPairRow}>
+                                            <input
+                                                type="text"
+                                                className={styles.optionInput}
+                                                placeholder={`Левая часть ${idx + 1}`}
+                                                value={pair.left}
+                                                onChange={(e) => {
+                                                    const newPairs = [...matchingPairs];
+                                                    newPairs[idx] = { ...newPairs[idx], left: e.target.value };
+                                                    setMatchingPairs(newPairs);
+                                                }}
+                                            />
+                                            <span className={styles.matchingArrow}>↔</span>
+                                            <input
+                                                type="text"
+                                                className={styles.optionInput}
+                                                placeholder={`Правая часть ${idx + 1}`}
+                                                value={pair.right}
+                                                onChange={(e) => {
+                                                    const newPairs = [...matchingPairs];
+                                                    newPairs[idx] = { ...newPairs[idx], right: e.target.value };
+                                                    setMatchingPairs(newPairs);
+                                                }}
+                                            />
+                                            {matchingPairs.length > 2 && (
+                                                <button
+                                                    className={styles.removeOptionBtn}
+                                                    onClick={() => {
+                                                        const newPairs = matchingPairs.filter((_, i) => i !== idx);
+                                                        setMatchingPairs(newPairs);
+                                                    }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
                                     <button
                                         className={styles.addOptionBtn}
-                                        onClick={() => setQuestionOptions([...questionOptions, ''])}
+                                        onClick={() => setMatchingPairs([...matchingPairs, { id: Date.now(), left: '', right: '' }])}
                                     >
-                                        + Добавить вариант
+                                        + Добавить пару
                                     </button>
-                                )}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className={styles.actionButtons}>
                             <button className={styles.saveBtn} onClick={handleCreateQuestion}>
-                                💾 Создать вопрос
+                                Создать вопрос
                             </button>
                             <button className={styles.cancelBtn} onClick={() => setActiveView('questions')}>
-                                ✕ Отмена
+                                Отмена
                             </button>
                         </div>
                     </div>

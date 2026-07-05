@@ -16,8 +16,8 @@ export default function QuizPlay() {
     const [shuffledQuestions, setShuffledQuestions] = useState<QuizQuestion[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+    const [matchingSelections, setMatchingSelections] = useState<Record<number, string>>({});
     const [showResult, setShowResult] = useState(false);
-    const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [answers, setAnswers] = useState<QuizAnswer[]>([]);
     const [gameFinished, setGameFinished] = useState(false);
     const [stats, setStats] = useState<QuizStats | null>(null);
@@ -36,6 +36,14 @@ export default function QuizPlay() {
 
     // Перемешивает варианты ответа и обновляет correctIndex
     const shuffleQuestionOptions = (question: QuizQuestion): QuizQuestion => {
+        if (question.type === 'matching') {
+            const rightOptions = shuffleArray(question.matchingPairs?.map(pair => pair.right) ?? []);
+            return {
+                ...question,
+                options: rightOptions,
+            };
+        }
+
         const optionsWithIndex = question.options.map((option, idx) => ({
             text: option,
             originalIndex: idx,
@@ -71,10 +79,21 @@ export default function QuizPlay() {
                 return;
             }
 
-            const normalizedData: QuizQuestion[] = data.map(q => ({
-                ...q,
-                correctIndex: (q as any).correct_index ?? q.correctIndex,
-            }));
+            const normalizedData: QuizQuestion[] = data.map((q: any) => {
+                const matchingPairs = Array.isArray(q.matchingPairs)
+                    ? q.matchingPairs
+                    : (q.matching_pairs ? q.matching_pairs : []);
+
+                return {
+                    ...q,
+                    type: q.type || (matchingPairs.length > 0 ? 'matching' : 'single'),
+                    matchingPairs,
+                    options: matchingPairs.length > 0
+                        ? matchingPairs.map((pair: any) => pair.right)
+                        : (Array.isArray(q.options) ? q.options : []),
+                    correctIndex: (q as any).correct_index ?? q.correctIndex,
+                };
+            });
 
             const withShuffledOptions = normalizedData.map(shuffleQuestionOptions);
 
@@ -104,11 +123,26 @@ export default function QuizPlay() {
         setShowResult(true);
 
         const correct = index === currentQuestion.correctIndex;
-        setIsCorrect(correct);
 
         setAnswers(prev => [...prev, {
             questionId: currentQuestion.id,
             selectedIndex: index,
+            isCorrect: correct,
+        }]);
+    };
+
+    const handleMatchingSubmit = () => {
+        if (showResult || !currentQuestion) return;
+
+        const pairs = currentQuestion.matchingPairs ?? [];
+        const selectedValues = pairs.map((_, idx) => matchingSelections[idx] ?? '');
+        const correct = pairs.every((pair, idx) => selectedValues[idx] === pair.right);
+
+        setShowResult(true);
+
+        setAnswers(prev => [...prev, {
+            questionId: currentQuestion.id,
+            selectedIndex: -1,
             isCorrect: correct,
         }]);
     };
@@ -131,8 +165,8 @@ export default function QuizPlay() {
         } else {
             setCurrentIndex(prev => prev + 1);
             setSelectedAnswer(null);
+            setMatchingSelections({});
             setShowResult(false);
-            setIsCorrect(null);
         }
     };
 
@@ -143,8 +177,8 @@ export default function QuizPlay() {
         setShuffledQuestions(shuffled);
         setCurrentIndex(0);
         setSelectedAnswer(null);
+        setMatchingSelections({});
         setShowResult(false);
-        setIsCorrect(null);
         setAnswers([]);
         setStats(null);
         setGameFinished(false);
@@ -269,51 +303,90 @@ export default function QuizPlay() {
                         </div>
                     </div>
 
-                    <div className={styles.answersSection}>
-                        {currentQuestion?.options?.map((option, idx) => {
-                            // Определяем состояние карточки
-                            const isSelected = selectedAnswer === idx;
-                            const isCorrectAnswer = idx === currentQuestion.correctIndex;
-                            const isWrongSelection = isSelected && !isCorrectAnswer;
+                    {currentQuestion?.type === 'matching' ? (
+                        <div className={styles.matchingSection}>
+                            {currentQuestion.matchingPairs?.map((pair, idx) => {
+                                const selectedValue = matchingSelections[idx] ?? '';
+                                const isCorrectAnswer = selectedValue === pair.right;
+                                const isWrongSelection = showResult && selectedValue && !isCorrectAnswer;
 
-                            let cardClass = styles.answerCard;
-                            
-                            if (showResult) {
-                                if (isCorrectAnswer) {
-                                    cardClass += ` ${styles.answerCorrect}`;
-                                } else if (isWrongSelection) {
-                                    cardClass += ` ${styles.answerWrong}`;
+                                return (
+                                    <div key={pair.id} className={`${styles.matchingRow} ${showResult && isWrongSelection ? styles.matchingRowWrong : ''} ${showResult && selectedValue && isCorrectAnswer ? styles.matchingRowCorrect : ''}`}>
+                                        <div className={styles.matchingLeft}>{pair.left}</div>
+                                        <select
+                                            className={styles.matchingSelect}
+                                            value={selectedValue}
+                                            onChange={(e) => setMatchingSelections(prev => ({ ...prev, [idx]: e.target.value }))}
+                                            disabled={showResult}
+                                        >
+                                            <option value="">Выберите вариант</option>
+                                            {currentQuestion.options?.map((option, optionIdx) => (
+                                                <option key={`${pair.id}-${optionIdx}`} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                        {showResult && (
+                                            <span className={styles.matchingState}>{isCorrectAnswer ? '✓' : '✗'}</span>
+                                        )}
+                                    </div>
+                                );
+                            })}
+
+                            {!showResult && (
+                                <div className={styles.actionButtons}>
+                                    <button
+                                        className={styles.nextBtn}
+                                        onClick={handleMatchingSubmit}
+                                        disabled={(currentQuestion.matchingPairs ?? []).some((_, idx) => !matchingSelections[idx])}
+                                    >
+                                        Проверить
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className={styles.answersSection}>
+                            {currentQuestion?.options?.map((option, idx) => {
+                                const isSelected = selectedAnswer === idx;
+                                const isCorrectAnswer = idx === currentQuestion.correctIndex;
+                                const isWrongSelection = isSelected && !isCorrectAnswer;
+
+                                let cardClass = styles.answerCard;
+                                
+                                if (showResult) {
+                                    if (isCorrectAnswer) {
+                                        cardClass += ` ${styles.answerCorrect}`;
+                                    } else if (isWrongSelection) {
+                                        cardClass += ` ${styles.answerWrong}`;
+                                    }
+                                } else if (isSelected) {
+                                    cardClass += ` ${styles.answerHover}`;
                                 }
-                            } else if (isSelected) {
-                                cardClass += ` ${styles.answerHover}`;
-                            }
 
-                            return (
-                                <button
-                                    key={idx}
-                                    className={cardClass}
-                                    onClick={() => handleAnswerClick(idx)}
-                                    disabled={showResult}
-                                    type="button"
-                                >
-                                    <span className={styles.answerLetter}>
-                                        {String.fromCharCode(65 + idx)}
-                                    </span>
-                                    <span className={styles.answerText}>{option}</span>
-                                    
-                                    {/* Иконки результата */}
-                                    {showResult && isCorrectAnswer && (
-                                        <span className={styles.answerIcon}>✓</span>
-                                    )}
-                                    {showResult && isWrongSelection && (
-                                        <span className={styles.answerIcon}>✗</span>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
+                                return (
+                                    <button
+                                        key={idx}
+                                        className={cardClass}
+                                        onClick={() => handleAnswerClick(idx)}
+                                        disabled={showResult}
+                                        type="button"
+                                    >
+                                        <span className={styles.answerLetter}>
+                                            {String.fromCharCode(65 + idx)}
+                                        </span>
+                                        <span className={styles.answerText}>{option}</span>
+                                        
+                                        {showResult && isCorrectAnswer && (
+                                            <span className={styles.answerIcon}>✓</span>
+                                        )}
+                                        {showResult && isWrongSelection && (
+                                            <span className={styles.answerIcon}>✗</span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
 
-                    {/* Кнопка "Далее" */}
                     {showResult && (
                         <div className={styles.actionButtons}>
                             <button className={styles.nextBtn} onClick={handleNextQuestion}>

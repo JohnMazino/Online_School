@@ -91,7 +91,16 @@ export const quizzesApi = {
             },
             body: JSON.stringify(question),
         });
-        if (!response.ok) throw new Error('Failed to create question');
+        if (!response.ok) {
+            let message = 'Failed to create question';
+            try {
+                const errorData = await response.json();
+                if (errorData?.error) message = errorData.error;
+            } catch {
+                // ignore
+            }
+            throw new Error(message);
+        }
         const data = await response.json();
         return data.question;
     },

@@ -285,7 +285,7 @@ export default function TestConstructorPage() {
                             className={`${styles.tabButton} ${activeTab === 'games' ? styles.active : ''}`}
                             onClick={() => setActiveTab('games')}
                         >
-                             🎮 Игры
+                            Игры
                         </button>
                     </nav>
 

@@ -201,7 +201,7 @@ export const testsApi = {
     /**
      * Получить назначенные тесты для студента
      */
-    getStudentAssignments: async (token: string): Promise<Array<Assignment & { test: Test & { teacherName: string } }>> => {
+    getStudentAssignments: async (token: string): Promise<any[]> => {
         try {
             const response = await fetch(`${API_URL}/tests/student/assignments`, {
                 headers: { 'Authorization': `Bearer ${token}` },

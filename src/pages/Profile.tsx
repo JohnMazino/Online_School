@@ -33,13 +33,37 @@ interface AssignedTest {
     completed_at?: string; // когда тест был завершен
 }
 
+interface StudentAssignmentApiResponse {
+    id: number;
+    test_id: number;
+    title: string;
+    due_date: string | null;
+    assigned_at: string;
+    status: 'assigned' | 'in_progress' | 'completed' | string;
+    first_name?: string;
+    last_name?: string;
+    score?: number;
+    max_score?: number;
+    completed_at?: string;
+}
+
+interface QuizTopicApiResponse {
+    id: number;
+    name: string;
+    description: string;
+    teacherId: number;
+    createdAt: string;
+    gameType?: 'quiz' | 'matching';
+    question_count?: number;
+}
+
 interface QuizTopicInfo {
     id: number;
     name: string;
     description: string;
-    teacher_id: number;
-    first_name?: string;
-    last_name?: string;
+    teacherId: number;
+    createdAt: string;
+    gameType: 'quiz' | 'matching';
     question_count?: number;
 }
 
@@ -51,6 +75,10 @@ export default function Profile() {
     const [loading, setLoading] = useState(true);
     const [assignedTests, setAssignedTests] = useState<AssignedTest[]>([]);
     const [quizTopics, setQuizTopics] = useState<QuizTopicInfo[]>([]);
+    const [currentFolder, setCurrentFolder] = useState<'root' | 'lectures' | 'tests' | 'games'>('root');
+
+    const enterFolder = (folder: 'lectures' | 'tests' | 'games') => setCurrentFolder(folder);
+    const goBack = () => setCurrentFolder('root');
 
     useEffect(() => {
         if (!isAuthenticated || !token) {
@@ -65,19 +93,43 @@ export default function Profile() {
                 
                 // Загрузить назначенные тесты для студента
                 if (data.user.role !== 'teacher') {
-                    const tests = await testsApi.getStudentAssignments(token);
-                    setAssignedTests(tests);
+                    const tests = await testsApi.getStudentAssignments(token) as StudentAssignmentApiResponse[];
+                    const normalizedTests: AssignedTest[] = tests.map(assignment => {
+                        const teacherNames = `${assignment.first_name || ''} ${assignment.last_name || ''}`.trim().split(' ');
 
-                    // Загрузить темы квизи для студента
+                        return {
+                            id: assignment.id,
+                            test_id: assignment.test_id,
+                            title: assignment.title,
+                            due_date: assignment.due_date ?? null,
+                            assigned_at: assignment.assigned_at,
+                            status: assignment.status === 'assigned' ? 'pending'
+                                : assignment.status === 'in_progress' ? 'started'
+                                    : assignment.status === 'completed' ? 'completed'
+                                        : 'pending',
+                            first_name: teacherNames[0] || '',
+                            last_name: teacherNames.slice(1).join(' ') || '',
+                            score: assignment.score,
+                            max_score: assignment.max_score,
+                            completed_at: assignment.completed_at,
+                        };
+                    });
+                    setAssignedTests(normalizedTests);
+
+                    // Загрузить темы квизи и игры для студента
                     try {
-                        const topics = await quizzesApi.getAllTopics(token);
-                        setQuizTopics(topics);
+                        const topics = await quizzesApi.getAllTopics(token) as QuizTopicApiResponse[];
+                        setQuizTopics(topics.map(topic => ({
+                            ...topic,
+                            gameType: topic.gameType || 'quiz',
+                            question_count: topic.question_count ?? 0,
+                        })));
                     } catch (e) {
                         console.error('Failed to load quiz topics:', e);
                     }
                 }
             } catch (error) {
-                console.error('Failed to load profile');
+                console.error('Failed to load profile:', error);
                 navigate('/login');
             } finally {
                 setLoading(false);
@@ -143,101 +195,150 @@ export default function Profile() {
                         </div>
                     </div>
 
-                    {/* Лекции, тесты, срезы */}
+                    {/* Файловая система: лекции, тесты и игры */}
                     {user.role !== 'teacher' && (
                         <section className={styles.section}>
-                            <h2>Лекции, тесты, срезы</h2>
+                            <div className={styles.folderToolbar}>
+                                {currentFolder !== 'root' ? (
+                                    <button type="button" className={`${styles.backButton} ${styles.backButtonFolder}`} onClick={goBack}>
+                                        ← Назад
+                                    </button>
+                                ) : (
+                                    <div className={styles.folderBreadcrumb}>Тесты, лекции, квизи</div>
+                                )}
 
-                            {assignedTests.length > 0 ? (
-                                <div className={styles.testsContainer}>
-                                    {assignedTests.map(test => (
-                                        <div key={test.id} className={`${styles.testCard} ${styles[test.status]}`}>
-                                            <div className={styles.testHeader}>
-                                                <h3>{test.title}</h3>
-                                                <span className={`${styles.testStatus} ${styles[test.status]}`}>
-                                                    {test.status === 'pending' && '🆕 Новый'}
-                                                    {test.status === 'started' && '⏳ В процессе'}
-                                                    {test.status === 'completed' && (
-                                                        <span>
-                                                            ✓ {test.score}/{test.max_score} баллов
+                                {currentFolder !== 'root' && (
+                                    <div className={styles.currentFolderLabel}>
+                                        {currentFolder === 'lectures' && 'Лекции'}
+                                        {currentFolder === 'tests' && 'Тесты'}
+                                        {currentFolder === 'games' && 'Игры'}
+                                    </div>
+                                )}
+                            </div>
+
+                            {currentFolder === 'root' ? (
+                                <div className={styles.folderGrid}>
+                                    <article className={styles.folderCard} onClick={() => enterFolder('lectures')}>
+                                        <div className={styles.folderHeader}>
+                                            <span className={styles.folderTitle}>📁 Лекции</span>
+                                            <span className={styles.folderMeta}>
+                                                <span className={styles.folderCounter}>0</span>
+                                                <span className={styles.folderArrow}>▸</span>
+                                            </span>
+                                        </div>
+                                        <p className={styles.folderHint}>Пустая папка для материалов и лекций</p>
+                                    </article>
+
+                                    <article className={styles.folderCard} onClick={() => enterFolder('tests')}>
+                                        <div className={styles.folderHeader}>
+                                            <span className={styles.folderTitle}>📁 Тесты</span>
+                                            <span className={styles.folderMeta}>
+                                                <span className={styles.folderCounter}>{assignedTests.length} {assignedTests.length === 1 ? 'файл' : 'файла'}</span>
+                                                <span className={styles.folderArrow}>▸</span>
+                                            </span>
+                                        </div>
+                                        <p className={styles.folderHint}>Открыть назначенные тесты</p>
+                                    </article>
+
+                                    <article className={styles.folderCard} onClick={() => enterFolder('games')}>
+                                        <div className={styles.folderHeader}>
+                                            <span className={styles.folderTitle}>📁 Игры</span>
+                                            <span className={styles.folderMeta}>
+                                                <span className={styles.folderCounter}>{quizTopics.length + 1} {quizTopics.length + 1 === 1 ? 'файл' : 'файла'}</span>
+                                                <span className={styles.folderArrow}>▸</span>
+                                            </span>
+                                        </div>
+                                        <p className={styles.folderHint}>Открыть доступные квизы и мини-игры</p>
+                                    </article>
+                                </div>
+                            ) : (
+                                <div className={styles.folderContent}>
+                                    {currentFolder === 'lectures' && (
+                                        <p className={styles.emptyFolder}>Папка пуста — добавьте сюда материалы позже.</p>
+                                    )}
+
+                                    {currentFolder === 'tests' && (
+                                        assignedTests.length > 0 ? (
+                                            assignedTests.map(test => {
+                                                const targetPath = test.status === 'completed'
+                                                    ? `/test/${test.test_id}/results`
+                                                    : `/test/${test.test_id}`;
+                                                const statusLabel = test.status === 'pending'
+                                                    ? 'Новый'
+                                                    : test.status === 'started'
+                                                        ? 'В процессе'
+                                                        : 'Завершён';
+
+                                                return (
+                                                    <button
+                                                        key={test.id}
+                                                        type="button"
+                                                        className={styles.fileItem}
+                                                        onClick={() => navigate(targetPath)}
+                                                    >
+                                                        <div className={styles.fileInfo}>
+                                                            <span className={styles.fileName}>📄 {test.title}</span>
+                                                            <span className={styles.fileSubtitle}>
+                                                                {test.first_name} {test.last_name}
+                                                                {test.due_date ? ` · дедлайн ${new Date(test.due_date).toLocaleDateString('ru-RU')}` : ''}
+                                                            </span>
+                                                        </div>
+                                                        <span className={styles.fileTag}>{statusLabel}</span>
+                                                    </button>
+                                                );
+                                            })
+                                        ) : (
+                                            <p className={styles.emptyFolder}>Нет назначенных тестов</p>
+                                        )
+                                    )}
+
+                                    {currentFolder === 'games' && (
+                                        <>
+                                            {quizTopics.length > 0 && quizTopics.map(topic => {
+                                                const isMatching = topic.gameType === 'matching';
+                                                const icon = isMatching ? '🧩' : '🎯';
+                                                const routePath = isMatching ? `/matching/${topic.id}` : `/quiz/${topic.id}`;
+
+                                                return (
+                                                    <button
+                                                        key={topic.id}
+                                                        type="button"
+                                                        className={styles.fileItem}
+                                                        onClick={() => navigate(routePath)}
+                                                        disabled={!topic.question_count}
+                                                    >
+                                                        <div className={styles.fileInfo}>
+                                                            <span className={styles.fileName}>{icon} {topic.name}</span>
+                                                            <span className={styles.fileSubtitle}>
+                                                                {topic.description || (isMatching ? 'Игра сопоставления' : 'Квиз')}
+                                                            </span>
+                                                        </div>
+                                                        <span className={styles.fileTag}>
+                                                            {topic.question_count ? `${topic.question_count} вопроса` : 'Нет вопросов'}
+                                                            {isMatching ? ' · Сопоставление' : ''}
                                                         </span>
-                                                    )}
-                                                </span>
-                                            </div>
-
-                                            {test.due_date && (
-                                                <p className={styles.testDeadline}>
-                                                    <strong>Дедлайн:</strong> {new Date(test.due_date).toLocaleDateString('ru-RU')}
-                                                </p>
-                                            )}
-
-                                            <p className={styles.teacherName}>
-                                                <strong>Преподаватель:</strong> {test.first_name} {test.last_name}
-                                            </p>
-
-                                            {test.status === 'completed' && test.completed_at && (
-                                                <p className={styles.completedDate}>
-                                                    <strong>Завершено:</strong> {new Date(test.completed_at).toLocaleDateString('ru-RU')}
-                                                </p>
-                                            )}
-
-                                            <div className={styles.testActions}>
-                                                {(test.status === 'pending' || test.status === 'started') && (
-                                                    <button className={styles.startTestBtn} onClick={() => navigate(`/test/${test.test_id}`)}>
-                                                        {test.status === 'pending' ? 'Начать тест →' : 'Продолжить →'}
                                                     </button>
-                                                )}
-                                                {test.status === 'completed' && (
-                                                    <button className={styles.viewResultsBtn} onClick={() => navigate(`/test/${test.test_id}/results`)}>
-                                                        Посмотреть результаты
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className={styles.noTests}>Нет назначенных тестов</p>
-                            )}
-                        </section>
-                    )}
+                                                );
+                                            })}
 
-                    {/* Игры — Квизи (для учеников) */}
-                    {user.role !== 'teacher' && (
-                        <section className={styles.section}>
-                            <h2>Игры — Квизи</h2>
-                            <p className={styles.gamesSubtitle}>Выберите тему и проверьте свои знания в увлекательном квизе!</p>
-
-                            {quizTopics.length > 0 ? (
-                                <div className={styles.gamesGrid}>
-                                    {quizTopics.map(topic => (
-                                        <div key={topic.id} className={styles.gameCard}>
-                                            <div className={styles.gameInfo}>
-                                                <h3 className={styles.gameTitle}>{topic.name}</h3>
-                                                {topic.description && (
-                                                    <p className={styles.gameDesc}>{topic.description}</p>
-                                                )}
-                                                <span className={styles.gameQuestions}>
-                                                    📝 {topic.question_count ?? 0} вопросов
-                                                </span>
-                                                {(topic as any).first_name && (
-                                                    <span className={styles.gameTeacher}>
-                                                        👨‍🏫 {(topic as any).first_name} {(topic as any).last_name}
-                                                    </span>
-                                                )}
-                                            </div>
                                             <button
-                                                className={styles.playBtn}
-                                                disabled={!topic.question_count}
-                                                onClick={() => navigate(`/quiz/${topic.id}`)}
+                                                type="button"
+                                                className={styles.fileItem}
+                                                onClick={() => navigate('/blockblast')}
                                             >
-                                                {topic.question_count ? '▶ Играть' : '🔒 Нет вопросов'}
+                                                <div className={styles.fileInfo}>
+                                                    <span className={styles.fileName}>🧱 Block Blast</span>
+                                                    <span className={styles.fileSubtitle}>Мини-игра 8×8 с блоками</span>
+                                                </div>
+                                                <span className={styles.fileTag}>Игровое поле 8×8 · 3 фигуры за раунд</span>
                                             </button>
-                                        </div>
-                                    ))}
+
+                                            {quizTopics.length === 0 && (
+                                                <p className={styles.emptyFolder}>Пока нет доступных тем для квизи</p>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
-                            ) : (
-                                <p className={styles.noTests}>Пока нет доступных тем для квизи</p>
                             )}
                         </section>
                     )}
