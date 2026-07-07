@@ -72,7 +72,6 @@ export default function BlockBlast() {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [question, setQuestion] = useState<GameQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState('');
-  const [, setGameOver] = useState(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [questionBank, setQuestionBank] = useState<GameQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,7 +145,6 @@ export default function BlockBlast() {
     setBoard(createEmptyBoard());
     setScore(0);
     setLives(3);
-    setGameOver(false);
     setShowGameOverModal(false);
     setShowQuestionModal(false);
     setQuestion(null);
@@ -172,53 +170,53 @@ export default function BlockBlast() {
   };
 
   const placePiece = (piece: BlockPiece, row: number, col: number) => {
-  let newBoard = board.map(line => [...line]);
+    let newBoard = board.map(line => [...line]);
 
-  // Размещаем фигуру
-  for (let r = 0; r < piece.shape.length; r++) {
-    for (let c = 0; c < piece.shape[r].length; c++) {
-      if (piece.shape[r][c] === 1) {
-        newBoard[row + r][col + c] = piece.id;
+    // Размещаем фигуру
+    for (let r = 0; r < piece.shape.length; r++) {
+      for (let c = 0; c < piece.shape[r].length; c++) {
+        if (piece.shape[r][c] === 1) {
+          newBoard[row + r][col + c] = piece.id;
+        }
       }
     }
-  }
 
-  // Находим полные линии
-  const fullRows: number[] = [];
-  const fullCols: number[] = [];
+    // Находим полные линии
+    const fullRows: number[] = [];
+    const fullCols: number[] = [];
 
-  newBoard.forEach((r, i) => {
-    if (r.every(c => c !== 0)) fullRows.push(i);
-  });
+    newBoard.forEach((r, i) => {
+      if (r.every(c => c !== 0)) fullRows.push(i);
+    });
 
-  for (let c = 0; c < BOARD_SIZE; c++) {
-    if (newBoard.every(row => row[c] !== 0)) fullCols.push(c);
-  }
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      if (newBoard.every(row => row[c] !== 0)) fullCols.push(c);
+    }
 
-  // Если есть линии для очистки — запускаем анимацию
-  if (fullRows.length > 0 || fullCols.length > 0) {
-    setClearingLines({ rows: fullRows, cols: fullCols });
+    // Если есть линии для очистки — запускаем анимацию
+    if (fullRows.length > 0 || fullCols.length > 0) {
+      setClearingLines({ rows: fullRows, cols: fullCols });
 
-    // Задержка перед очисткой
-    setTimeout(() => {
-      // Очищаем линии
-      fullRows.forEach(r => {
-        newBoard[r].fill(0);
-      });
-      fullCols.forEach(c => {
-        newBoard.forEach(row => row[c] = 0);
-      });
+      // Задержка перед очисткой
+      setTimeout(() => {
+        // Очищаем линии
+        fullRows.forEach(r => {
+          newBoard[r].fill(0);
+        });
+        fullCols.forEach(c => {
+          newBoard.forEach(row => row[c] = 0);
+        });
 
+        setBoard(newBoard);
+        setScore(prev => prev + (fullRows.length + fullCols.length) * 100);
+        setClearingLines({ rows: [], cols: [] });
+      }, 300); // длительность анимации
+    } else {
       setBoard(newBoard);
-      setScore(prev => prev + (fullRows.length + fullCols.length) * 100);
-      setClearingLines({ rows: [], cols: [] });
-    }, 300); // длительность анимации
-  } else {
-    setBoard(newBoard);
-  }
+    }
 
-  return newBoard;
-};
+    return newBoard;
+  };
 
   const handleDragStart = (pieceId: number) => setDraggedPieceId(pieceId);
 
@@ -252,110 +250,112 @@ export default function BlockBlast() {
         setShowQuestionModal(true);
       }
     } else if (!remaining.some(p =>
-      Array.from({ length: BOARD_SIZE * BOARD_SIZE }).some((_, i) => {
-        const r = Math.floor(i / BOARD_SIZE);
-        const c = i % BOARD_SIZE;
-        return canPlacePieceAt(newBoard, p, r, c);
-      })
+        Array.from({ length: BOARD_SIZE * BOARD_SIZE }).some((_, i) => {
+          const r = Math.floor(i / BOARD_SIZE);
+          const c = i % BOARD_SIZE;
+          return canPlacePieceAt(newBoard, p, r, c);
+        })
     )) {
-      setGameOver(true);
       setShowGameOverModal(true);
     }
   };
 
-  // ==================== MATCHING QUESTION COMPONENT ====================
-const MatchingQuestionContent = ({
-  question,
-  onComplete
-}: {
-  question: GameQuestion;
-  onComplete: (isCorrect: boolean) => void;
-}) => {
-  const [leftItems] = useState(() => question.matchingPairs!.map(p => p.left));
-  const [rightItems, setRightItems] = useState(() =>
-    shuffle(question.matchingPairs!.map(p => p.right))
-  );
-  const [showResult, setShowResult] = useState(false);
+  // MATCHING QUESTION COMPONENT
+  const MatchingQuestionContent = ({
+                                     question,
+                                     onComplete
+                                   }: {
+    question: GameQuestion;
+    onComplete: (isCorrect: boolean) => void;
+  }) => {
+    const [leftItems] = useState(() => question.matchingPairs!.map(p => p.left));
+    const [rightItems, setRightItems] = useState(() =>
+        shuffle(question.matchingPairs!.map(p => p.right))
+    );
+    const [showResult, setShowResult] = useState(false);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.dataTransfer.setData('text/plain', index.toString());
-  };
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+      e.dataTransfer.setData('text/plain', index.toString());
+    };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
-    e.preventDefault();
-    const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
-    if (dragIndex === dropIndex) return;
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+      e.preventDefault();
+      const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
 
-    const newRightItems = [...rightItems];
-    const [movedItem] = newRightItems.splice(dragIndex, 1);
-    newRightItems.splice(dropIndex, 0, movedItem);
-    setRightItems(newRightItems);
-  };
+      if (dragIndex === dropIndex) return;
 
-  const checkAnswers = () => {
-    const isCorrect = leftItems.every((left, index) => {
-      const correctRight = question.matchingPairs!.find(p => p.left === left)?.right;
-      return rightItems[index] === correctRight;
-    });
+      const newRightItems = [...rightItems];
 
-    setShowResult(true);
-    setTimeout(() => onComplete(isCorrect), 800);
-  };
+      [newRightItems[dragIndex], newRightItems[dropIndex]] =
+          [newRightItems[dropIndex], newRightItems[dragIndex]];
 
-  return (
-    <>
-      <div className={quizStyles.matchingBoard}>
-        {/* Левая колонка */}
-        <div className={quizStyles.matchingLeftColumn}>
-          {leftItems.map((item, idx) => (
-            <div key={idx} className={quizStyles.matchingRow}>
-              <div className={quizStyles.matchingLeft}>{item}</div>
+      setRightItems(newRightItems);
+    };
+
+    const checkAnswers = () => {
+      const isCorrect = leftItems.every((left, index) => {
+        const correctRight = question.matchingPairs!.find(p => p.left === left)?.right;
+        return rightItems[index] === correctRight;
+      });
+
+      setShowResult(true);
+      setTimeout(() => onComplete(isCorrect), 800);
+    };
+
+    return (
+        <>
+          <div className={quizStyles.matchingBoard}>
+            {/* Левая колонка */}
+            <div className={quizStyles.matchingLeftColumn}>
+              {leftItems.map((item, idx) => (
+                  <div key={idx} className={quizStyles.matchingRow}>
+                    <div className={quizStyles.matchingLeft}>{item}</div>
+                  </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Правая колонка */}
-        <div className={quizStyles.matchingRightColumn}>
-          {rightItems.map((item, idx) => {
-            const correctAnswer = question.matchingPairs?.find(
-              p => p.left === leftItems[idx]
-            )?.right;
-            const isCorrect = showResult && item === correctAnswer;
-            const isWrong = showResult && item !== correctAnswer;
+            {/* Правая колонка */}
+            <div className={quizStyles.matchingRightColumn}>
+              {rightItems.map((item, idx) => {
+                const correctAnswer = question.matchingPairs?.find(
+                    p => p.left === leftItems[idx]
+                )?.right;
+                const isCorrect = showResult && item === correctAnswer;
+                const isWrong = showResult && item !== correctAnswer;
 
-            return (
-              <div
-                key={idx}
-                draggable={!showResult}
-                onDragStart={(e) => handleDragStart(e, idx)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => handleDrop(e, idx)}
-                className={`${quizStyles.matchingRow} ${quizStyles.matchingRightRow}
+                return (
+                    <div
+                        key={idx}
+                        draggable={!showResult}
+                        onDragStart={(e) => handleDragStart(e, idx)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => handleDrop(e, idx)}
+                        className={`${quizStyles.matchingRow} ${quizStyles.matchingRightRow}
                   ${isCorrect ? quizStyles.matchingRowCorrect : ''}
                   ${isWrong ? quizStyles.matchingRowWrong : ''}`}
-              >
-                <div className={quizStyles.matchingRight}>{item}</div>
-                {showResult && (
-                  <span className={quizStyles.matchingState}>
+                    >
+                      <div className={quizStyles.matchingRight}>{item}</div>
+                      {showResult && (
+                          <span className={quizStyles.matchingState}>
                     {isCorrect ? '✓' : '✗'}
                   </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                      )}
+                    </div>
+                );
+              })}
+            </div>
+          </div>
 
-      {!showResult && (
-        <div className={quizStyles.actionButtons}>
-          <button className={quizStyles.nextBtn} onClick={checkAnswers}>
-            Проверить
-          </button>
-        </div>
-      )}
-    </>
-  );
-};
+          {!showResult && (
+              <div className={quizStyles.actionButtons}>
+                <button className={quizStyles.nextBtn} onClick={checkAnswers}>
+                  Проверить
+                </button>
+              </div>
+          )}
+        </>
+    );
+  };
 
   const handleQuestionSubmit = () => {
     if (!question || !selectedAnswer) return;
@@ -365,7 +365,6 @@ const MatchingQuestionContent = ({
     setShowQuestionModal(false);
 
     if (nextLives <= 0) {
-      setGameOver(true);
       setShowGameOverModal(true);
       return;
     }
@@ -380,7 +379,6 @@ const MatchingQuestionContent = ({
     setShowQuestionModal(false);
 
     if (nextLives <= 0) {
-      setGameOver(true);
       setShowGameOverModal(true);
       return;
     }
@@ -390,182 +388,182 @@ const MatchingQuestionContent = ({
   };
 
   return (
-    <div className={styles.blockBlastPage}>
-      <Sidebar />
-      <div className={styles.gameContent}>
-        <Background />
+      <div className={styles.blockBlastPage}>
+        <Sidebar />
+        <div className={styles.gameContent}>
+          <Background />
 
-        <div className={styles.gameWindow}>
-          <div className={styles.gameHeader}>
-            <button type="button" className={styles.backButton} onClick={() => navigate('/profile')}>
-              ← Назад к профилю
-            </button>
-            <div>
-              <p className={styles.gameSubtitle}>Размещайте фигуры • Очищайте линии • Отвечайте на вопросы</p>
+          <div className={styles.gameWindow}>
+            <div className={styles.gameHeader}>
+              <button type="button" className={styles.backButton} onClick={() => navigate('/profile')}>
+                ← Назад к профилю
+              </button>
+              <div>
+                <p className={styles.gameSubtitle}>Размещайте фигуры • Очищайте линии • Отвечайте на вопросы</p>
+              </div>
             </div>
-          </div>
 
-          <div className={styles.statusBar}>
-  <span>Очки: <strong>{score}</strong></span>
-  
-  <div className={styles.livesContainer}>
-    <span>Жизни:</span>
-    <div className={styles.hearts}>
-      {[1, 2, 3].map((heart) => (
-        <span 
-          key={heart} 
-          className={styles.heart}
-        >
+            <div className={styles.statusBar}>
+              <span>Очки: <strong>{score}</strong></span>
+
+              <div className={styles.livesContainer}>
+                <span>Жизни:</span>
+                <div className={styles.hearts}>
+                  {[1, 2, 3].map((heart) => (
+                      <span
+                          key={heart}
+                          className={styles.heart}
+                      >
           {heart <= lives ? '❤️' : '♡'}
         </span>
-      ))}
-    </div>
-  </div>
+                  ))}
+                </div>
+              </div>
 
-  <span>Фигур осталось: <strong>{pieces.length}</strong></span>
-</div>
+              <span>Фигур осталось: <strong>{pieces.length}</strong></span>
+            </div>
 
-          <div className={styles.gridAndSidebar}>
-            <div className={styles.boardGrid}>
-              {board.map((rowData, row) => (
-  <div key={row} className={styles.boardRow}>
-    {rowData.map((cell, col) => {
-      const isPreview = dragPreview &&
-        row >= dragPreview.row && row < dragPreview.row + dragPreview.piece.shape.length &&
-        col >= dragPreview.col && col < dragPreview.col + dragPreview.piece.shape[0].length &&
-        dragPreview.piece.shape[row - dragPreview.row][col - dragPreview.col] === 1;
+            <div className={styles.gridAndSidebar}>
+              <div className={styles.boardGrid}>
+                {board.map((rowData, row) => (
+                    <div key={row} className={styles.boardRow}>
+                      {rowData.map((cell, col) => {
+                        const isPreview = dragPreview &&
+                            row >= dragPreview.row && row < dragPreview.row + dragPreview.piece.shape.length &&
+                            col >= dragPreview.col && col < dragPreview.col + dragPreview.piece.shape[0].length &&
+                            dragPreview.piece.shape[row - dragPreview.row][col - dragPreview.col] === 1;
 
-      const isClearingRow = clearingLines.rows.includes(row);
-      const isClearingCol = clearingLines.cols.includes(col);
-      const isClearing = isClearingRow || isClearingCol;
+                        const isClearingRow = clearingLines.rows.includes(row);
+                        const isClearingCol = clearingLines.cols.includes(col);
+                        const isClearing = isClearingRow || isClearingCol;
 
-      return (
-        <div
-          key={col}
-          className={`
+                        return (
+                            <div
+                                key={col}
+                                className={`
             ${styles.boardCell} 
             ${cell !== 0 ? styles.filledCell : ''} 
             ${isPreview ? styles.previewGhost : ''}
             ${isClearing ? styles.clearing : ''}
           `}
-          style={cell !== 0 ? { backgroundColor: pieceColors[cell] } : undefined}
-          onDragOver={(e) => handleDragOver(e, row, col)}
-          onDrop={(e) => handleDrop(row, col, e)}
-          onDragLeave={() => setDragPreview(null)}
-        />
-      );
-    })}
-  </div>
-))}
-            </div>
+                                style={cell !== 0 ? { backgroundColor: pieceColors[cell] } : undefined}
+                                onDragOver={(e) => handleDragOver(e, row, col)}
+                                onDrop={(e) => handleDrop(row, col, e)}
+                                onDragLeave={() => setDragPreview(null)}
+                            />
+                        );
+                      })}
+                    </div>
+                ))}
+              </div>
 
-            <aside className={styles.sidePanel}>
-              <div className={styles.sideSection}>
-                <h2>Фигуры</h2>
-                <div className={styles.pieceList}>
-                  {pieces.map(piece => (
-                    <div
-                      key={piece.id}
-                      className={`${styles.pieceCard} ${draggedPieceId === piece.id ? styles.draggingPiece : ''}`}
-                      draggable
-                      onDragStart={() => handleDragStart(piece.id)}
-                      onDragEnd={() => {
-                        setDraggedPieceId(null);
-                        setDragPreview(null);
-                      }}
-                    >
-                      <div className={styles.piecePreview}>
-                        {piece.shape.map((shapeRow, r) => (
-                          <div key={r} className={styles.pieceRow}>
-                            {shapeRow.map((val, c) => (
-                              <span
-                                key={c}
-                                className={`${styles.previewCell} ${val === 1 ? styles.previewFilled : ''}`}
-                                style={val === 1 ? { backgroundColor: piece.color } : {}}
-                              />
+              <aside className={styles.sidePanel}>
+                <div className={styles.sideSection}>
+                  <h2>Фигуры</h2>
+                  <div className={styles.pieceList}>
+                    {pieces.map(piece => (
+                        <div
+                            key={piece.id}
+                            className={`${styles.pieceCard} ${draggedPieceId === piece.id ? styles.draggingPiece : ''}`}
+                            draggable
+                            onDragStart={() => handleDragStart(piece.id)}
+                            onDragEnd={() => {
+                              setDraggedPieceId(null);
+                              setDragPreview(null);
+                            }}
+                        >
+                          <div className={styles.piecePreview}>
+                            {piece.shape.map((shapeRow, r) => (
+                                <div key={r} className={styles.pieceRow}>
+                                  {shapeRow.map((val, c) => (
+                                      <span
+                                          key={c}
+                                          className={`${styles.previewCell} ${val === 1 ? styles.previewFilled : ''}`}
+                                          style={val === 1 ? { backgroundColor: piece.color } : {}}
+                                      />
+                                  ))}
+                                </div>
                             ))}
                           </div>
-                        ))}
+                        </div>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+            </div>
+
+            {/* МОДАЛЬНОЕ ОКНО */}
+            {showQuestionModal && question && (
+                <div className={styles.modalOverlay}>
+                  <div className={styles.modalWindow}>
+                    <div className={quizStyles.questionCard}>
+                      <span className={quizStyles.questionNumber}>Вопрос</span>
+                      <p className={quizStyles.questionText}>{question.text}</p>
+                    </div>
+
+                    {question.type === 'matching' && question.matchingPairs ? (
+                        <MatchingQuestionContent
+                            question={question}
+                            onComplete={handleMatchingComplete}
+                        />
+                    ) : (
+                        // Single choice
+                        <div className={quizStyles.answersSection}>
+                          {question.options?.map((option, idx) => (
+                              <button
+                                  key={idx}
+                                  className={`${quizStyles.answerCard} ${selectedAnswer === option ? quizStyles.answerSelected : ''}`}
+                                  onClick={() => setSelectedAnswer(option)}
+                                  type="button"
+                              >
+                                <span className={quizStyles.answerLetter}>{String.fromCharCode(65 + idx)}</span>
+                                <span className={quizStyles.answerText}>{option}</span>
+                              </button>
+                          ))}
+                          <div className={quizStyles.actionButtons}>
+                            <button
+                                className={quizStyles.nextBtn}
+                                onClick={handleQuestionSubmit}
+                                disabled={!selectedAnswer}
+                            >
+                              Ответить
+                            </button>
+                          </div>
+                        </div>
+                    )}
+                  </div>
+                </div>
+            )}
+
+            {showGameOverModal && (
+                <div className={styles.modalOverlay}>
+                  <div className={styles.modalWindow}>
+                    <div className={styles.gameOverModal}>
+                      <h2>Игра окончена!</h2>
+                      <p className={styles.finalScore}>
+                        Вы набрали <strong>{score}</strong> очков
+                      </p>
+
+                      <div className={styles.gameOverActions}>
+                        <button
+                            onClick={resetGame}
+                            className={styles.resetButton}
+                        >
+                          Играть снова
+                        </button>
+                        <button
+                            onClick={() => navigate('/profile')}
+                            className={styles.backToProfileButton}
+                        >
+                          Вернуться в профиль
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            </aside>
+            )}
           </div>
-
-          {/* МОДАЛЬНОЕ ОКНО */}
-          {showQuestionModal && question && (
-            <div className={styles.modalOverlay}>
-              <div className={styles.modalWindow}>
-                <div className={quizStyles.questionCard}>
-                  <span className={quizStyles.questionNumber}>Вопрос</span>
-                  <p className={quizStyles.questionText}>{question.text}</p>
-                </div>
-
-                {question.type === 'matching' && question.matchingPairs ? (
-                  <MatchingQuestionContent 
-                    question={question} 
-                    onComplete={handleMatchingComplete} 
-                  />
-                ) : (
-                  // Single choice
-                  <div className={quizStyles.answersSection}>
-                    {question.options?.map((option, idx) => (
-                      <button
-                        key={idx}
-                        className={`${quizStyles.answerCard} ${selectedAnswer === option ? quizStyles.answerSelected : ''}`}
-                        onClick={() => setSelectedAnswer(option)}
-                        type="button"
-                      >
-                        <span className={quizStyles.answerLetter}>{String.fromCharCode(65 + idx)}</span>
-                        <span className={quizStyles.answerText}>{option}</span>
-                      </button>
-                    ))}
-                    <div className={quizStyles.actionButtons}>
-                      <button
-                        className={quizStyles.nextBtn}
-                        onClick={handleQuestionSubmit}
-                        disabled={!selectedAnswer}
-                      >
-                        Ответить
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {showGameOverModal && (
-            <div className={styles.modalOverlay}>
-              <div className={styles.modalWindow}>
-                <div className={styles.gameOverModal}>
-                  <h2>Игра окончена!</h2>
-                  <p className={styles.finalScore}>
-                    Вы набрали <strong>{score}</strong> очков
-                  </p>
-
-                  <div className={styles.gameOverActions}>
-                    <button 
-                      onClick={resetGame}
-                      className={styles.resetButton}
-                    >
-                      Играть снова
-                    </button>
-                    <button 
-                      onClick={() => navigate('/profile')}
-                      className={styles.backToProfileButton}
-                    >
-                      Вернуться в профиль
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
-    </div>
   );
 }
