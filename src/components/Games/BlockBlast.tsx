@@ -75,6 +75,7 @@ export default function BlockBlast() {
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [questionBank, setQuestionBank] = useState<GameQuestion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showResult, setShowResult] = useState(false);
 
   const buildNewPieces = useCallback(() => {
     const nextPieces = generateRandomPieces();
@@ -273,6 +274,7 @@ export default function BlockBlast() {
         shuffle(question.matchingPairs!.map(p => p.right))
     );
     const [showResult, setShowResult] = useState(false);
+    const [isCorrect, setIsCorrect] = useState(false);
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
       e.dataTransfer.setData('text/plain', index.toString());
@@ -298,8 +300,12 @@ export default function BlockBlast() {
         return rightItems[index] === correctRight;
       });
 
+      setIsCorrect(isCorrect);
       setShowResult(true);
-      setTimeout(() => onComplete(isCorrect), 800);
+    };
+    
+    const handleContinue = () => {
+      onComplete(isCorrect);
     };
 
     return (
@@ -346,10 +352,16 @@ export default function BlockBlast() {
             </div>
           </div>
 
-          {!showResult && (
+          {!showResult ? (
               <div className={quizStyles.actionButtons}>
                 <button className={quizStyles.nextBtn} onClick={checkAnswers}>
                   Проверить
+                </button>
+              </div>
+          ) : (
+              <div className={quizStyles.actionButtons}>
+                <button className={quizStyles.nextBtn} onClick={handleContinue}>
+                  Продолжить
                 </button>
               </div>
           )}
@@ -358,11 +370,22 @@ export default function BlockBlast() {
   };
 
   const handleQuestionSubmit = () => {
-    if (!question || !selectedAnswer) return;
+    if (!question) return;
+
     const isCorrect = selectedAnswer === question.answer;
     const nextLives = isCorrect ? lives : Math.max(0, lives - 1);
+
+    // Первый клик — показываем результат
+    if (!showResult) {
+      setShowResult(true);
+      return;                    // остаёмся в модалке, показываем правильный/неправильный ответ
+    }
+
+    // Второй клик ("Продолжить") — идём дальше
     setLives(nextLives);
     setShowQuestionModal(false);
+    setShowResult(false);
+    setSelectedAnswer('');
 
     if (nextLives <= 0) {
       setShowGameOverModal(true);
@@ -509,17 +532,32 @@ export default function BlockBlast() {
                     ) : (
                         // Single choice
                         <div className={quizStyles.answersSection}>
-                          {question.options?.map((option, idx) => (
-                              <button
+                          {question.options?.map((option, idx) => {
+                              const isSelected = selectedAnswer === option;
+                              const isCorrectAnswer = option === question.answer;
+                              const isWrongSelection = isSelected && !isCorrectAnswer;
+                              return (
+                                <button
                                   key={idx}
-                                  className={`${quizStyles.answerCard} ${selectedAnswer === option ? quizStyles.answerSelected : ''}`}
-                                  onClick={() => setSelectedAnswer(option)}
+                                  className={`${quizStyles.answerCard} 
+                                    ${isSelected ? quizStyles.answerSelected : ''} 
+                                    ${showResult && isCorrectAnswer ? quizStyles.answerCorrect : ''}
+                                    ${showResult && isWrongSelection ? quizStyles.answerWrong : ''}`}
+                                  onClick={() => !showResult && setSelectedAnswer(option)}
+                                  disabled={showResult}
                                   type="button"
-                              >
-                                <span className={quizStyles.answerLetter}>{String.fromCharCode(65 + idx)}</span>
-                                <span className={quizStyles.answerText}>{option}</span>
-                              </button>
-                          ))}
+                                >
+                                  <span className={quizStyles.answerLetter}>
+                                    {String.fromCharCode(65 + idx)}
+                                  </span>
+                                  <span className={quizStyles.answerText}>{option}</span>
+
+                                  {showResult && isCorrectAnswer && <span className={quizStyles.answerIcon}>✓</span>}
+                                  {showResult && isWrongSelection && <span className={quizStyles.answerIcon}>✗</span>}
+                                </button>
+                              );
+                            })}
+                          {!showResult ? (
                           <div className={quizStyles.actionButtons}>
                             <button
                                 className={quizStyles.nextBtn}
@@ -529,11 +567,18 @@ export default function BlockBlast() {
                               Ответить
                             </button>
                           </div>
+                          ) : (
+                          <div className={quizStyles.actionButtons}>
+                          <button className={quizStyles.nextBtn} onClick={handleQuestionSubmit}>
+                            Продолжить
+                          </button>
                         </div>
+                      )}
+                    </div>
                     )}
                   </div>
                 </div>
-            )}
+                  )}
 
             {showGameOverModal && (
                 <div className={styles.modalOverlay}>
