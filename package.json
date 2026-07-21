@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "concurrently \"npm run backend\" \"npm run frontend\" \"npm run draw\"",
-    "frontend": "vite",
+    "frontend": "vite --host",
     "backend": "cd backend && npm start",
     "draw": "cd draw && npm run dev",
     "dev": "vite",

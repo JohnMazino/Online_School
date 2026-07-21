@@ -65,8 +65,6 @@ export default function BlockBlast() {
   const [board, setBoard] = useState<number[][]>(createEmptyBoard());
   const [pieces, setPieces] = useState<BlockPiece[]>([]);
   const [pieceColors, setPieceColors] = useState<Record<number, string>>({});
-  const [draggedPieceId, setDraggedPieceId] = useState<number | null>(null);
-  const [dragPreview, setDragPreview] = useState<{ row: number; col: number; piece: BlockPiece } | null>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
@@ -76,6 +74,8 @@ export default function BlockBlast() {
   const [questionBank, setQuestionBank] = useState<GameQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [showResult, setShowResult] = useState(false);
+  const [draggedPiece, setDraggedPiece] = useState<BlockPiece | null>(null);
+  const [dropPreview, setDropPreview] = useState<{ row: number; col: number; valid: boolean } | null>(null);
 
   const buildNewPieces = useCallback(() => {
     const nextPieces = generateRandomPieces();
@@ -219,43 +219,107 @@ export default function BlockBlast() {
     return newBoard;
   };
 
-  const handleDragStart = (pieceId: number) => setDraggedPieceId(pieceId);
+  const handleDragStart = (piece: BlockPiece, e: React.DragEvent<HTMLDivElement>) => {
+    setDraggedPiece(piece);
+
+    // Создаём ghost-элемент
+    const ghost = document.createElement('div');
+
+    // Находим элемент с фигурой
+    const pieceElement = e.currentTarget.querySelector('.piecePreview');
+    if (pieceElement) {
+      // Клонируем его
+      const clone = pieceElement.cloneNode(true) as HTMLElement;
+      ghost.appendChild(clone);
+    } else {
+      // Если не нашли - создаем вручную из данных фигуры
+      const preview = document.createElement('div');
+      preview.className = 'piecePreview';
+      preview.style.display = 'inline-grid';
+      preview.style.gap = '3px';
+      preview.style.padding = '5px';
+      preview.style.background = 'rgba(255,255,255,0.9)';
+      
+      piece.shape.forEach((row) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.style.display = 'flex';
+        rowDiv.style.gap = '3px';
+        
+        row.forEach((cell) => {
+          const cellDiv = document.createElement('div');
+          cellDiv.style.width = '20px';
+          cellDiv.style.height = '20px';
+          cellDiv.style.borderRadius = '4px';
+          if (cell === 1) {
+            cellDiv.style.background = piece.color;
+          } else {
+            cellDiv.style.background = 'rgba(0,0,0,0.05)';
+          }
+          rowDiv.appendChild(cellDiv);
+        });
+        
+        preview.appendChild(rowDiv);
+      });
+      
+      ghost.appendChild(preview);
+    }
+
+    document.body.appendChild(ghost);
+
+    // Устанавливаем drag image с правильными размерами
+    e.dataTransfer.setDragImage(ghost, 70, 70);
+
+    // Чистим за собой
+    setTimeout(() => {
+      if (document.body.contains(ghost)) {
+        document.body.removeChild(ghost);
+      }
+    }, 0);
+
+    e.dataTransfer.effectAllowed = 'move';
+  };
 
   const handleDragOver = (e: React.DragEvent, row: number, col: number) => {
     e.preventDefault();
-    const piece = pieces.find(p => p.id === draggedPieceId);
-    if (!piece) return;
-    if (canPlacePieceAt(board, piece, row, col)) {
-      setDragPreview({ row, col, piece });
-    } else {
-      setDragPreview(null);
-    }
+    if (!draggedPiece) return;
+
+    const canPlace = canPlacePieceAt(board, draggedPiece, row, col);
+    setDropPreview({ row, col, valid: canPlace });
   };
 
   const handleDrop = (row: number, col: number, e: React.DragEvent) => {
     e.preventDefault();
-    setDragPreview(null);
-    const piece = pieces.find(p => p.id === draggedPieceId);
-    if (!piece || !canPlacePieceAt(board, piece, row, col)) return;
+    if (!draggedPiece) return;
 
-    const newBoard = placePiece(piece, row, col);
-    const remaining = pieces.filter(p => p.id !== piece.id);
+    if (!canPlacePieceAt(board, draggedPiece, row, col)) {
+      setDropPreview(null);
+      setDraggedPiece(null);
+      return;
+    }
+
+    const newBoard = placePiece(draggedPiece, row, col);
+    const remaining = pieces.filter(p => p.id !== draggedPiece.id);
+
     setPieces(remaining);
-    setDraggedPieceId(null);
+    setDraggedPiece(null);
+    setDropPreview(null);
 
+    // Логика продолжения игры
     if (remaining.length === 0) {
       const nextQuestion = getRandomQuestion();
       if (nextQuestion) {
         setQuestion(nextQuestion);
         setSelectedAnswer('');
+        setShowResult(false);
         setShowQuestionModal(true);
       }
-    } else if (!remaining.some(p =>
-        Array.from({ length: BOARD_SIZE * BOARD_SIZE }).some((_, i) => {
-          const r = Math.floor(i / BOARD_SIZE);
-          const c = i % BOARD_SIZE;
-          return canPlacePieceAt(newBoard, p, r, c);
-        })
+    } else if (!remaining.some(p => 
+      // проверка возможности размещения
+      Array.from({ length: BOARD_SIZE * BOARD_SIZE }).some((_, i) => {
+        const r = Math.floor(i / BOARD_SIZE);
+        const c = i % BOARD_SIZE;
+        return canPlacePieceAt(newBoard, p, r, c);
+      })
     )) {
       setShowGameOverModal(true);
     }
@@ -449,35 +513,40 @@ export default function BlockBlast() {
             <div className={styles.gridAndSidebar}>
               <div className={styles.boardGrid}>
                 {board.map((rowData, row) => (
-                    <div key={row} className={styles.boardRow}>
-                      {rowData.map((cell, col) => {
-                        const isPreview = dragPreview &&
-                            row >= dragPreview.row && row < dragPreview.row + dragPreview.piece.shape.length &&
-                            col >= dragPreview.col && col < dragPreview.col + dragPreview.piece.shape[0].length &&
-                            dragPreview.piece.shape[row - dragPreview.row][col - dragPreview.col] === 1;
+                <div key={row} className={styles.boardRow}>
+                  {rowData.map((cell, col) => {
+                    const isPreview = dropPreview && 
+                      row >= dropPreview.row && 
+                      row < dropPreview.row + (draggedPiece?.shape.length || 0) &&
+                      col >= dropPreview.col && 
+                      col < dropPreview.col + (draggedPiece?.shape[0]?.length || 0) &&
+                      draggedPiece?.shape[row - dropPreview.row]?.[col - dropPreview.col] === 1;
 
-                        const isClearingRow = clearingLines.rows.includes(row);
-                        const isClearingCol = clearingLines.cols.includes(col);
-                        const isClearing = isClearingRow || isClearingCol;
+                    const isValidPreview = isPreview && dropPreview?.valid;
+                    const isInvalidPreview = isPreview && !dropPreview?.valid;
 
-                        return (
-                            <div
-                                key={col}
-                                className={`
-            ${styles.boardCell} 
-            ${cell !== 0 ? styles.filledCell : ''} 
-            ${isPreview ? styles.previewGhost : ''}
-            ${isClearing ? styles.clearing : ''}
-          `}
-                                style={cell !== 0 ? { backgroundColor: pieceColors[cell] } : undefined}
-                                onDragOver={(e) => handleDragOver(e, row, col)}
-                                onDrop={(e) => handleDrop(row, col, e)}
-                                onDragLeave={() => setDragPreview(null)}
-                            />
-                        );
-                      })}
-                    </div>
-                ))}
+                    const isClearingRow = clearingLines.rows.includes(row);
+                    const isClearingCol = clearingLines.cols.includes(col);
+                    const isClearing = isClearingRow || isClearingCol;
+                    return (
+                      <div
+                        key={col}
+                        className={`
+                          ${styles.boardCell} 
+                          ${cell !== 0 ? styles.filledCell : ''} 
+                          ${isValidPreview ? styles.previewValid : ''}
+                          ${isInvalidPreview ? styles.previewInvalid : ''}
+                          ${isClearing ? styles.clearing : ''}
+                        `}
+                        style={cell !== 0 ? { backgroundColor: pieceColors[cell] } : undefined}
+                        onDragOver={(e) => handleDragOver(e, row, col)}
+                        onDrop={(e) => handleDrop(row, col, e)}
+                        onDragLeave={() => setDropPreview(null)}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
               </div>
 
               <aside className={styles.sidePanel}>
@@ -485,30 +554,30 @@ export default function BlockBlast() {
                   <h2>Фигуры</h2>
                   <div className={styles.pieceList}>
                     {pieces.map(piece => (
-                        <div
-                            key={piece.id}
-                            className={`${styles.pieceCard} ${draggedPieceId === piece.id ? styles.draggingPiece : ''}`}
-                            draggable
-                            onDragStart={() => handleDragStart(piece.id)}
-                            onDragEnd={() => {
-                              setDraggedPieceId(null);
-                              setDragPreview(null);
-                            }}
-                        >
-                          <div className={styles.piecePreview}>
-                            {piece.shape.map((shapeRow, r) => (
-                                <div key={r} className={styles.pieceRow}>
-                                  {shapeRow.map((val, c) => (
-                                      <span
-                                          key={c}
-                                          className={`${styles.previewCell} ${val === 1 ? styles.previewFilled : ''}`}
-                                          style={val === 1 ? { backgroundColor: piece.color } : {}}
-                                      />
-                                  ))}
-                                </div>
-                            ))}
-                          </div>
+                      <div
+                        key={piece.id}
+                        className={`${styles.pieceCard} ${draggedPiece?.id === piece.id ? styles.draggingPiece : ''}`}
+                        draggable
+                        onDragStart={(e) => handleDragStart(piece, e)}
+                        onDragEnd={() => {
+                          setDraggedPiece(null);
+                          setDropPreview(null);
+                        }}
+                      >
+                        <div className={styles.piecePreview}>
+                          {piece.shape.map((shapeRow, r) => (
+                            <div key={r} className={styles.pieceRow}>
+                              {shapeRow.map((val, c) => (
+                                <span
+                                  key={c}
+                                  className={`${styles.previewCell} ${val === 1 ? styles.previewFilled : ''}`}
+                                  style={val === 1 ? { backgroundColor: piece.color } : {}}
+                                />
+                              ))}
+                            </div>
+                          ))}
                         </div>
+                      </div>
                     ))}
                   </div>
                 </div>

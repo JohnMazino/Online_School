@@ -136,8 +136,12 @@
   padding: 12px;
   background: #fafbff;
   cursor: grab;
+  -webkit-user-drag: element;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .pieceCard:hover {
@@ -154,11 +158,6 @@
   border-color: #0088cc;
   box-shadow: 0 8px 16px rgba(0, 136, 204, 0.25);
   opacity: 0.8;
-}
-
-.piecePreview {
-  display: grid;
-  gap: 4px;
 }
 
 .pieceRow {
@@ -296,8 +295,8 @@
 }
 
 .draggingPiece {
-  opacity: 0.6;
-  transform: scale(0.95);
+  opacity: 0.7;
+  transform: scale(0.92);
 }
 .matchingBoard {
   display: flex;
@@ -375,27 +374,23 @@
   30% { transform: scale(1.6); }
   100% { transform: scale(1); }
 }
-/* Анимация очистки линий */
-@keyframes lineClear {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-    box-shadow: 0 0 20px #fff, 0 0 30px #ffd700;
-  }
-  50% {
-    transform: scale(1.08);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(0.95);
-    opacity: 0.4;
-  }
+/* Анимация очистки */
+.clearing {
+  animation: blockClear 0.45s ease-in-out forwards;
 }
 
-.clearing {
-  animation: lineClear 0.3s ease forwards;
-  background-color: #fff !important;
-  box-shadow: 0 0 25px #ffd700;
+@keyframes blockClear {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.25) rotate(8deg);
+  }
+  100% {
+    transform: scale(0.3) rotate(-12deg);
+    opacity: 0;
+  }
 }
 
 /* Дополнительный эффект для колонок */
@@ -434,4 +429,55 @@
 .backToProfileButton {
   background: #666;
   color: white;
+}
+.previewValid {
+  background-color: rgba(74, 222, 128, 0.4) !important;
+  box-shadow: 0 0 0 2px #4ade80 inset;
+}
+
+.previewInvalid {
+  background-color: rgba(248, 113, 113, 0.3) !important;
+  box-shadow: 0 0 0 2px #f87171 inset;
+}
+
+.draggingPiece {
+  opacity: 0.6;
+  transform: scale(0.95);
+}
+.piecePreview {
+  display: inline-grid;
+  gap: 3px;
+  padding: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+}
+.pieceCard:active .piecePreview,
+.pieceCard.dragging .piecePreview {
+  transform: scale(1.15) rotate(8deg);
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.4));
+}
+.pieceCard[draggable="true"] {
+  -webkit-user-drag: element;
+}
+.previewValid {
+  background-color: rgba(163, 230, 187, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.6) inset;
+  transition: all 0.1s ease;
+}
+.previewInvalid {
+  background-color: rgba(251, 146, 146, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.5) inset;
+}
+
+.pieceRow {
+  display: flex;
+  gap: 3px;
+}
+
+.blockImage {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
