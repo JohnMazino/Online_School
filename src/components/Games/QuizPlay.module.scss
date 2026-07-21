@@ -681,6 +681,68 @@
 
 /* ===== DARK THEME ===== */
 :global(html.dark) {
+    /* Основной контейнер сопоставления */
+    .matchingBoard,
+    .matchingRow,
+    .matchingOptionsPanel {
+        background: transparent;
+    }
+
+    .matchingRow {
+        background: rgba(30, 41, 59, 0.85);
+        border-color: rgba(80, 134, 242, 0.25);
+    }
+
+    .matchingRow:hover {
+        border-color: rgba(80, 134, 242, 0.45);
+    }
+
+    .matchingLeft {
+        color: var(--text-light, #f1f5f9);
+    }
+
+    /* Варианты для перетаскивания */
+    .matchingOption {
+        background: rgba(30, 41, 59, 0.9);
+        border-color: rgba(80, 134, 242, 0.3);
+        color: var(--text-light, #f1f5f9);
+    }
+
+    .matchingOption:hover {
+        border-color: rgba(80, 134, 242, 0.5);
+        background: rgba(80, 134, 242, 0.15);
+    }
+
+    .matchingOptionAssigned,
+    .matchingOptionSelected {
+        background: rgba(80, 134, 242, 0.25);
+        border-color: var(--primary, #5086f2);
+    }
+
+    /* Подсказка */
+    .matchingHint {
+        background: rgba(80, 134, 242, 0.12);
+        color: var(--text-light, #f1f5f9);
+    }
+
+    /* Строки сопоставления */
+    .matchingRowCorrect {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.12);
+    }
+
+    .matchingRowWrong {
+        border-color: #ef4444;
+        background: rgba(239, 68, 68, 0.12);
+    }
+
+    /* Выделенная строка */
+    .matchingRowSelected {
+        border-color: rgba(80, 134, 242, 0.7);
+        box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.25);
+    }
+
+
     .quizContainer,
     .statsContainer {
         background: var(--bg-card, #1e293b);
