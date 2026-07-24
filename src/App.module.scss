@@ -725,3 +725,417 @@
     border-top: 1px solid rgba(136, 171, 242, 0.12);
     font-size: 0.9rem;
 }
+
+
+/* ────────────────────────────────────────────────
+   АДАПТИВ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ
+───────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .contentRectangle {
+    margin-left: 40px;
+    margin-right: 40px;
+    padding: 2rem 2.5rem;
+  }
+
+  .appName {
+    font-size: 3.8rem;
+  }
+
+  .logoAndTitle {
+    gap: 12px;
+  }
+
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .heroImageWrapper {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .heroAction {
+    min-width: unset;
+  }
+
+  .bigAuthButton {
+    padding: 1.2rem 3rem;
+    font-size: 1.2rem;
+  }
+
+  .sectionAdvantagesTitle,
+  .sectionTutorTitle,
+  .sectionTitle {
+    font-size: 2.2rem;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .appWrapper {
+    flex-direction: column;
+  }
+
+  .mainContent {
+    padding-left: 0 !important;
+  }
+
+  .contentRectangle {
+    margin-top: 4vh;
+    margin-left: 16px;
+    margin-right: 16px;
+    padding: 1.5rem 1.2rem;
+    border-radius: 20px;
+    min-height: auto;
+  }
+
+  /* --- ЛОГОТИП И НАЗВАНИЕ --- */
+  .logo {
+    margin-top: -10px;
+  }
+
+  .logoAndTitle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    animation: none;
+  }
+
+  .logoAndTitle svg {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .appName {
+    font-size: 2.4rem;
+    line-height: 1.2;
+    text-align: center;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: none;
+  }
+
+  /* --- HERO СЕКЦИЯ --- */
+  .heroSection {
+    margin: 1rem 0 2.5rem;
+  }
+
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+
+  .heroImageWrapper {
+    min-width: unset;
+    border-radius: 14px;
+    border-width: 3px;
+    transition: none;
+  }
+
+  .heroImageWrapper:hover {
+    transform: none;
+  }
+
+  .heroImage {
+    transform: scale(1.02);
+    transition: none;
+  }
+
+  .heroAction {
+    min-width: unset;
+  }
+
+  .bigAuthButton {
+    padding: 1rem 2.2rem;
+    font-size: 1.05rem;
+    width: 100%;
+    max-width: 320px;
+    border-radius: 40px;
+    transition: none;
+  }
+
+  .bigAuthButton:hover {
+    transform: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  /* --- БЛОК ПРИВЕТСТВИЯ --- */
+  .welcomeBox {
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  .welcomeRectangle {
+    padding: 1.5rem 1.2rem;
+    border-radius: 16px;
+  }
+
+  .welcomeTitle {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .welcomeText {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* --- ЗАГОЛОВКИ СЕКЦИЙ --- */
+  .sectionAdvantagesTitle,
+  .sectionTutorTitle,
+  .sectionTitle {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  /* --- ПРЕИМУЩЕСТВА --- */
+  .advantagesSection {
+    margin: 2rem 0 3rem;
+  }
+
+  .advantagesGrid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+    margin-top: 2rem;
+  }
+
+  .advantageCard {
+    height: 200px;
+  }
+
+  .cardFront,
+  .cardBack {
+    padding: 1.2rem;
+  }
+
+  .iconWrapper {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0.8rem;
+  }
+
+  .iconWrapper svg {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .cardTitle {
+    font-size: 1.2rem;
+  }
+
+  .cardBack p {
+    font-size: 0.95rem;
+  }
+
+  /* --- РЕПЕТИТОРЫ --- */
+  .tutorsSection {
+    margin: 2.5rem 0 3.5rem;
+  }
+
+  .tutorsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .tutorCard {
+  aspect-ratio: 4 / 5;
+  width: 100%; 
+  max-width: 420px; 
+  margin: 0 auto; 
+  }
+
+  .tutorNameFront {
+    font-size: 1.3rem;
+    padding: 0.8rem 0.8rem 1.2rem;
+    bottom: -18px;
+  }
+
+  .infoOverlay {
+    padding: 1.8rem 1.2rem;
+  }
+
+  .tutorName {
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .tutorInfo {
+    font-size: 0.92rem;
+    margin-bottom: 1rem;
+  }
+
+  .documents span {
+    font-size: 0.82rem;
+    padding: 0.3rem 0.8rem;
+  }
+
+  /* --- ДИСЦИПЛИНЫ --- */
+  .disciplinesSection {
+    margin: 2rem 0 3rem;
+  }
+
+  .disciplinesGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  /* --- ФУТЕР --- */
+  .footer {
+    padding: 2.5rem 1rem;
+    margin-top: 3rem;
+    border-radius: 20px 20px 20px 20px;
+  }
+
+  .footerContainer {
+    padding: 0 0.5rem;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .footerLogo {
+    justify-content: center;
+  }
+
+  .footerLogoImg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .footerTitle {
+    font-size: 1.3rem;
+  }
+
+  .footerLinks {
+    gap: 2rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .linkColumn {
+    min-width: 100px;
+  }
+
+  .linkColumn h5 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .linkColumn a {
+    font-size: 0.85rem;
+  }
+
+  .socialIcons {
+    justify-content: center;
+    gap: 1.8rem;
+  }
+
+  .socialIcons a {
+    font-size: 1.6rem;
+  }
+
+  .copyright {
+    font-size: 0.8rem;
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+  }
+}
+
+
+@media (max-width: 400px) {
+  .contentRectangle {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 1rem 0.8rem;
+  }
+
+  .appName {
+    font-size: 1.8rem;
+  }
+
+  .logoAndTitle svg {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .bigAuthButton {
+    padding: 0.8rem 1.6rem;
+    font-size: 0.95rem;
+  }
+
+  .welcomeTitle {
+    font-size: 1.2rem;
+  }
+
+  .welcomeText {
+    font-size: 0.9rem;
+  }
+
+  .sectionAdvantagesTitle,
+  .sectionTutorTitle,
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .advantageCard {
+    height: 180px;
+  }
+
+  .tutorCard {
+    aspect-ratio: 3 / 4;
+  }
+}
+
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .contentRectangle {
+    margin-top: 2vh;
+    padding: 1rem 1.2rem;
+  }
+
+  .logoAndTitle {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .logoAndTitle svg {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .appName {
+    font-size: 1.8rem;
+  }
+
+  .heroContent {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+
+  .heroImageWrapper {
+    min-width: unset;
+  }
+
+  .heroAction {
+    min-width: unset;
+  }
+
+  .bigAuthButton {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    width: auto;
+  }
+
+  .advantagesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tutorsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
