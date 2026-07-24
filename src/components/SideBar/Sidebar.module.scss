@@ -540,16 +540,16 @@ html.dark .icon {
 }
 
 /* Безопасная зона для айфончиков с вырезом */
-// @supports (padding-bottom: env(safe-area-inset-bottom)) {
-//     @media (max-width: 768px) {
-//         .sidebar {
-//             padding-bottom: env(safe-area-inset-bottom, 0);
-//             height: calc(64px + env(safe-area-inset-bottom, 0));
-//             max-height: calc(64px + env(safe-area-inset-bottom, 0));
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    @media (max-width: 768px) {
+        .sidebar {
+            padding-bottom: env(safe-area-inset-bottom, 0);
+            height: calc(64px + env(safe-area-inset-bottom, 0));
+            max-height: calc(64px + env(safe-area-inset-bottom, 0));
             
-//             .nav {
-//                 padding-bottom: env(safe-area-inset-bottom, 0);
-//             }
-//         }
-//     }
-// }
+            .nav {
+                padding-bottom: env(safe-area-inset-bottom, 0);
+            }
+        }
+    }
+}
