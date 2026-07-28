@@ -230,7 +230,7 @@ export default function Profile() {
                                         <div className={styles.folderHeader}>
                                             <span className={styles.folderTitle}>Информатика</span>
                                             <span className={styles.folderMeta}>
-                                                <span className={styles.lockBadge}>🔒</span>
+                                                <span className={styles.lockBadge}></span>
                                             </span>
                                         </div>
                                         <p className={styles.folderHint}>оформите подписку на этот предмет для открытия</p>
@@ -240,7 +240,7 @@ export default function Profile() {
                                         <div className={styles.folderHeader}>
                                             <span className={styles.folderTitle}>Русский язык</span>
                                             <span className={styles.folderMeta}>
-                                                <span className={styles.lockBadge}>🔒</span>
+                                                <span className={styles.lockBadge}></span>
                                             </span>
                                         </div>
                                         <p className={styles.folderHint}>оформите подписку на этот предмет для открытия</p>
