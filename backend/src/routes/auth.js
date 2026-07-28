@@ -1,9 +1,43 @@
 const express = require('express');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const svgCaptcha = require('svg-captcha');
 const { normalizePhone } = require('../utils/phone');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const captchaStore = new Map();
+const CAPTCHA_TTL_MS = 5 * 60 * 1000;
+
+const cleanupExpiredCaptchas = () => {
+  const now = Date.now();
+  for (const [id, createdAt] of captchaStore.entries()) {
+    if (now - createdAt.createdAt > CAPTCHA_TTL_MS) {
+      captchaStore.delete(id);
+    }
+  }
+};
+
+const createCaptchaChallenge = () => {
+  const captcha = svgCaptcha.create({
+    size: 5,
+    ignoreChars: '0o1i',
+    color: true,
+    background: '#f5f5f5',
+    noise: 2,
+    width: 180,
+    height: 50,
+  });
+
+  cleanupExpiredCaptchas();
+
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  captchaStore.set(id, { value: captcha.text.toUpperCase(), createdAt: Date.now() });
+
+  return {
+    id,
+    data: captcha.data,
+  };
+};
 
 const authRoutes = (pool) => {
   const router = express.Router();
@@ -11,12 +45,25 @@ const authRoutes = (pool) => {
   // Регистрация
   router.post('/register', async (req, res) => {
     try {
-      const { phone, password, firstName, lastName } = req.body;
+      const { phone, password, firstName, lastName, captchaInput, captchaId } = req.body;
 
       // Проверка обязательных полей
       if (!phone || !password || !firstName || !lastName) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
+
+      if (!captchaInput || !captchaId) {
+        return res.status(400).json({ error: 'Captcha is required' });
+      }
+
+      cleanupExpiredCaptchas();
+
+      const storedCaptcha = captchaStore.get(captchaId);
+      if (!storedCaptcha || storedCaptcha.value.toUpperCase() !== String(captchaInput).trim().toUpperCase()) {
+        captchaStore.delete(captchaId);
+        return res.status(400).json({ error: 'Incorrect captcha' });
+      }
+      captchaStore.delete(captchaId);
 
       // Special-case: admin registration via secret credentials
       let role = 'student';
@@ -67,15 +114,32 @@ const authRoutes = (pool) => {
     }
   });
 
+  router.get('/captcha', (req, res) => {
+    return res.json(createCaptchaChallenge());
+  });
+
   // Вход в систему
   router.post('/login', async (req, res) => {
     try {
-      const { phone, password } = req.body;
+      const { phone, password, captchaInput, captchaId } = req.body;
 
       // Проверка обязательных полей
       if (!phone || !password) {
         return res.status(400).json({ error: 'Missing phone or password' });
       }
+
+      if (!captchaInput || !captchaId) {
+        return res.status(400).json({ error: 'Captcha is required' });
+      }
+
+      cleanupExpiredCaptchas();
+
+      const storedCaptcha = captchaStore.get(captchaId);
+      if (!storedCaptcha || storedCaptcha.value.toUpperCase() !== String(captchaInput).trim().toUpperCase()) {
+        captchaStore.delete(captchaId);
+        return res.status(400).json({ error: 'Incorrect captcha' });
+      }
+      captchaStore.delete(captchaId);
 
       // Special-case admin login
       if (phone === 'admin' && password === '29090803') {

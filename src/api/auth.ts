@@ -1,23 +1,35 @@
 const API_URL = 'http://localhost:5000/api';
 
 export const authApi = {
-  register: async (firstName: string, lastName: string, phone: string, password: string) => {
+  register: async (firstName: string, lastName: string, phone: string, password: string, captchaInput?: string, captchaId?: string) => {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ firstName, lastName, phone, password }),
+      body: JSON.stringify({ firstName, lastName, phone, password, captchaInput, captchaId }),
     });
-    if (!response.ok) throw new Error('Registration failed');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Registration failed');
+    }
     return response.json();
   },
 
-  login: async (phone: string, password: string) => {
+  getCaptcha: async () => {
+    const response = await fetch(`${API_URL}/auth/captcha`);
+    if (!response.ok) throw new Error('Failed to load captcha');
+    return response.json();
+  },
+
+  login: async (phone: string, password: string, captchaInput?: string, captchaId?: string) => {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password }),
+      body: JSON.stringify({ phone, password, captchaInput, captchaId }),
     });
-    if (!response.ok) throw new Error('Login failed');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Login failed');
+    }
     return response.json();
   },
 

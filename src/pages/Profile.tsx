@@ -145,16 +145,7 @@ export default function Profile() {
     if (!user) {
         return <div>Ошибка загрузки профиля</div>;
     }
-
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => setAvatar(reader.result as string);
-            reader.readAsDataURL(file);
-        }
-    };
-
+    
     const handleTopUp = () => {
         alert('Переход к пополнению баланса (в будущем — платёжная форма)');
     };
