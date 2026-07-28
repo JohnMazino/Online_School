@@ -110,8 +110,8 @@ export default function MatchingPlay() {
         if (dragIndex === dropIndex) return;
 
         const newRightItems = [...rightItems];
-        const [movedItem] = newRightItems.splice(dragIndex, 1);
-        newRightItems.splice(dropIndex, 0, movedItem);
+        [newRightItems[dragIndex], newRightItems[dropIndex]] =
+            [newRightItems[dropIndex], newRightItems[dragIndex]];
 
         setRightItems(newRightItems);
     };
