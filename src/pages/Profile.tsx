@@ -250,7 +250,7 @@ export default function Profile() {
                                 <div className={styles.folderGrid}>
                                     <button type="button" className={styles.folderCard} onClick={() => enterFolder('lectures')}>
                                         <div className={styles.folderHeader}>
-                                            <span className={styles.folderTitle}>📁 Лекции</span>
+                                            <span className={styles.folderTitle}>Лекции</span>
                                             <span className={styles.folderMeta}>
                                                 <span className={styles.folderCounter}>0</span>
                                                 <span className={styles.folderArrow}>▸</span>
@@ -261,7 +261,7 @@ export default function Profile() {
 
                                     <button type="button" className={styles.folderCard} onClick={() => enterFolder('tests')}>
                                         <div className={styles.folderHeader}>
-                                            <span className={styles.folderTitle}>📁 Тесты</span>
+                                            <span className={styles.folderTitle}>Тесты</span>
                                             <span className={styles.folderMeta}>
                                                 <span className={styles.folderCounter}>{assignedTests.length} {assignedTests.length === 1 ? 'файл' : 'файла'}</span>
                                                 <span className={styles.folderArrow}>▸</span>
@@ -272,7 +272,7 @@ export default function Profile() {
 
                                     <button type="button" className={styles.folderCard} onClick={() => enterFolder('games')}>
                                         <div className={styles.folderHeader}>
-                                            <span className={styles.folderTitle}>📁 Игры</span>
+                                            <span className={styles.folderTitle}>Игры</span>
                                             <span className={styles.folderMeta}>
                                                 <span className={styles.folderCounter}>{quizTopics.length + 1} {quizTopics.length + 1 === 1 ? 'файл' : 'файла'}</span>
                                                 <span className={styles.folderArrow}>▸</span>
@@ -284,7 +284,7 @@ export default function Profile() {
                             ) : (
                                 <div className={styles.folderContent}>
                                     {currentFolder === 'lectures' && (
-                                        <p className={styles.emptyFolder}>Папка пуста — добавьте сюда материалы позже.</p>
+                                        <p className={styles.emptyFolder}>Папка пуста, видимо преподаватель еще не загрузил свои лекции.</p>
                                     )}
 
                                     {currentFolder === 'tests' && (
