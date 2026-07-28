@@ -7,11 +7,11 @@
 
 /* Секции формы */
 .formSection {
-    background: rgba(255, 255, 255, 0.62);
+    background: var(--bg-card);
     padding: 2rem;
     border-radius: 16px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(80, 134, 242, 0.1);
+    border: 1px solid var(--border);
 
     h2 {
         margin: 0 0 1.5rem;
@@ -63,11 +63,11 @@
 .select {
     width: 100%;
     padding: 0.8rem 1rem;
-    border: 2px solid rgba(80, 134, 242, 0.2);
+    border: 2px solid var(--border);
     border-radius: 10px;
     font-size: 1rem;
     font-family: inherit;
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--bg-card);
     color: var(--text-dark);
     transition: all 0.3s ease;
     box-sizing: border-box;
@@ -75,12 +75,13 @@
     &:focus {
         outline: none;
         border-color: var(--primary);
-        background: white;
+        background: var(--bg-card);
         box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.1);
     }
 
     &::placeholder {
-        color: #a8a8c0;
+        color: var(--text-secondary);
+        opacity: 0.6;
     }
 }
 
@@ -116,14 +117,14 @@
 
 /* Секция ошибок */
 .errorSection {
-    background: #ffe6e6;
+    background: rgba(231, 76, 60, 0.1);
     border-left: 4px solid #e74c3c;
     padding: 1.5rem;
     border-radius: 8px;
 
     h3 {
         margin: 0 0 1rem;
-        color: #c0392b;
+        color: #e74c3c;
         font-size: 1.1rem;
     }
 
@@ -133,7 +134,7 @@
         margin: 0;
 
         li {
-            color: #c0392b;
+            color: #e74c3c;
             margin-bottom: 0.5rem;
 
             &:before {
@@ -147,7 +148,7 @@
 /* Кнопка добавления вопроса */
 .addQuestionBtn {
     padding: 0.8rem 1.6rem;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--gradient-primary);
     color: white;
     border: none;
     border-radius: 10px;
@@ -170,12 +171,12 @@
 .emptyState {
     text-align: center;
     padding: 2rem;
-    background: rgba(80, 134, 242, 0.05);
+    background: var(--bg-card);
     border-radius: 10px;
-    border: 2px dashed rgba(80, 134, 242, 0.2);
+    border: 2px dashed var(--border);
 
     p {
-        color: #6b6b8f;
+        color: var(--text-secondary);
         font-size: 1.1rem;
         margin: 0;
     }
@@ -190,10 +191,15 @@
 
 /* Карточка вопроса */
 .questionCard {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 255, 0.8));
-    border: 1px solid rgba(80, 134, 242, 0.15);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px var(--shadow);
+    }
 }
 
 /* Заголовок вопроса */
@@ -204,10 +210,10 @@
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
-    background: linear-gradient(90deg, rgba(80, 134, 242, 0.05), transparent);
+    background: rgba(80, 134, 242, 0.03);
 
     &:hover {
-        background: linear-gradient(90deg, rgba(80, 134, 242, 0.1), transparent);
+        background: rgba(80, 134, 242, 0.08);
     }
 }
 
@@ -216,6 +222,7 @@
     align-items: center;
     gap: 0.8rem;
     flex: 1;
+    flex-wrap: wrap;
 }
 
 .questionNumber {
@@ -229,15 +236,17 @@
     border-radius: 50%;
     font-weight: 700;
     font-size: 0.9rem;
+    flex-shrink: 0;
 }
 
 .questionType {
     padding: 0.3rem 0.8rem;
-    background: var(--accent);
+    background: var(--secondary);
     color: white;
     border-radius: 6px;
     font-size: 0.85rem;
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 .questionText {
@@ -255,6 +264,7 @@
     cursor: pointer;
     transition: transform 0.3s ease;
     padding: 0.5rem;
+    flex-shrink: 0;
 
     &.expanded {
         transform: rotate(180deg);
@@ -264,8 +274,8 @@
 /* Содержимое вопроса (раскрывающееся) */
 .questionContent {
     padding: 1.5rem;
-    border-top: 1px solid rgba(80, 134, 242, 0.1);
-    background: rgba(248, 249, 255, 0.5);
+    border-top: 1px solid var(--border);
+    background: rgba(80, 134, 242, 0.02);
 }
 
 .questionForm {
@@ -293,9 +303,9 @@
     align-items: center;
     gap: 0.8rem;
     padding: 0.8rem;
-    background: white;
+    background: var(--bg-card);
     border-radius: 8px;
-    border: 1px solid rgba(80, 134, 242, 0.1);
+    border: 1px solid var(--border);
 
     input[type='radio'],
     input[type='checkbox'] {
@@ -310,14 +320,16 @@
 .optionInput {
     flex: 1;
     padding: 0.6rem 0.8rem;
-    border: 1px solid rgba(80, 134, 242, 0.1);
+    border: 1px solid var(--border);
     border-radius: 6px;
     font-size: 0.95rem;
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--bg-card);
+    color: var(--text-dark);
 
     &:focus {
         outline: none;
         border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(80, 134, 242, 0.1);
     }
 }
 
@@ -330,6 +342,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 
     &:hover {
         background: #c0392b;
@@ -339,7 +352,7 @@
 
 .addOptionBtn {
     padding: 0.6rem 1.2rem;
-    background: rgba(80, 134, 242, 0.1);
+    background: rgba(80, 134, 242, 0.08);
     border: 2px dashed var(--primary);
     color: var(--primary);
     border-radius: 8px;
@@ -349,6 +362,7 @@
 
     &:hover {
         background: rgba(80, 134, 242, 0.15);
+        transform: translateY(-2px);
     }
 }
 
@@ -366,6 +380,7 @@
     &:hover {
         background: #c0392b;
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
     }
 }
 
@@ -388,7 +403,7 @@
 }
 
 .saveBtn {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--gradient-primary);
     color: white;
     flex: 1;
     min-width: 150px;
@@ -404,15 +419,16 @@
 }
 
 .cancelBtn {
-    background: rgba(255, 255, 255, 0.6);
-    border: 2px solid #6b6b8f;
-    color: #6b6b8f;
+    background: var(--bg-card);
+    border: 2px solid var(--text-secondary);
+    color: var(--text-secondary);
     min-width: 120px;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.9);
+        background: var(--bg-card);
         color: var(--text-dark);
         border-color: var(--text-dark);
+        box-shadow: 0 4px 12px var(--shadow);
     }
 }
 
@@ -421,7 +437,7 @@
     background: rgba(80, 134, 242, 0.05);
     padding: 1.5rem;
     border-radius: 10px;
-    border: 1px solid rgba(80, 134, 242, 0.15);
+    border: 1px solid var(--border);
     margin-top: 1.5rem;
 }
 
@@ -442,29 +458,32 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .matchingInput {
     flex: 1;
     padding: 0.8rem;
-    border: 2px solid rgba(80, 134, 242, 0.2);
+    border: 2px solid var(--border);
     border-radius: 8px;
     font-size: 1rem;
     font-family: inherit;
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--bg-card);
     color: var(--text-dark);
     transition: all 0.3s ease;
     box-sizing: border-box;
+    min-width: 100px;
 
     &:focus {
         outline: none;
         border-color: var(--primary);
-        background: white;
+        background: var(--bg-card);
         box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.1);
     }
 
     &::placeholder {
-        color: #a8a8c0;
+        color: var(--text-secondary);
+        opacity: 0.6;
     }
 }
 
@@ -506,7 +525,7 @@
 .addMatchingBtn {
     align-self: flex-start;
     padding: 0.7rem 1.2rem;
-    background: rgba(80, 134, 242, 0.1);
+    background: rgba(80, 134, 242, 0.08);
     color: var(--primary);
     border: 2px solid var(--primary);
     border-radius: 8px;
@@ -517,7 +536,7 @@
     margin-top: 0.5rem;
 
     &:hover {
-        background: rgba(80, 134, 242, 0.2);
+        background: rgba(80, 134, 242, 0.15);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(80, 134, 242, 0.2);
     }
@@ -574,9 +593,13 @@
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
     }
+
+    .statusOptions {
+        gap: 1rem;
+    }
 }
 
-/* Dark theme support */
+/* Темная тема */
 :global(html.dark) {
     .formSection {
         background: var(--bg-card);
@@ -588,22 +611,117 @@
     .select {
         background: rgba(0, 0, 0, 0.2);
         color: var(--text-dark);
-        border-color: rgba(80, 134, 242, 0.3);
+        border-color: rgba(80, 134, 242, 0.25);
     }
 
-    .optionItem,
+    .input:focus,
+    .textarea:focus,
+    .select:focus {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: var(--primary);
+    }
+
+    .optionItem {
+        background: rgba(0, 0, 0, 0.15);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
+
     .optionInput {
-        background: rgba(0, 0, 0, 0.1);
-        border-color: rgba(80, 134, 242, 0.2);
+        background: rgba(0, 0, 0, 0.15);
+        border-color: rgba(80, 134, 242, 0.15);
+        color: var(--text-dark);
+    }
+
+    .optionInput:focus {
+        background: rgba(0, 0, 0, 0.25);
+        border-color: var(--primary);
     }
 
     .questionCard {
         background: var(--bg-card);
-        border-color: rgba(80, 134, 242, 0.2);
+        border-color: rgba(80, 134, 242, 0.15);
     }
 
     .questionContent {
         background: rgba(0, 0, 0, 0.1);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
+
+    .questionHeader {
+        background: rgba(80, 134, 242, 0.03);
+
+        &:hover {
+            background: rgba(80, 134, 242, 0.08);
+        }
+    }
+
+    .emptyState {
+        background: var(--bg-card);
         border-color: rgba(80, 134, 242, 0.2);
+
+        p {
+            color: var(--text-secondary);
+        }
+    }
+
+    .matchingSection {
+        background: rgba(80, 134, 242, 0.05);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
+
+    .matchingInput {
+        background: rgba(0, 0, 0, 0.15);
+        border-color: rgba(80, 134, 242, 0.2);
+        color: var(--text-dark);
+    }
+
+    .matchingInput:focus {
+        background: rgba(0, 0, 0, 0.25);
+        border-color: var(--primary);
+    }
+
+    .matchingInput::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.4;
+    }
+
+    .cancelBtn {
+        background: rgba(0, 0, 0, 0.2);
+        border-color: var(--text-secondary);
+        color: var(--text-secondary);
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-dark);
+            border-color: var(--text-dark);
+        }
+    }
+
+    .errorSection {
+        background: rgba(231, 76, 60, 0.1);
+        
+        h3 {
+            color: #e74c3c;
+        }
+        
+        ul li {
+            color: #e74c3c;
+        }
+    }
+
+    .addOptionBtn {
+        background: rgba(80, 134, 242, 0.08);
+        
+        &:hover {
+            background: rgba(80, 134, 242, 0.15);
+        }
+    }
+
+    .addMatchingBtn {
+        background: rgba(80, 134, 242, 0.08);
+        
+        &:hover {
+            background: rgba(80, 134, 242, 0.15);
+        }
     }
 }

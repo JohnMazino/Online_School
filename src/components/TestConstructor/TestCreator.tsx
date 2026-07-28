@@ -227,7 +227,7 @@ export default function TestCreator({ test, onSave, onCancel }: TestCreatorProps
             {/* Сообщения об ошибках */}
             {errors.length > 0 && (
                 <section className={styles.errorSection}>
-                    <h3>❌ Ошибки в форме:</h3>
+                    <h3>Ошибки в форме:</h3>
                     <ul>
                         {errors.map((error, idx) => (
                             <li key={`err-${idx}-${error.substring(0, 10)}`}>{error}</li>
@@ -241,7 +241,7 @@ export default function TestCreator({ test, onSave, onCancel }: TestCreatorProps
                 <div className={styles.sectionHeader}>
                     <h2>Вопросы ({questions.length})</h2>
                     <button className={styles.addQuestionBtn} onClick={handleAddQuestion}>
-                        ➕ Добавить вопрос
+                        Добавить вопрос
                     </button>
                 </div>
 
@@ -273,7 +273,7 @@ export default function TestCreator({ test, onSave, onCancel }: TestCreatorProps
             {/* Кнопки действия */}
             <section className={styles.actionButtons}>
                 <button className={styles.saveBtn} onClick={handleSave}>
-                    💾 {test ? 'Обновить тест' : 'Создать тест'}
+                    {test ? 'Обновить тест' : 'Создать тест'}
                 </button>
                 <button className={styles.cancelBtn} onClick={onCancel}>
                     ✕ Отмена
@@ -566,7 +566,7 @@ function QuestionEditor({
 
                     {/* Кнопка удаления */}
                     <button className={styles.deleteQuestionBtn} onClick={() => onDelete(question.id)}>
-                        🗑️ Удалить вопрос
+                        Удалить вопрос
                     </button>
                 </div>
             )}

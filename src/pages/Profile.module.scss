@@ -632,6 +632,47 @@
     color: var(--text-secondary);
 }
 
+/* Конструктор тестов (только для преподавателей) */
+.constructorPlaceholder {
+    background: var(--bg-card);
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 8px 16px rgba(0, 0, 0, 0.1);
+
+    p {
+        margin: 0 0 1.5rem;
+        color: var(--text-secondary);
+    }
+}
+
+.constructorLink {
+    display: block;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.constructorBtn {
+    padding: 0.9rem 1.8rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(80, 134, 242, 0.3);
+    }
+}
+
+
 /* Адаптив для мобильных устройств */
 @media (max-width: 768px) {
     .profileContent {

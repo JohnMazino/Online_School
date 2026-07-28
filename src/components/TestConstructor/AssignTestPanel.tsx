@@ -129,7 +129,7 @@ export default function AssignTestPanel({
                     {/* Сообщения об ошибках */}
                     {errors.length > 0 && (
                         <div className={styles.errorBox}>
-                            <h4>❌ Ошибки в форме:</h4>
+                            <h4>Ошибки в форме:</h4>
                             <ul>
                                 {errors.map((error, i) => (
                                     <li key={`error-${i}`}>{error}</li>
@@ -140,7 +140,7 @@ export default function AssignTestPanel({
 
                     {tests.length === 0 ? (
                         <div className={styles.noTestsWarning}>
-                            <p>⚠️ Нет тестов для назначения. Создайте тест в разделе "Создать тест"</p>
+                            <p>Нет тестов для назначения. Создайте тест в разделе "Создать тест"</p>
                         </div>
                     ) : (
                         <>
@@ -175,8 +175,8 @@ export default function AssignTestPanel({
                                                 <h4>{test.title}</h4>
                                                 <p>{test.description}</p>
                                                 <div className={styles.testStats}>
-                                                    <span>❓ {test.questions.length} вопросов</span>
-                                                    <span>⭐ {totalPoints} баллов</span>
+                                                    <span>{test.questions.length} вопросов</span>
+                                                    <span>{totalPoints} баллов</span>
                                                 </div>
                                             </>
                                         );
@@ -198,10 +198,10 @@ export default function AssignTestPanel({
                                     </label>
                                 ))}
                                 {loadingStudents ? (
-                                    <p className={styles.loading}>⏳ Загрузка студентов...</p>
+                                    <p className={styles.loading}>Загрузка студентов...</p>
                                 ) : students.length === 0 ? (
                                     <p className={styles.noResults}>
-                                        ⚠️ У вас нет назначенных студентов
+                                        У вас нет назначенных студентов
                                     </p>
                                 ) : (
                                     <div className={styles.studentsList}>
@@ -238,7 +238,7 @@ export default function AssignTestPanel({
                             {/* Кнопка назначения */}
                             <div className={styles.formActions}>
                                 <button className={styles.assignBtn} onClick={handleAssign}>
-                                    ✅ Назначить тест {selectedStudentIds.length > 0 && `(${selectedStudentIds.length})`}
+                                    Назначить тест {selectedStudentIds.length > 0 && `(${selectedStudentIds.length})`}
                                 </button>
                             </div>
                         </>
@@ -251,7 +251,7 @@ export default function AssignTestPanel({
 
                     {assignments.length === 0 ? (
                         <div className={styles.emptyHistory}>
-                            <p>📭 Назначений нет</p>
+                            <p>Назначений нет</p>
                         </div>
                     ) : (
                         <div className={styles.assignmentsList}>
@@ -272,11 +272,11 @@ export default function AssignTestPanel({
                                             <div className={styles.assignmentContent}>
                                                 <h4>{test?.title}</h4>
                                                 <p className={styles.assignmentTarget}>
-                                                    👤 {assignment.studentName}
+                                                    {assignment.studentName}
                                                 </p>
                                                 {assignment.dueDate && (
                                                     <p className={styles.assignmentDueDate}>
-                                                        📅 Дедлайн: {assignment.dueDate}
+                                                        Дедлайн: {assignment.dueDate}
                                                     </p>
                                                 )}
                                                 <p className={styles.assignmentDate}>
