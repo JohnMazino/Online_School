@@ -110,10 +110,10 @@ export default function TestConstructorPage() {
             const createdTest = await testsApi.createTest(token, testToCreate);
             setTests([...tests, createdTest]);
             setActiveTab('list');
-            alert('✅ Тест успешно создан и сохранён в базе!');
+            alert('Тест успешно создан и сохранён в базе!');
         } catch (error) {
             console.error('Error creating test:', error);
-            alert('❌ Ошибка при создании теста. Попробуйте снова.');
+            alert('Ошибка при создании теста. Попробуйте снова.');
         } finally {
             setLoading(false);
         }
@@ -136,10 +136,10 @@ export default function TestConstructorPage() {
             setTests(tests.map(t => (t.id === selectedTest.id ? updated : t)));
             setSelectedTest(null);
             setActiveTab('list');
-            alert('✅ Тест успешно обновлён и сохранён в базе!');
+            alert('Тест успешно обновлён и сохранён в базе!');
         } catch (error) {
             console.error('Error updating test:', error);
-            alert('❌ Ошибка при обновлении теста. Попробуйте снова.');
+            alert('Ошибка при обновлении теста. Попробуйте снова.');
         } finally {
             setLoading(false);
         }
@@ -162,13 +162,13 @@ export default function TestConstructorPage() {
             if (success) {
                 setTests(tests.filter(t => t.id !== testId));
                 setAssignments(assignments.filter(a => a.testId !== testId));
-                alert('✅ Тест удалён');
+                alert('Тест удалён');
             } else {
-                alert('❌ Ошибка при удалении теста');
+                alert('Ошибка при удалении теста');
             }
         } catch (error) {
             console.error('Error deleting test:', error);
-            alert('❌ Ошибка при удалении теста. Попробуйте снова.');
+            alert('Ошибка при удалении теста. Попробуйте снова.');
         } finally {
             setLoading(false);
         }
@@ -197,10 +197,10 @@ export default function TestConstructorPage() {
             };
 
             setAssignments([...assignments, newAssignment]);
-            alert('✅ Тест успешно назначен студенту!');
+            alert('Тест успешно назначен студенту!');
         } catch (error) {
             console.error('Error assigning test:', error);
-            alert('❌ Ошибка при назначении теста. Попробуйте снова.');
+            alert('Ошибка при назначении теста. Попробуйте снова.');
         } finally {
             setLoading(false);
         }
@@ -223,13 +223,13 @@ export default function TestConstructorPage() {
             
             if (success) {
                 setAssignments(assignments.filter(a => a.id !== assignmentId));
-                alert('✅ Назначение отменено');
+                alert('Назначение отменено');
             } else {
-                alert('❌ Ошибка при отмене назначения');
+                alert('Ошибка при отмене назначения');
             }
         } catch (error) {
             console.error('Error canceling assignment:', error);
-            alert('❌ Ошибка при отмене назначения. Попробуйте снова.');
+            alert('Ошибка при отмене назначения. Попробуйте снова.');
         } finally {
             setLoading(false);
         }

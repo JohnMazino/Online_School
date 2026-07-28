@@ -263,7 +263,7 @@ export default function TestResultsStudent({ testTitle, test, result, onRetake }
                                             className={`${styles.answerOption} ${styles[answerStatus]}`}
                                         >
                                             <span className={styles.answerIcon}>
-                                                {isStudentSelected && <span>👤 </span>}
+                                                {isStudentSelected && <span></span>}
                                                 {isCorrectAnswer && <span>✓ </span>}
                                             </span>
                                             <span className={styles.answerText}>{option}</span>
@@ -294,7 +294,7 @@ export default function TestResultsStudent({ testTitle, test, result, onRetake }
                 </button>
                 {onRetake && (
                     <button className={styles.retakeBtn} onClick={onRetake}>
-                        🔄 Пройти тест еще раз
+                        Пройти тест еще раз
                     </button>
                 )}
             </div>

@@ -192,40 +192,36 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
 
     return (
         <div className={styles.quizManager}>
-            {/* Навигация внутри квизи */}
-            <div className={styles.breadcrumb}>
-                {activeView === 'questions' && selectedTopic && (
-                    <>
-                        <button className={styles.breadcrumbLink} onClick={() => { setActiveView('topics'); setSelectedTopic(null); }}>
-                            📂 Темы
-                        </button>
-                        <span className={styles.breadcrumbSep}>→</span>
-                        <span className={styles.breadcrumbItem}>{selectedTopic.name}</span>
-                    </>
-                )}
-                {activeView === 'create-topic' && (
-                    <>
-                        <button className={styles.breadcrumbLink} onClick={() => setActiveView('topics')}>
-                            📂 Темы
-                        </button>
-                        <span className={styles.breadcrumbSep}>→</span>
-                        <span className={styles.breadcrumbItem}>Новая тема</span>
-                    </>
-                )}
-                {activeView === 'create-question' && selectedTopic && (
-                    <>
-                        <button className={styles.breadcrumbLink} onClick={() => setActiveView('questions')}>
-                            📂 Темы
-                        </button>
-                        <span className={styles.breadcrumbSep}>→</span>
-                        <button className={styles.breadcrumbLink} onClick={() => setActiveView('questions')}>
-                            {selectedTopic.name}
-                        </button>
-                        <span className={styles.breadcrumbSep}>→</span>
-                        <span className={styles.breadcrumbItem}>Новый вопрос</span>
-                    </>
-                )}
-            </div>
+            {/* Навигация внутри квизи - показываем только когда открыта тема или создается вопрос */}
+            {(activeView === 'questions' || activeView === 'create-question') && selectedTopic && (
+                <div className={styles.breadcrumb}>
+                    {activeView === 'questions' && (
+                        <>
+                            <button className={styles.breadcrumbLink} onClick={() => { 
+                                setActiveView('topics'); 
+                                setSelectedTopic(null); 
+                            }}>
+                                Темы
+                            </button>
+                            <span className={styles.breadcrumbSep}>→</span>
+                            <span className={styles.breadcrumbItem}>{selectedTopic.name}</span>
+                        </>
+                    )}
+                    {activeView === 'create-question' && (
+                        <>
+                            <button className={styles.breadcrumbLink} onClick={() => setActiveView('questions')}>
+                                Темы
+                            </button>
+                            <span className={styles.breadcrumbSep}>→</span>
+                            <button className={styles.breadcrumbLink} onClick={() => setActiveView('questions')}>
+                                {selectedTopic.name}
+                            </button>
+                            <span className={styles.breadcrumbSep}>→</span>
+                            <span className={styles.breadcrumbItem}>Новый вопрос</span>
+                        </>
+                    )}
+                </div>
+            )}
 
             {/* Список тем */}
             {activeView === 'topics' && (
@@ -269,7 +265,7 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                                             className={styles.deleteBtn}
                                             onClick={() => handleDeleteTopic(topic.id)}
                                         >
-                                            🗑️
+                                            Удалить
                                         </button>
                                     </div>
                                 </div>
@@ -339,7 +335,7 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                     <div className={styles.viewHeader}>
                         <h2>{selectedTopic.name}</h2>
                         <button className={styles.createBtn} onClick={() => setActiveView('create-question')}>
-                            ➕ Добавить вопрос
+                            Добавить вопрос
                         </button>
                     </div>
 
@@ -377,7 +373,7 @@ export default function QuizManager({ token, teacherId }: QuizManagerProps) {
                                         className={styles.deleteQuestionBtn}
                                         onClick={() => handleDeleteQuestion(q.id)}
                                     >
-                                        🗑️ Удалить
+                                        Удалить
                                     </button>
                                 </div>
                             ))}

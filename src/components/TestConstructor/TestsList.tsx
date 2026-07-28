@@ -43,7 +43,7 @@ export default function TestsList({ tests, assignments, onEdit, onDelete }: Test
         <div className={styles.testsList}>
             {tests.length === 0 ? (
                 <div className={styles.emptyState}>
-                    <div className={styles.emptyIcon}>📋</div>
+                    <div className={styles.emptyIcon}></div>
                     <h3>Тестов нет</h3>
                     <p>Начните создание первого теста, чтобы он появился здесь</p>
                 </div>
@@ -60,19 +60,19 @@ export default function TestsList({ tests, assignments, onEdit, onDelete }: Test
                             {/* Метаинформация */}
                             <div className={styles.cardStats}>
                                 <div className={styles.stat}>
-                                    <span className={styles.statIcon}>❓</span>
+                                    <span className={styles.statIcon}></span>
                                     <span>
                                         <strong>{test.questions.length}</strong> вопросов
                                     </span>
                                 </div>
                                 <div className={styles.stat}>
-                                    <span className={styles.statIcon}>⭐</span>
+                                    <span className={styles.statIcon}></span>
                                     <span>
                                         <strong>{getTotalPoints(test)}</strong> баллов
                                     </span>
                                 </div>
                                 <div className={styles.stat}>
-                                    <span className={styles.statIcon}>👥</span>
+                                    <span className={styles.statIcon}></span>
                                     <span>
                                         <strong>{getAssignmentCount(test.id)}</strong> назначений
                                     </span>
@@ -81,16 +81,16 @@ export default function TestsList({ tests, assignments, onEdit, onDelete }: Test
 
                             {/* Информация о создании */}
                             <div className={styles.cardFooter}>
-                                <small className={styles.createdDate}>📅 Создан: {test.createdAt}</small>
+                                <small className={styles.createdDate}>Создан: {test.createdAt}</small>
                             </div>
 
                             {/* Действия */}
                             <div className={styles.cardActions}>
                                 <button className={styles.editBtn} onClick={() => onEdit(test)}>
-                                    ✏️ Редактировать
+                                    Редактировать
                                 </button>
                                 <button className={styles.deleteBtn} onClick={() => onDelete(test.id)}>
-                                    🗑️ Удалить
+                                    Удалить
                                 </button>
                             </div>
 

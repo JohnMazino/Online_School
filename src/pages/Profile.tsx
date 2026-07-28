@@ -392,7 +392,7 @@ export default function Profile() {
                             <div className={styles.constructorPlaceholder}>
                                 <p>Создавайте тесты, управляйте ими и назначайте своим ученикам</p>
                                 <Link to="/test-constructor">
-                                    <button className={styles.constructorBtn}>🧪 Открыть конструктор</button>
+                                    <button className={styles.constructorBtn}><b>Открыть конструктор</b></button>
                                 </Link>
                             </div>
                         </section>

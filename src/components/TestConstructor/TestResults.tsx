@@ -131,10 +131,10 @@ export default function TestResults({ result, questions, onClose }: TestResultsP
                                 <div className={styles.answerHeader}>
                                     <span className={styles.questionNumber}>Вопрос {idx + 1}</span>
                                     <span className={styles.questionType}>
-                                        {question.type === 'single' ? '📌 Один ответ' : '☑️ Несколько ответов'}
+                                        {question.type === 'single' ? 'Один ответ' : 'Несколько ответов'}
                                     </span>
                                     <span className={styles.status}>
-                                        {studentAnswer?.isCorrect ? '✅ Правильно' : '❌ Неправильно'}
+                                        {studentAnswer?.isCorrect ? 'Правильно' : 'Неправильно'}
                                     </span>
                                     <span className={styles.points}>
                                         {studentAnswer?.pointsEarned || 0} / {question.points} баллов

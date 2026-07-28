@@ -170,7 +170,7 @@ export default function TestPlayer({ test, onComplete, onCancel }: TestPlayerPro
 
                 <div className={styles.headerRight}>
                     <div className={styles.timer}>
-                        <span className={styles.timerLabel}>⏱️ Время:</span>
+                        <span className={styles.timerLabel}>Время:</span>
                         <span className={styles.timerValue}>{formatTime(timeElapsed)}</span>
                     </div>
                     <button className={styles.exitBtn} onClick={onCancel} title="Выйти из теста">
@@ -192,10 +192,10 @@ export default function TestPlayer({ test, onComplete, onCancel }: TestPlayerPro
                         <span className={styles.questionLabel}>Вопрос {currentQuestionIdx + 1}</span>
                         <span className={styles.questionType}>
                             {currentQuestion.type === 'single' 
-                                ? '📌 Выберите один ответ' 
+                                ? 'Выберите один ответ' 
                                 : currentQuestion.type === 'multiple'
-                                ? '☑️ Выберите несколько ответов'
-                                : '🔗 Сопоставьте по парам'}
+                                ? 'Выберите несколько ответов'
+                                : 'Сопоставьте по парам'}
                         </span>
                         <span className={styles.points}>{currentQuestion.points} баллов</span>
                     </div>
