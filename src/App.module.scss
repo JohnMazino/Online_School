@@ -444,12 +444,22 @@
 .tutorsSection {
     margin: 5rem 0 7rem;
     text-align: center;
+    position: relative;
 }
 
 .sectionTutorTitle {
+    text-align: center;
     font-size: 2.8rem;
     margin-bottom: 3.5rem;
     color: var(--text-dark);
+}
+
+.tutorsSection .addTutorBtn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
 }
 
 .tutorsGrid {

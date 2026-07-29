@@ -58,20 +58,11 @@ function App() {
       userRole: user?.role
     });
 
-    const token = useAuthStore.getState().token;
-    if (token) {
-      tutorApi.getAll(token).then((data) => {
-        
-        console.log('TUTORS FROM API:', data.tutors);
-        data.tutors.forEach((t: any) => {
-          console.log(`ID ${t.id}: img_url =`, t.img_url?.slice?.(0, 80) ?? t.img_url);
-        });     
-        
+    tutorApi.getAll().then((data) => {
         setTutors(data.tutors);
       }).catch((err) => {
         console.error('Failed to fetch tutors:', err);
       });
-    }
   }, []);
 
   const handleDeleteTutor = async (tutorId: number) => {
@@ -226,18 +217,16 @@ function App() {
 
                     {/* 5. Наши репетиторы */}
                       <section id="tutors-section" className={styles.tutorsSection}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
-                          {isAuthenticated && user?.role === 'admin' && (
-                            <button
-                              type="button"
-                              className={styles.addTutorBtn}
-                              onClick={() => setShowAddForm(!showAddForm)}
-                            >
-                              {showAddForm ? '✕ Закрыть' : '+ Добавить'}
-                            </button>
-                          )}
-                        </div>
+                        <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
+                        {isAuthenticated && user?.role === 'admin' && (
+                          <button
+                            type="button"
+                            className={styles.addTutorBtn}
+                            onClick={() => setShowAddForm(!showAddForm)}
+                          >
+                            {showAddForm ? '✕ Закрыть' : '+ Добавить'}
+                          </button>
+                        )}
 
                         {showAddForm && (
                           <div className={styles.addTutorForm}>

@@ -85,10 +85,8 @@ export const authApi = {
 };
 
 export const tutorApi = {
-  getAll: async (token: string) => {
-    const response = await fetch(`${API_URL}/tutors`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/tutors`);
     if (!response.ok) throw new Error('Failed to fetch tutors');
     return response.json();
   },

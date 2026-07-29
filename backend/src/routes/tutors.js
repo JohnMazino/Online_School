@@ -44,7 +44,7 @@ const tutorRoutes = (pool) => {
     next();
   };
 
-  router.get('/', verifyToken, adminOnly, async (req, res) => {
+  router.get('/', async (req, res) => {
     try {
       const result = await pool.query(
         'SELECT id, name, specialty, bio, education, documents, img_url, created_at FROM tutors ORDER BY id DESC'
