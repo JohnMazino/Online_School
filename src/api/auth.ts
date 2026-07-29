@@ -42,6 +42,14 @@ export const authApi = {
   },
 
   // Admin APIs
+  getStats: async (token: string) => {
+    const response = await fetch(`${API_URL}/admin/stats`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Failed to fetch stats');
+    return response.json();
+  },
+
   getAllUsers: async (token: string, q?: string, page: number = 1, perPage: number = 10) => {
     const params = new URLSearchParams();
     if (q) params.set('q', q);
@@ -62,6 +70,52 @@ export const authApi = {
       body: JSON.stringify({ userId, role }),
     });
     if (!response.ok) throw new Error('Failed to assign role');
+    return response.json();
+  },
+
+  updateBalance: async (token: string, userId: number, balance: number) => {
+    const response = await fetch(`${API_URL}/admin/update-balance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ userId, balance }),
+    });
+    if (!response.ok) throw new Error('Failed to update balance');
+    return response.json();
+  },
+};
+
+export const tutorApi = {
+  getAll: async (token: string) => {
+    const response = await fetch(`${API_URL}/tutors`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Failed to fetch tutors');
+    return response.json();
+  },
+
+  add: async (token: string, name: string, specialty: string, bio?: string, education?: string, documents?: string, photo?: File) => {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('specialty', specialty);
+    if (bio) formData.append('bio', bio);
+    if (education) formData.append('education', education);
+    if (documents) formData.append('documents', documents);
+    if (photo) formData.append('photo', photo);
+    const response = await fetch(`${API_URL}/tutors`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to add tutor');
+    return response.json();
+  },
+
+  delete: async (token: string, tutorId: number) => {
+    const response = await fetch(`${API_URL}/tutors/${tutorId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Failed to delete tutor');
     return response.json();
   },
 };

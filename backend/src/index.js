@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config({ path: __dirname + '/../.env' });
 const { Pool } = require('pg');
 const { initializeDatabase } = require('./db/init');
@@ -7,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const studentRoutes = require('./routes/students');
 const testRoutes = require('./routes/tests');
+const tutorRoutes = require('./routes/tutors');
 const quizRoutes = require('./routes/quizzes');
 
 const app = express();
@@ -26,6 +28,8 @@ module.exports = pool;
 // Маршруты
 app.use('/api/auth', authRoutes(pool));
 app.use('/api/admin', adminRoutes(pool));
+app.use('/api/tutors', tutorRoutes(pool));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use('/api/students', studentRoutes(pool));
 app.use('/api/tests', testRoutes(pool));
 app.use('/api/quizzes', quizRoutes(pool));

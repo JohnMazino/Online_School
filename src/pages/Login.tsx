@@ -134,7 +134,7 @@ export default function Login() {
             const data = await authApi.login(cleanPhone, password, captchaInput, captchaId);
             login(data.user, data.token);
             if (data.user?.role === 'admin') {
-                navigate('/admin');
+                navigate('/');
             } else {
                 navigate('/');
             }

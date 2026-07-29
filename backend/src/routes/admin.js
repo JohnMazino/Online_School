@@ -25,12 +25,30 @@ const adminRoutes = (pool) => {
     next();
   };
 
-  // Получить список пользователей (поддерживает поиск по q + пагинацию)
-  router.get('/users', verifyToken, adminOnly, async (req, res) => {
+   // Получить статистику админки
+   router.get('/stats', verifyToken, adminOnly, async (req, res) => {
+     try {
+       const totalRes = await pool.query('SELECT COUNT(*) AS count FROM users');
+       const totalUsers = parseInt(totalRes.rows[0].count, 10);
+
+       const profitRes = await pool.query(
+         'SELECT COALESCE(SUM(balance), 0) AS total FROM users'
+       );
+       const totalProfit = parseInt(profitRes.rows[0].total, 10);
+
+       return res.json({ totalUsers, totalProfit });
+     } catch (err) {
+       console.error('Admin stats error:', err);
+       return res.status(500).json({ error: 'Internal server error' });
+     }
+   });
+
+   // Получить список пользователей (поддерживает поиск по q + пагинацию)
+   router.get('/users', verifyToken, adminOnly, async (req, res) => {
     try {
       const q = (req.query.q || '').toString().trim();
       const page = Math.max(1, parseInt(req.query.page || '1'));
-      const perPage = Math.min(100, parseInt(req.query.per_page || '10'));
+       const perPage = parseInt(req.query.per_page || '10');
       const offset = (page - 1) * perPage;
 
       let rowsResult;
@@ -39,7 +57,7 @@ const adminRoutes = (pool) => {
       if (q) {
         const pattern = `%${q}%`;
         const countRes = await pool.query(
-          `SELECT COUNT(*) AS count FROM users WHERE phone ILIKE $1 OR phone_normalized ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1`,
+          `SELECT COUNT(*) AS count FROM users WHERE phone ILIKE $1 OR phone_normalized ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1 OR role ILIKE $1`,
           [pattern]
         );
         total = parseInt(countRes.rows[0].count, 10);
@@ -47,7 +65,7 @@ const adminRoutes = (pool) => {
         rowsResult = await pool.query(
           `SELECT id, phone, first_name, last_name, role, balance, created_at
            FROM users
-           WHERE phone ILIKE $1 OR phone_normalized ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1
+           WHERE phone ILIKE $1 OR phone_normalized ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1 OR role ILIKE $1
            ORDER BY id DESC
            LIMIT $2 OFFSET $3`,
           [pattern, perPage, offset]
@@ -85,6 +103,26 @@ const adminRoutes = (pool) => {
       return res.json({ user: result.rows[0] });
     } catch (err) {
       console.error('Admin assign role error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Обновить баланс пользователя
+  router.post('/update-balance', verifyToken, adminOnly, async (req, res) => {
+    try {
+      const { userId, balance } = req.body;
+      if (userId === undefined || balance === undefined) return res.status(400).json({ error: 'Missing userId or balance' });
+
+      const result = await pool.query(
+        'UPDATE users SET balance = $1 WHERE id = $2 RETURNING id, phone, first_name, last_name, role, balance',
+        [balance, userId]
+      );
+
+      if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+      return res.json({ user: result.rows[0] });
+    } catch (err) {
+      console.error('Admin update balance error:', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });

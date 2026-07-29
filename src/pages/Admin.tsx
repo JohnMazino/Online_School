@@ -1,148 +1,351 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authApi } from '../api/auth';
-import styles from './Profile.module.scss';
+import Sidebar from '../components/SideBar/SideBar';
+import Background from '../components/Background/Background';
+import styles from './Admin.module.scss';
+
+interface User {
+    id: number;
+    phone: string;
+    first_name: string;
+    last_name: string;
+    role: string;
+    balance: number;
+    created_at?: string;
+}
+
+interface Stats {
+    totalUsers: number;
+    totalProfit: number;
+}
 
 export default function AdminPage() {
-    const { isAuthenticated, user: authUser, token } = useAuthStore();
-    const [users, setUsers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [query, setQuery] = useState('');
-    const [page, setPage] = useState(1);
-    const [perPage] = useState(10);
-    const [total, setTotal] = useState(0);
     const navigate = useNavigate();
-    const debounceRef = useRef<number | null>(null);
+    const { isAuthenticated, user, token } = useAuthStore();
+    const [users, setUsers] = useState<User[]>([]);
+    const [stats, setStats] = useState<Stats | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [statsLoading, setStatsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editRole, setEditRole] = useState('');
+    const [editBalance, setEditBalance] = useState('');
 
-    const load = async (q?: string, p: number = 1) => {
-        if (!token) {
-            setUsers([]);
-            setTotal(0);
-            return;
-        }
+    const isAdmin = isAuthenticated && user?.role === 'admin';
 
-        setLoading(true);
+    const fetchStats = useCallback(async () => {
+        if (!token) return;
         try {
-            const data = await authApi.getAllUsers(token, q, p, perPage);
-            setUsers(data.users || []);
-            setTotal(data.total || 0);
-            setError('');
-        } catch (err: any) {
-            setError(err.message || 'Ошибка при загрузке пользователей');
-            setUsers([]);
-            setTotal(0);
+            const data = await authApi.getStats(token);
+            setStats(data);
+        } catch (err) {
+            console.error('Failed to fetch stats:', err);
+        } finally {
+            setStatsLoading(false);
+        }
+    }, [token]);
+
+    const fetchUsers = useCallback(async (q?: string, page?: number, pp?: number) => {
+        if (!token) return;
+        try {
+            setLoading(true);
+            const data = await authApi.getAllUsers(token, q || '', page ?? currentPage, pp ?? perPage);
+            setUsers(data.users);
+            setTotalUsers(data.total);
+        } catch (err) {
+            console.error('Failed to fetch users:', err);
+            setError('Не удалось загрузить список пользователей');
         } finally {
             setLoading(false);
         }
-    }; 
+    }, [token, currentPage, perPage]);
 
     useEffect(() => {
-        if (!isAuthenticated || !token) {
-            navigate('/login');
-            return;
-        }
-
-        if (!authUser || authUser.role !== 'admin') {
+        if (!isAuthenticated || user?.role !== 'admin') {
             navigate('/');
             return;
         }
+        fetchStats();
+        fetchUsers();
+    }, [isAuthenticated, user?.role, navigate, fetchUsers, fetchStats]);
 
-        // Immediate load on mount
-        load();
+    const handleSearch = useCallback((value: string) => {
+        setSearchQuery(value);
+        setCurrentPage(1);
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        const timeout = setTimeout(() => {
+            fetchUsers(value || undefined, 1, perPage);
+        }, 300);
+        setSearchTimeout(timeout);
+    }, [searchTimeout, fetchUsers, perPage]);
 
-        return;
-    }, [isAuthenticated, token, authUser, navigate]);
+    const handlePerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newPerPage = Number(e.target.value);
+        setPerPage(newPerPage);
+        setCurrentPage(1);
+        fetchUsers(searchQuery || undefined, 1, newPerPage);
+    };
 
-    // Debounced server-side search + pagination
-    useEffect(() => {
-        if (!token) return;
-        if (debounceRef.current) window.clearTimeout(debounceRef.current);
-        debounceRef.current = window.setTimeout(() => {
-            load(query, page);
-        }, 600);
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        fetchUsers(searchQuery || undefined, page, perPage);
+    };
 
-        return () => { if (debounceRef.current) window.clearTimeout(debounceRef.current); };
-    }, [query, page, token]);
-    const setRole = async (userId: number, role: string) => {
+    const totalPages = Math.max(1, Math.ceil(totalUsers / perPage));
+
+    const handleRoleChange = async (userId: number, newRole: string) => {
         if (!token) return;
         try {
-            await authApi.assignRole(token, userId, role);
-            // Refresh current page to reflect changes
-            await load(query, page);
-        } catch (err: any) {
-            setError(err.message || 'Не удалось изменить роль');
+            await authApi.assignRole(token, userId, newRole);
+            setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+            setEditingId(null);
+        } catch (err) {
+            console.error('Failed to update role:', err);
+            setError('Не удалось изменить роль');
         }
     };
 
-    if (loading) return <div>Загрузка...</div>;
+    const handleBalanceChange = async (userId: number, newBalance: number) => {
+        if (!token) return;
+        try {
+            await authApi.updateBalance(token, userId, newBalance);
+            setUsers(prev => prev.map(u => u.id === userId ? { ...u, balance: newBalance } : u));
+            setEditingId(null);
+        } catch (err) {
+            console.error('Failed to update balance:', err);
+            setError('Не удалось обновить баланс');
+        }
+    };
+
+    const handleEditStart = (user: User) => {
+        setEditingId(user.id);
+        setEditRole(user.role);
+        setEditBalance(String(user.balance));
+    };
+
+    const handleEditCancel = () => {
+        setEditingId(null);
+        setEditRole('');
+        setEditBalance('');
+    };
+
+    const handleEditSave = (user: User) => {
+        if (editRole !== user.role) {
+            handleRoleChange(user.id, editRole);
+        }
+        const newBalance = Number(editBalance);
+        if (!isNaN(newBalance) && newBalance !== user.balance) {
+            handleBalanceChange(user.id, newBalance);
+        }
+        setEditingId(null);
+    };
+
+    if (!isAdmin) {
+        return null;
+    }
+
+    const registeredUsers = stats?.totalUsers ?? 0;
+    const profit = stats?.totalProfit ?? 0;
 
     return (
-        <div className={styles.profilePage}>
-            <div className={styles.profileContent}>
-                <h1>Админ панель</h1>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
+        <>
+            <Background />
 
-                <div style={{ margin: '12px 0' }}>
-                    <input
-                        style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                        value={query}
-                        onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                        placeholder="Поиск по номеру, имени или фамилии"
-                    />
+            <div className={styles.appWrapper}>
+                <div className={styles.sidebarZone}>
+                    <Sidebar />
                 </div>
 
-                {users.length === 0 ? (
-                    <div>Пользователи не найдены</div>
-                ) : (
-                    <>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Имя</th>
-                                    <th>Фамилия</th>
-                                    <th>Телефон</th>
-                                    <th>Баланс</th>
-                                    <th>Роль</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map(u => (
-                                    <tr key={u.id}>
-                                        <td>{u.id}</td>
-                                        <td>{u.first_name}</td>
-                                        <td>{u.last_name}</td>
-                                        <td>{u.phone}</td>
-                                        <td>{typeof u.balance === 'number' ? `${u.balance} ₽` : '—'}</td>
-                                        <td>{u.role}</td>
-                                        <td>
-                                            {u.role !== 'teacher' && (
-                                                <button onClick={() => setRole(u.id, 'teacher')}>Назначить преподавателем</button>
-                                            )}
-                                            {u.role === 'teacher' && (
-                                                <button onClick={() => setRole(u.id, 'student')}>Сделать учеником</button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                <main className={styles.mainContent}>
+                    <div className={styles.contentRectangle}>
+                        <h1 className={styles.adminTitle}>Админ-панель</h1>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-                            <div>Всего пользователей: {total}</div>
-                            <div>
-                                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}>Предыдущий</button>
-                                <span style={{ margin: '0 8px' }}>{page} / {Math.max(1, Math.ceil(total / perPage))}</span>
-                                <button onClick={() => setPage(p => Math.min(Math.max(1, Math.ceil(total / perPage)), p + 1))} disabled={page >= Math.ceil(total / perPage)}>Следующий</button>
+                        <div className={styles.statsGrid}>
+                            <div className={styles.statCard}>
+                                <div className={styles.statIcon}>👥</div>
+                                <div className={styles.statInfo}>
+                                    {statsLoading ? (
+                                        <span className={styles.statValue}>---</span>
+                                    ) : (
+                                        <span className={styles.statValue}>{registeredUsers.toLocaleString()}</span>
+                                    )}
+                                    <span className={styles.statLabel}>Зарегистрированные пользователи</span>
+                                </div>
+                            </div>
+                            <div className={styles.statCard}>
+                                <div className={styles.statIcon}>💰</div>
+                                <div className={styles.statInfo}>
+                                    {statsLoading ? (
+                                        <span className={styles.statValue}>---</span>
+                                    ) : (
+                                        <span className={styles.statValue}>{profit.toLocaleString()} ₽</span>
+                                    )}
+                                    <span className={styles.statLabel}>Прибыль</span>
+                                </div>
                             </div>
                         </div>
-                    </>
-                )} 
+
+                        <div className={styles.searchBar}>
+                            <input
+                                type="text"
+                                className={styles.searchInput}
+                                placeholder="Поиск по имени, телефону или роли..."
+                                value={searchQuery}
+                                onChange={(e) => handleSearch(e.target.value)}
+                            />
+                            {searchQuery && (
+                                <button
+                                    className={styles.searchClear}
+                                    onClick={() => {
+                                        setSearchQuery('');
+                                        fetchUsers();
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+
+                        {error && <div className={styles.errorBanner}>{error}</div>}
+
+                        <div className={styles.tableWrapper}>
+                            <table className={styles.userTable}>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Имя</th>
+                                        <th>Телефон</th>
+                                        <th>Роль</th>
+                                        <th>Баланс</th>
+                                        <th>Дата регистрации</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={7} className={styles.emptyCell}>Загрузка...</td>
+                                        </tr>
+                                    ) : users.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={7} className={styles.emptyCell}>
+                                                {searchQuery ? 'Пользователи не найдены' : 'Нет пользователей'}
+                                            </td>
+                                        </tr>
+                                    ) : users.map((u) => (
+                                        <tr key={u.id}>
+                                            <td>{u.id}</td>
+                                            <td>{u.first_name} {u.last_name}</td>
+                                            <td>{u.phone}</td>
+                                            <td>
+                                                {editingId === u.id ? (
+                                                    <select
+                                                        className={styles.editSelect}
+                                                        value={editRole}
+                                                        onChange={(e) => setEditRole(e.target.value)}
+                                                    >
+                                                        <option value="student">student</option>
+                                                        <option value="teacher">teacher</option>
+                                                        <option value="admin">admin</option>
+                                                    </select>
+                                                ) : (
+                                                    <span className={styles.roleBadge}>{u.role}</span>
+                                                )}
+                                            </td>
+                                            <td>
+                                                {editingId === u.id ? (
+                                                    <input
+                                                        type="number"
+                                                        className={styles.editInput}
+                                                        value={editBalance}
+                                                        onChange={(e) => setEditBalance(e.target.value)}
+                                                    />
+                                                ) : (
+                                                    <span>{u.balance} ₽</span>
+                                                )}
+                                            </td>
+                                            <td>{u.created_at ? new Date(u.created_at).toLocaleDateString('ru-RU') : '-'}</td>
+                                            <td>
+                                                {editingId === u.id ? (
+                                                    <div className={styles.actionsCell}>
+                                                        <button
+                                                            className={styles.saveBtn}
+                                                            onClick={() => handleEditSave(u)}
+                                                        >
+                                                            Сохранить
+                                                        </button>
+                                                        <button
+                                                            className={styles.cancelBtn}
+                                                            onClick={handleEditCancel}
+                                                        >
+                                                            Отмена
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        className={styles.editBtn}
+                                                        onClick={() => handleEditStart(u)}
+                                                    >
+                                                        Редактировать
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className={styles.pagination}>
+                            <div className={styles.paginationInfo}>
+                                <span className={styles.paginationLabel}>Показать:</span>
+                                <select
+                                    className={styles.perPageSelect}
+                                    value={perPage}
+                                    onChange={handlePerPageChange}
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                                <span className={styles.paginationLabel}>на странице</span>
+                            </div>
+
+                            <div className={styles.paginationControls}>
+                                <span className={styles.paginationText}>
+                                    {totalUsers} пользователей
+                                </span>
+                                <button
+                                    className={styles.pageBtn}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage <= 1}
+                                >
+                                    ← Назад
+                                </button>
+                                <span className={styles.pageInfo}>
+                                    {currentPage} / {totalPages}
+                                </span>
+                                <button
+                                    className={styles.pageBtn}
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage >= totalPages}
+                                >
+                                    Вперёд →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
             </div>
-        </div>
+        </>
     );
 }

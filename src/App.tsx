@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from './store/authStore';
+import { tutorApi } from './api/auth';
 
 import Background from './components/Background/Background';
 import Sidebar from './components/SideBar/SideBar';
@@ -32,9 +33,15 @@ import RepetitorIcon from './assets/icons/repetitorBold.svg?react';
 import DollarIcon from './assets/icons/dollar.svg?react';
 import BookIcon from './assets/icons/book.svg?react';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [tutors, setTutors] = useState<Array<{ id: number; name: string; specialty: string; bio: string; education: string; documents: string; img_url: string }>>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newTutor, setNewTutor] = useState({ name: '', specialty: '', bio: '', education: '', documents: '', photo: null as File | null });
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   const loadFromLocalStorage = useAuthStore((state) => state.loadFromLocalStorage);
@@ -50,7 +57,50 @@ function App() {
       user: user,
       userRole: user?.role
     });
+
+    const token = useAuthStore.getState().token;
+    if (token) {
+      tutorApi.getAll(token).then((data) => {
+        
+        console.log('TUTORS FROM API:', data.tutors);
+        data.tutors.forEach((t: any) => {
+          console.log(`ID ${t.id}: img_url =`, t.img_url?.slice?.(0, 80) ?? t.img_url);
+        });     
+        
+        setTutors(data.tutors);
+      }).catch((err) => {
+        console.error('Failed to fetch tutors:', err);
+      });
+    }
   }, []);
+
+  const handleDeleteTutor = async (tutorId: number) => {
+    const token = useAuthStore.getState().token;
+    if (!token) return;
+    try {
+      await tutorApi.delete(token, tutorId);
+      setTutors(prev => prev.filter(t => t.id !== tutorId));
+    } catch (err) {
+      console.error('Failed to delete tutor:', err);
+      setError('Не удалось удалить репетитора');
+    }
+  };
+
+  const handleAddTutor = async () => {
+    const token = useAuthStore.getState().token;
+    if (!token) return;
+    if (!newTutor.name || !newTutor.specialty) return;
+    try {
+      const data = await tutorApi.add(token, newTutor.name, newTutor.specialty, newTutor.bio, newTutor.education, newTutor.documents, newTutor.photo || undefined);
+      setTutors(prev => [data.tutor, ...prev]);
+      setNewTutor({ name: '', specialty: '', bio: '', education: '', documents: '', photo: null });
+      setPhotoPreview(null);
+      setShowAddForm(false);
+    } catch (err) {
+      console.error('Failed to add tutor:', err);
+      setError('Не удалось добавить репетитора');
+    }
+  };
 
   if (isLoading) {
     return null;
@@ -176,80 +226,130 @@ function App() {
 
                     {/* 5. Наши репетиторы */}
                       <section id="tutors-section" className={styles.tutorsSection}>
-                        <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
+                          {isAuthenticated && user?.role === 'admin' && (
+                            <button
+                              type="button"
+                              className={styles.addTutorBtn}
+                              onClick={() => setShowAddForm(!showAddForm)}
+                            >
+                              {showAddForm ? '✕ Закрыть' : '+ Добавить'}
+                            </button>
+                          )}
+                        </div>
 
-                        <div className={styles.tutorsGrid}>
-                          {/* Репетитор 1 */}
-                          <div className={styles.tutorCard}>
-                            <div className={styles.cardContent}>
+                        {showAddForm && (
+                          <div className={styles.addTutorForm}>
+                            <input
+                              type="text"
+                              placeholder="Имя"
+                              value={newTutor.name}
+                              onChange={(e) => setNewTutor(prev => ({ ...prev, name: e.target.value }))}
+                            />
+                            <input
+                              type="text"
+                              placeholder="Специализация"
+                              value={newTutor.specialty}
+                              onChange={(e) => setNewTutor(prev => ({ ...prev, specialty: e.target.value }))}
+                            />
+                            <textarea
+                              placeholder="Описание"
+                              value={newTutor.bio}
+                              onChange={(e) => setNewTutor(prev => ({ ...prev, bio: e.target.value }))}
+                            />
+                            <input
+                              type="text"
+                              placeholder="Образование"
+                              value={newTutor.education}
+                              onChange={(e) => setNewTutor(prev => ({ ...prev, education: e.target.value }))}
+                            />
+                            <input
+                              type="text"
+                              placeholder="Документы"
+                              value={newTutor.documents}
+                              onChange={(e) => setNewTutor(prev => ({ ...prev, documents: e.target.value }))}
+                            />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setNewTutor(prev => ({ ...prev, photo: file }));
+                                  setPhotoPreview(URL.createObjectURL(file));
+                                }
+                              }}
+                            />
+                            {photoPreview ? (
                               <img
-                                src=""
-                                alt="Иван Петров"
-                                className={styles.tutorPhoto}
+                                src={photoPreview}
+                                alt="Preview"
+                                className={styles.addTutorPhotoPreview}
                               />
-                              <h3 className={styles.tutorNameFront}>Иван Петров</h3>
-                              <div className={styles.infoOverlay}>
-                                <h3 className={styles.tutorName}>Иван Петров</h3>
-                                <p className={styles.tutorInfo}>
-                                  Магистр МГУ по математике и физике<br />
-                                  12 лет опыта, автор методик ЕГЭ 90+ баллов<br />
-                                  Подготовка к ЕГЭ / ОГЭ / олимпиадам
-                                </p>
-                                <div className={styles.documents}>
-                                  <span>Диплом МГУ (2010)</span>
-                                  <span>Свидетельство о повышении квалификации (2023)</span>
+                            ) : null}
+                            <button type="button" className={styles.saveTutorBtn} onClick={handleAddTutor}>
+                              Сохранить
+                            </button>
+                          </div>
+                        )}
+
+                        {error && <div className={styles.errorBanner}>{error}</div>}
+
+                        <div
+                          className={`${styles.tutorsGrid} ${
+                            tutors.length === 1
+                              ? styles.single
+                              : tutors.length <= 3
+                                ? styles.few
+                                : ''
+                          }`}>  
+                          {tutors.map((tutor) => (
+                            <div className={styles.tutorCard} key={tutor.id}>
+                              {isAuthenticated && user?.role === 'admin' && (
+                                <div className={styles.deleteTutorBtn}
+                                  onClick={() => handleDeleteTutor(tutor.id)}
+                                  title="Удалить"
+                            >
+                              ✕
+                            </div>
+                              )}
+                              <div className={styles.cardContent}>
+                              <img
+                              src={
+                                tutor.img_url
+                                  ? tutor.img_url.startsWith('http')
+                                    ? tutor.img_url
+                                    : `${API_BASE}${tutor.img_url}`
+                                  : undefined
+                              }
+                              alt={tutor.name}
+                              className={styles.tutorPhoto}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none'; // или поставь плейсхолдер
+                              }}
+                              />
+                                <h3 className={styles.tutorNameFront}>{tutor.name}</h3>
+                                <div className={styles.infoOverlay}>
+                                  <h3 className={styles.tutorName}>{tutor.name}</h3>
+                                  <p className={styles.tutorInfo}>
+                                    {tutor.specialty}<br />
+                                    {tutor.bio}
+                                  </p>
+                                  {tutor.documents && (
+                                    <div className={styles.documents}>
+                                      <span>{tutor.documents}</span>
+                                    </div>
+                                  )}
+                                  {tutor.education && (
+                                    <p className={styles.tutorInfo}>
+                                      {tutor.education}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
                             </div>
-                          </div>
-
-                          {/* Репетитор 2 */}
-                          <div className={styles.tutorCard}>
-                            <div className={styles.cardContent}>
-                              <img
-                                src=""
-                                alt="Анна Смирнова"
-                                className={styles.tutorPhoto}
-                              />
-                              <h3 className={styles.tutorNameFront}>Анна Смирнова</h3>
-                              <div className={styles.infoOverlay}>
-                                <h3 className={styles.tutorName}>Анна Смирнова</h3>
-                                <p className={styles.tutorInfo}>
-                                  Носитель языка (США)<br />
-                                  IELTS 8.5, TOEFL 115<br />
-                                  Разговорный английский, бизнес, подготовка к экзаменам
-                                </p>
-                                <div className={styles.documents}>
-                                  <span>TEFL / TESOL сертификат</span>
-                                  <span>Диплом University of California</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Репетитор 3 */}
-                          <div className={styles.tutorCard}>
-                            <div className={styles.cardContent}>
-                              <img
-                                src=""
-                                alt="Елена Ковалёва"
-                                className={styles.tutorPhoto}
-                              />
-                              <h3 className={styles.tutorNameFront}>Елена Ковалёва</h3>
-                              <div className={styles.infoOverlay}>
-                                <h3 className={styles.tutorName}>Елена Ковалёва</h3>
-                                <p className={styles.tutorInfo}>
-                                  Кандидат филологических наук<br />
-                                  15 лет стажа, автор учебных пособий<br />
-                                  Русский язык, литература, подготовка к ЕГЭ
-                                </p>
-                                <div className={styles.documents}>
-                                  <span>Кандидатская диссертация (2008)</span>
-                                  <span>Грант Минпросвещения РФ</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       </section>
 

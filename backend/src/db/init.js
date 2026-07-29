@@ -93,6 +93,20 @@ const initializeDatabase = async (pool) => {
       }
     }
 
+    // ===== ТАБЛИЦА РЕПЕТИТОРОВ =====
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS tutors (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        specialty VARCHAR(200) NOT NULL,
+        bio TEXT NOT NULL DEFAULT '',
+        education TEXT NOT NULL DEFAULT '',
+        documents TEXT NOT NULL DEFAULT '',
+        img_url TEXT NOT NULL DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Миграция: изменить тип score и max_score с INTEGER на NUMERIC для поддержки partial credit
     try {
       await client.query(`

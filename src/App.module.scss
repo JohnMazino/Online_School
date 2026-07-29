@@ -453,51 +453,64 @@
 }
 
 .tutorsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 3rem;
-    margin-top: 6rem;
-    max-width: 1400px;
-    margin: 0 auto;
+  display: grid;
+  gap: 2.5rem;
+  margin-top: 3.5rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  /* по умолчанию (4+ карточек) */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 300px));
 
-    @media (max-width: 1100px) {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem 1.8rem;
-    }
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 280px));
+    gap: 2rem;
+  }
 
-    @media (max-width: 700px) {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-    }
+  @media (max-width: 700px) {
+    grid-template-columns: minmax(240px, 320px);
+    gap: 1.8rem;
+  }
+}
+/* одна карточка — чуть крупнее */
+.tutorsGrid.single {
+  grid-template-columns: minmax(300px, 640px);
+}
+/* 2–3 карточки — компактнее */
+.tutorsGrid.few {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 370px));
 }
 
 .tutorCard {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    aspect-ratio: 3 / 4;
-    height: auto;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+  }
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 15px 30px rgba(0, 0, 0, 0.15);
 
     &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 1;
+      opacity: 1;
     }
-
-    &:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 15px 30px rgba(0, 0, 0, 0.15);
-
-        &::before {
-            opacity: 1;
-        }
-    }
+  }
 }
 
 .cardContent {
@@ -1137,5 +1150,139 @@
 
   .tutorsGrid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.addTutorBtn,
+.saveTutorBtn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.addTutorBtn {
+  background: rgba(80, 134, 242, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(80, 134, 242, 0.2);
+}
+
+.addTutorBtn:hover {
+  background: rgba(80, 134, 242, 0.2);
+}
+
+.saveTutorBtn {
+  background: #10b981;
+  color: white;
+  padding: 0.5rem 1.5rem;
+}
+
+.saveTutorBtn:hover {
+  background: #059669;
+}
+
+.addTutorForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.addTutorForm input,
+.addTutorForm textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: var(--bg-body);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.addTutorForm input:focus,
+.addTutorForm textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.15);
+}
+
+.addTutorForm textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.addTutorForm input[type="file"] {
+  padding: 0.35rem;
+  font-size: 0.8rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.addTutorPhotoPreview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
+.deleteTutorBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transition: background 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.deleteTutorBtn:hover {
+  background: #c0392b;
+}
+
+.deleteTutorBtn + .cardContent {
+  position: relative;
+}
+
+.errorBanner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+html.dark .errorBanner {
+  background: #2d1b1b;
+  border-color: #5c2020;
+  color: #fca5a5;
+}
+
+@media (max-width: 768px) {
+  .tutorsGrid {
+    grid-template-columns: 1fr;
   }
 }

@@ -19,7 +19,8 @@ export default function Sidebar() {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const navigate = useNavigate();
     const location = useLocation();
-    const { isAuthenticated, logout } = useAuthStore();
+    const { isAuthenticated, user, logout } = useAuthStore();
+    const isAdmin = isAuthenticated && user?.role === 'admin';
 
     const handleLogout = () => {
         logout();
@@ -125,6 +126,15 @@ export default function Sidebar() {
                             <span className={styles.text}>Чат поддержки</span>
                         </a>
                     </li>
+
+                    {isAdmin && (
+                        <li className={styles.menuItem}>
+                            <Link to="/admin" className={styles.menuLink}>
+                                <ProfileIcon className={styles.icon} />
+                                <span className={styles.text}>Админ панель</span>
+                            </Link>
+                        </li>
+                    )}
 
                     {isAuthenticated && (
                         <li className={styles.menuItem}>
