@@ -1,5 +1,5 @@
 // src/pages/Login.tsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authApi } from '../api/auth';
@@ -9,30 +9,11 @@ import Background from '../components/Background/Background';
 export default function Login() {
     const [phone, setPhone] = useState('+7 ');
     const [password, setPassword] = useState('');
-    const [captchaInput, setCaptchaInput] = useState('');
-    const [captchaSvg, setCaptchaSvg] = useState('');
-    const [captchaId, setCaptchaId] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
     const phoneInputRef = useRef<HTMLInputElement>(null);
-
-    // ===== Капча =====
-    const generateCaptcha = async () => {
-        try {
-            const captcha = await authApi.getCaptcha();
-            setCaptchaSvg(captcha.data);
-            setCaptchaId(captcha.id);
-            setCaptchaInput('');
-        } catch {
-            setError('Не удалось загрузить капчу');
-        }
-    };
-
-    useEffect(() => {
-        void generateCaptcha();
-    }, []);
 
     // ===== Телефон (маска) =====
     const formatPhone = (digits: string): string => {
@@ -118,29 +99,14 @@ export default function Login() {
             return;
         }
 
-        if (!captchaInput.trim()) {
-            setError('Введите капчу');
-            return;
-        }
-
-        if (!captchaId) {
-            setError('Капча не загружена');
-            return;
-        }
-
         setLoading(true);
         try {
             const cleanPhone = '7' + getDigits(phone);
-            const data = await authApi.login(cleanPhone, password, captchaInput, captchaId);
+            const data = await authApi.login(cleanPhone, password);
             login(data.user, data.token);
-            if (data.user?.role === 'admin') {
-                navigate('/');
-            } else {
-                navigate('/');
-            }
+            navigate('/');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Неверный номер телефона или пароль');
-            void generateCaptcha();
         } finally {
             setLoading(false);
         }
@@ -176,37 +142,12 @@ export default function Login() {
                             />
                         </label>
 
-                        {/* Капча */}
-                        <label>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
-                                <div
-                                    onClick={generateCaptcha}
-                                    style={{
-                                        borderRadius: 6,
-                                        cursor: 'pointer',
-                                        userSelect: 'none',
-                                        overflow: 'hidden',
-                                    }}
-                                    dangerouslySetInnerHTML={{ __html: captchaSvg }}
-                                />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Введите код с картинки"
-                                value={captchaInput}
-                                onChange={(e) => setCaptchaInput(e.target.value)}
-                                required
-                                style={{ marginTop: 8 }}
-                                autoComplete="off"
-                            />
-                        </label>
+                         {error && <p className={styles.error}>{error}</p>}
 
-                        {error && <p className={styles.error}>{error}</p>}
-
-                        <button type="submit" disabled={loading}>
-                            {loading ? 'Загрузка...' : 'Войти'}
-                        </button>
-                    </form>
+                         <button type="submit" disabled={loading}>
+                             {loading ? 'Загрузка...' : 'Войти'}
+                         </button>
+                     </form>
 
                     <p>
                         Нет аккаунта? <a href="/register">Зарегистрироваться</a>

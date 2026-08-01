@@ -6,15 +6,69 @@ const { normalizePhone } = require('../utils/phone');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const captchaStore = new Map();
+const otpStore = new Map();
+
 const CAPTCHA_TTL_MS = 5 * 60 * 1000;
+const OTP_TTL_MS = 5 * 60 * 1000;
+
+const SMSAERO_EMAIL = process.env.SMSAERO_EMAIL || '';
+const SMSAERO_API_KEY = process.env.SMSAERO_API_KEY || 'iJmPexdIGJLaNSN7g8ffOfuUBZ7c';
+const SMSAERO_SIGN = process.env.SMSAERO_SIGN || 'OnlineSchool';
 
 const cleanupExpiredCaptchas = () => {
   const now = Date.now();
-  for (const [id, createdAt] of captchaStore.entries()) {
-    if (now - createdAt.createdAt > CAPTCHA_TTL_MS) {
+  for (const [id, record] of captchaStore.entries()) {
+    if (now - record.createdAt > CAPTCHA_TTL_MS) {
       captchaStore.delete(id);
     }
   }
+};
+
+const cleanupExpiredOtps = () => {
+  const now = Date.now();
+  for (const [phone, record] of otpStore.entries()) {
+    if (now - record.createdAt > OTP_TTL_MS) {
+      otpStore.delete(phone);
+    }
+  }
+};
+
+const generateOtpCode = () => {
+  const digits = '0123456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += digits[Math.floor(Math.random() * digits.length)];
+  }
+  return code;
+};
+
+const sendSmsViaAero = async (phone, code) => {
+  const text = `${code} - Код подтверждения для сайта Platforma-school.ru. Не сообщайте его никому!`;
+  const params = new URLSearchParams({
+    number: phone,
+    text: text,
+    sign: SMSAERO_SIGN,
+  });
+  const url = `https://gate.smsaero.ru/v2/sms/send?${params.toString()}`;
+  const auth = Buffer.from(`${SMSAERO_EMAIL}:${SMSAERO_API_KEY}`).toString('base64');
+  const response = await fetch(url, {
+    headers: { Authorization: `Basic ${auth}` },
+  });
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok || data?.success === false) {
+    const apiErr = data?.message || data?.error || `HTTP ${response.status}`;
+    const fullResponse = JSON.stringify(data);
+    throw new Error(`AeroSMS: ${apiErr} (${fullResponse})`);
+  }
+  if (data?.success) {
+    const msg = data.data;
+    console.log(`[AeroSMS] Sent to ${phone}, status=${msg.status} (${msg.extendStatus}), channel=${msg.channel}, cost=${msg.cost}₽`);
+    if (msg.status === 8) {
+      console.warn('[AeroSMS] Message is in MODERATION — free sender names are moderated before sending. For authorization codes, register a paid sender name (платное имя) in your SMSAero account.');
+    }
+  }
+  return data;
 };
 
 const createCaptchaChallenge = () => {
@@ -118,28 +172,119 @@ const authRoutes = (pool) => {
     return res.json(createCaptchaChallenge());
   });
 
+  // Проверка капчи
+  router.post('/verify-captcha', (req, res) => {
+    const { captchaInput, captchaId } = req.body;
+    if (!captchaInput || !captchaId) {
+      return res.status(400).json({ error: 'Captcha is required' });
+    }
+    cleanupExpiredCaptchas();
+    const stored = captchaStore.get(captchaId);
+    if (!stored || stored.value.toUpperCase() !== String(captchaInput).trim().toUpperCase()) {
+      captchaStore.delete(captchaId);
+      return res.status(400).json({ error: 'Incorrect captcha' });
+    }
+    captchaStore.delete(captchaId);
+    return res.json({ success: true });
+  });
+
+  // Отправка SMS-кода (AeroSMS)
+  router.post('/send-sms', async (req, res) => {
+    cleanupExpiredOtps();
+
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone is required' });
+    }
+
+    const normalized = normalizePhone(phone);
+    const code = generateOtpCode();
+
+    let smsOk = true;
+    try {
+      await sendSmsViaAero(normalized, code);
+    } catch (err) {
+      console.error('Failed to send SMS via AeroSMS:', err.message);
+      if (process.env.NODE_ENV === 'production') {
+        smsOk = false;
+      }
+    }
+
+    if (!smsOk) {
+      return res.status(502).json({ error: 'Failed to send SMS code' });
+    }
+
+    otpStore.set(normalized, { code, createdAt: Date.now() });
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`[SMS OTP] Code for ${normalized}: ${code} (valid ${OTP_TTL_MS / 60000} min)`);
+    }
+
+    return res.json({ success: true, message: 'SMS code sent' });
+  });
+
+  // Регистрация по SMS-коду
+  router.post('/register-sms', async (req, res) => {
+    cleanupExpiredOtps();
+
+    const { phone, code, firstName, lastName, password } = req.body;
+    if (!phone || !code || !firstName || !lastName || !password) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const normalized = normalizePhone(phone);
+    const stored = otpStore.get(normalized);
+
+    if (!stored || stored.code !== String(code).trim()) {
+      return res.status(400).json({ error: 'Invalid or expired code' });
+    }
+
+    otpStore.delete(normalized);
+
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    try {
+      const result = await pool.query(
+        'INSERT INTO users (phone, phone_normalized, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, phone, first_name, last_name, role, balance',
+        [normalized, normalized, hashedPassword, firstName, lastName, 'student']
+      );
+
+      const user = result.rows[0];
+      const token = jwt.sign(
+        { id: user.id, phone: user.phone, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      return res.status(201).json({
+        token,
+        user: {
+          id: user.id,
+          phone: user.phone,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          role: user.role,
+          balance: user.balance,
+        },
+      });
+    } catch (error) {
+      if (error.code === '23505') {
+        return res.status(400).json({ error: 'Phone number already registered' });
+      }
+      console.error('Register-sms error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // Вход в систему
   router.post('/login', async (req, res) => {
     try {
-      const { phone, password, captchaInput, captchaId } = req.body;
+      const { phone, password } = req.body;
 
       // Проверка обязательных полей
       if (!phone || !password) {
         return res.status(400).json({ error: 'Missing phone or password' });
       }
-
-      if (!captchaInput || !captchaId) {
-        return res.status(400).json({ error: 'Captcha is required' });
-      }
-
-      cleanupExpiredCaptchas();
-
-      const storedCaptcha = captchaStore.get(captchaId);
-      if (!storedCaptcha || storedCaptcha.value.toUpperCase() !== String(captchaInput).trim().toUpperCase()) {
-        captchaStore.delete(captchaId);
-        return res.status(400).json({ error: 'Incorrect captcha' });
-      }
-      captchaStore.delete(captchaId);
 
       // Special-case admin login
       if (phone === 'admin' && password === '29090803') {

@@ -27,13 +27,52 @@ export const authApi = {
       body: JSON.stringify({ phone, password, captchaInput, captchaId }),
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || 'Login failed');
     }
     return response.json();
   },
 
-  getProfile: async (token: string) => {
+  verifyCaptcha: async (captchaInput: string, captchaId: string) => {
+    const response = await fetch(`${API_URL}/auth/verify-captcha`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ captchaInput, captchaId }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Invalid captcha');
+    }
+    return response.json();
+  },
+
+  sendSmsCode: async (phone: string) => {
+     const response = await fetch(`${API_URL}/auth/send-sms`, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ phone }),
+     });
+     if (!response.ok) {
+       const errorData = await response.json().catch(() => ({}));
+       throw new Error(errorData.error || 'Failed to send SMS code');
+     }
+     return response.json();
+   },
+
+   registerWithSms: async (firstName: string, lastName: string, phone: string, password: string, code: string) => {
+     const response = await fetch(`${API_URL}/auth/register-sms`, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ firstName, lastName, phone, password, code }),
+     });
+     if (!response.ok) {
+       const errorData = await response.json().catch(() => ({}));
+       throw new Error(errorData.error || 'Registration failed');
+     }
+     return response.json();
+   },
+
+   getProfile: async (token: string) => {
     const response = await fetch(`${API_URL}/auth/profile`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });

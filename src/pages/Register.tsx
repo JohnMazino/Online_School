@@ -12,11 +12,15 @@ export default function Register() {
     const [lastName, setLastName] = useState('');
     const [phone, setPhone] = useState('+7 ');
     const [password, setPassword] = useState('');
+    const [smsCode, setSmsCode] = useState('');
     const [captchaInput, setCaptchaInput] = useState('');
     const [captchaSvg, setCaptchaSvg] = useState('');
     const [captchaId, setCaptchaId] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showSmsModal, setShowSmsModal] = useState(false);
+    const [smsModalError, setSmsModalError] = useState('');
+    const [smsModalLoading, setSmsModalLoading] = useState(false);
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
     const phoneInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +67,7 @@ export default function Register() {
 
         const oldDigits = getDigits(phone);
         let newDigits = getDigits(newValue);
-
+        
         // Если стёрли пробел/скобку — удаляем предыдущую цифру
         if (newValue.length < phone.length && newDigits.length === oldDigits.length) {
             const digitsBeforeCursor = phone
@@ -121,31 +125,52 @@ export default function Register() {
             return;
         }
 
-        if (!captchaInput.trim()) {
+        if (!captchaInput.trim() || !captchaId) {
             setError('Введите капчу');
-            return;
-        }
-
-        if (!captchaId) {
-            setError('Капча не загружена');
             return;
         }
 
         setLoading(true);
         try {
+            await authApi.verifyCaptcha(captchaInput, captchaId);
             const cleanPhone = '7' + getDigits(phone);
-            const data = await authApi.register(firstName, lastName, cleanPhone, password, captchaInput, captchaId);
+            await authApi.sendSmsCode(cleanPhone);
+            setShowSmsModal(true);
+            setSmsModalError('');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Ошибка';
+            setError(message);
+            void generateCaptcha();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifySmsCode = async () => {
+        if (!smsCode.trim()) {
+            setSmsModalError('Введите код из SMS');
+            return;
+        }
+
+        setSmsModalLoading(true);
+        setSmsModalError('');
+
+        try {
+            const cleanPhone = '7' + getDigits(phone);
+            const data = await authApi.registerWithSms(
+                firstName, lastName, cleanPhone, password, smsCode.trim()
+            );
             login(data.user, data.token);
             if (data.user?.role === 'admin') {
                 navigate('/admin');
             } else {
                 navigate('/');
             }
-        } catch (err: any) {
-            setError(err.message || 'Ошибка регистрации');
-            void generateCaptcha();
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Ошибка регистрации';
+            setSmsModalError(message);
         } finally {
-            setLoading(false);
+            setSmsModalLoading(false);
         }
     };
 
@@ -227,7 +252,9 @@ export default function Register() {
 
                         {error && <p className={styles.error}>{error}</p>}
 
-                        <button type="submit" disabled={loading}>{loading ? 'Загрузка...' : 'Зарегистрироваться'}</button>
+                        <button type="submit" disabled={loading}>
+                            {loading ? 'Загрузка...' : 'Зарегистрироваться'}
+                        </button>
                     </form>
 
                     <p>
@@ -235,6 +262,52 @@ export default function Register() {
                     </p>
                 </div>
             </div>
+
+            {showSmsModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2>Введите код подтверждения</h2>
+                        <p style={{ marginBottom: 16 }}>
+                            На ваш номер <strong>{phone}</strong> выслан код. Введите его ниже.
+                        </p>
+                        <input
+                            type="text"
+                            placeholder="______"
+                            value={smsCode}
+                            onChange={(e) => setSmsCode(e.target.value)}
+                            autoComplete="one-time-code"
+                            style={{
+                                width: '100%',
+                                padding: '8px 12px',
+                                fontSize: '1.2rem',
+                                textAlign: 'center',
+                                letterSpacing: '2px',
+                                border: '1px solid #ccc',
+                                borderRadius: 6,
+                                marginBottom: 12,
+                            }}
+                        />
+                        {smsModalError && <p className={styles.error}>{smsModalError}</p>}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <button
+                                type="button"
+                                onClick={() => setShowSmsModal(false)}
+                                style={{ flex: 1 }}
+                            >
+                                Назад
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleVerifySmsCode}
+                                disabled={smsModalLoading}
+                                style={{ flex: 1 }}
+                            >
+                                {smsModalLoading ? 'Проверка...' : 'Подтвердить'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
