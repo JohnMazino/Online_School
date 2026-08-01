@@ -1285,3 +1285,27 @@
         background: rgba(80, 134, 242, 0.1);
     }
 }
+
+.fileList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.downloadBtn {
+    padding: 0.3rem 0.75rem;
+    background: rgba(80, 134, 242, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(80, 134, 242, 0.2);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.downloadBtn:hover {
+    background: rgba(80, 134, 242, 0.2);
+}

@@ -117,3 +117,44 @@ export const tutorApi = {
     return response.json();
   },
 };
+
+export const lectureApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_URL}/lectures`);
+    if (!response.ok) throw new Error('Failed to fetch lectures');
+    return response.json();
+  },
+
+  upload: async (token: string, title: string, file: File, description?: string) => {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('file', file);
+    if (description) formData.append('description', description);
+    const response = await fetch(`${API_URL}/lectures`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to upload lecture');
+    return response.json();
+  },
+
+  delete: async (token: string, lectureId: number) => {
+    const response = await fetch(`${API_URL}/lectures/${lectureId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error('Failed to delete lecture');
+    return response.json();
+  },
+
+  reorder: async (token: string, ids: number[]) => {
+    const response = await fetch(`${API_URL}/lectures/reorder`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ ids }),
+    });
+    if (!response.ok) throw new Error('Failed to reorder lectures');
+    return response.json();
+  },
+};

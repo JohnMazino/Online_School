@@ -10,6 +10,7 @@ import Background from '../components/Background/Background';
 import TestCreator from '../components/TestConstructor/TestCreator';
 import TestsList from '../components/TestConstructor/TestsList';
 import AssignTestPanel from '../components/TestConstructor/AssignTestPanel';
+import LecturesPanel from '../components/TestConstructor/LecturesPanel';
 import QuizManager from '../components/Games/QuizManager';
 
 import styles from './TestConstructorPage.module.scss';
@@ -19,7 +20,7 @@ export default function TestConstructorPage() {
     const { isAuthenticated, user: authUser, token } = useAuthStore();
 
     // Состояния для управления панелями
-    const [activeTab, setActiveTab] = useState<'list' | 'create' | 'assign' | 'games'>('list');
+    const [activeTab, setActiveTab] = useState<'list' | 'create' | 'assign' | 'games' | 'lectures'>('list');
     const [tests, setTests] = useState<Test[]>([]);
     const [selectedTest, setSelectedTest] = useState<Test | null>(null);
     const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -70,7 +71,7 @@ export default function TestConstructorPage() {
             console.log('Server response for assignments:', assignmentsData);
             
             // Трансформируем данные - теперь student_name приходит с сервера
-            const transformedAssignments = (assignmentsData.assignments || []).map((item: any) => ({
+            const transformedAssignments = (assignmentsData.assignments || []).map((item: { id: number; test_id: number; [key: string]: unknown }) => ({
                 id: item.id,
                 testId: item.test_id,
                 teacherId: item.teacher_id,
@@ -287,6 +288,12 @@ export default function TestConstructorPage() {
                         >
                             Игры
                         </button>
+                        <button
+                            className={`${styles.tabButton} ${activeTab === 'lectures' ? styles.active : ''}`}
+                            onClick={() => setActiveTab('lectures')}
+                        >
+                            Лекции
+                        </button>
                     </nav>
 
                     {/* Контент вкладок */}
@@ -329,6 +336,14 @@ export default function TestConstructorPage() {
                         {/* Вкладка: Игры (Квизи) */}
                         {activeTab === 'games' && token && authUser && (
                             <QuizManager
+                                token={token}
+                                teacherId={authUser.id}
+                            />
+                        )}
+
+                        {/* Вкладка: Лекции */}
+                        {activeTab === 'lectures' && token && authUser && (
+                            <LecturesPanel
                                 token={token}
                                 teacherId={authUser.id}
                             />

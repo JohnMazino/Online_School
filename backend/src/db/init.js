@@ -132,7 +132,7 @@ const initializeDatabase = async (pool) => {
       }
     }
 
-    // ===== ТАБЛИЦЫ ДЛЯ КВИЗИ (ИГРЫ) =====
+    // ===== ТАБЛИЦА ДЛЯ КВИЗИ (ИГРЫ) =====
 
     // Темы квизи
     await client.query(`
@@ -179,6 +179,20 @@ const initializeDatabase = async (pool) => {
     } catch (err) {
       console.warn('Could not set quiz_questions.correct_index default:', err.message);
     }
+
+    // ===== ТАБЛИЦА ЛЕКЦИЙ =====
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS lectures (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(200) NOT NULL,
+        file_name VARCHAR(300) NOT NULL,
+        file_path TEXT NOT NULL,
+        file_size INTEGER NOT NULL DEFAULT 0,
+        description TEXT DEFAULT '',
+        teacher_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
     console.log('Database initialized successfully');
   } catch (error) {

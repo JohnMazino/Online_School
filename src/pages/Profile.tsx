@@ -4,6 +4,9 @@ import { useAuthStore } from '../store/authStore';
 import { authApi } from '../api/auth';
 import { testsApi } from '../api/tests';
 import { quizzesApi } from '../api/quizzes';
+import { lectureApi } from '../api/auth';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 import wolfAvatar from './wolf.png';
 
 import Sidebar from '../components/SideBar/SideBar';
@@ -75,6 +78,7 @@ export default function Profile() {
     const [avatar, setAvatar] = useState<string>(wolfAvatar);
     const [assignedTests, setAssignedTests] = useState<AssignedTest[]>([]);
     const [quizTopics, setQuizTopics] = useState<QuizTopicInfo[]>([]);
+    const [lectures, setLectures] = useState<Array<{ id: number; title: string; file_name: string; file_path: string; file_size: number; created_at: string }>>([]);
     const [currentFolder, setCurrentFolder] = useState<'subjects' | 'math' | 'lectures' | 'tests' | 'games'>('subjects');
 
     const enterSubject = () => setCurrentFolder('math');
@@ -133,6 +137,14 @@ export default function Profile() {
                         })));
                     } catch (e) {
                         console.error('Failed to load quiz topics:', e);
+                    }
+
+                    // Загрузить лекции для студента
+                    try {
+                        const lecturesData = await lectureApi.getAll();
+                        setLectures(lecturesData.lectures);
+                    } catch (e) {
+                        console.error('Failed to load lectures:', e);
                     }
                 }
                 // Если сервер возвращает аватарку, устанавливаем её
@@ -252,7 +264,7 @@ export default function Profile() {
                                         <div className={styles.folderHeader}>
                                             <span className={styles.folderTitle}>Лекции</span>
                                             <span className={styles.folderMeta}>
-                                                <span className={styles.folderCounter}>0</span>
+                                                <span className={styles.folderCounter}>{lectures.length} {lectures.length === 1 ? 'файл' : lectures.length < 5 ? 'файла' : 'файлов'}</span>
                                                 <span className={styles.folderArrow}>▸</span>
                                             </span>
                                         </div>
@@ -284,7 +296,32 @@ export default function Profile() {
                             ) : (
                                 <div className={styles.folderContent}>
                                     {currentFolder === 'lectures' && (
-                                        <p className={styles.emptyFolder}>Папка пуста, видимо преподаватель еще не загрузил свои лекции.</p>
+                                        lectures.length > 0 ? (
+                                            <div className={styles.fileList}>
+                                                {lectures.map(lecture => (
+                                                    <div key={lecture.id} className={styles.fileItem}>
+                                                        <div className={styles.fileInfo}>
+                                                            <span className={styles.fileName}>📖 {lecture.title}</span>
+                                                            <span className={styles.fileSubtitle}>
+                                                                {lecture.file_name} · {lecture.file_size > 0
+                                                                    ? `${(lecture.file_size / 1024).toFixed(1)} KB`
+                                                                    : ''}
+                                                            </span>
+                                                        </div>
+                                                        <a
+                                                            href={`${API_BASE}${lecture.file_path}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className={styles.downloadBtn}
+                                                        >
+                                                            Скачать
+                                                        </a>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className={styles.emptyFolder}>Пока нет доступных лекций</p>
+                                        )
                                     )}
 
                                     {currentFolder === 'tests' && (

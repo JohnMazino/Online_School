@@ -9,6 +9,7 @@ const adminRoutes = require('./routes/admin');
 const studentRoutes = require('./routes/students');
 const testRoutes = require('./routes/tests');
 const tutorRoutes = require('./routes/tutors');
+const lectureRoutes = require('./routes/lectures');
 const quizRoutes = require('./routes/quizzes');
 
 const app = express();
@@ -29,6 +30,7 @@ module.exports = pool;
 app.use('/api/auth', authRoutes(pool));
 app.use('/api/admin', adminRoutes(pool));
 app.use('/api/tutors', tutorRoutes(pool));
+app.use('/api/lectures', lectureRoutes(pool));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use('/api/students', studentRoutes(pool));
 app.use('/api/tests', testRoutes(pool));

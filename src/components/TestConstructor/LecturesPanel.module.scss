@@ -1,0 +1,181 @@
+.lecturesPanel {
+    padding: 1rem 0;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+}
+
+.errorBanner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+}
+
+.dropZone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    cursor: pointer;
+    background: transparent;
+}
+
+.dropZone:hover,
+.dropZone.dragActive {
+    border-color: var(--primary);
+    background: rgba(80, 134, 242, 0.04);
+}
+
+.uploading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.dropZoneContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    pointer-events: none;
+}
+
+.dropIcon {
+    font-size: 2.5rem;
+}
+
+.fileInput {
+    display: none;
+}
+
+.fileInputLabel {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.2s ease;
+}
+
+.fileInputLabel:hover {
+    background: var(--primary-dark);
+}
+
+.lecturesList {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.emptyText {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 2rem 0;
+}
+
+.lectureItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    cursor: grab;
+    user-select: none;
+}
+
+.lectureItem:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.dragging {
+    opacity: 0.5;
+    box-shadow: 0 4px 16px rgba(80, 134, 242, 0.2);
+}
+
+.dragHandle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    cursor: grab;
+    flex-shrink: 0;
+    padding: 0.25rem;
+    line-height: 1;
+}
+
+.lectureInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.lectureTitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lectureMeta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.lectureDesc {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.deleteBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.deleteBtn:hover {
+    background: rgba(231, 76, 60, 0.25);
+}
+
+html.dark .errorBanner {
+    background: #2d1b1b;
+    border-color: #5c2020;
+    color: #fca5a5;
+}
+
+html.dark .lectureItem {
+    background: var(--bg-card);
+}
