@@ -23,7 +23,7 @@ import DisciplineCard from './components/DisciplineCard/DisciplineCard';
 import styles from './App.module.scss';
 
 // импорт фотографий
-import student from './assets/pics/student.jpg'
+import student from './assets/pics/student.jpg';
 import mathPhoto from './assets/pics/math.jpg';
 import physicsPhoto from './assets/pics/fizika.jpg';
 import informaticsPhoto from './assets/pics/informatika.jpg';
@@ -216,131 +216,133 @@ function App() {
                     </section>
 
                     {/* 5. Наши репетиторы */}
-                      <section id="tutors-section" className={styles.tutorsSection}>
+                    <section id="tutors-section" className={styles.tutorsSection}>
+                      <div className={styles.tutorsHeader}>
                         <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
                         {isAuthenticated && user?.role === 'admin' && (
                           <button
                             type="button"
-                            className={styles.addTutorBtn}
+                            className={`${styles.addTutorBtn} ${showAddForm ? styles.addTutorBtnActive : ''}`}
                             onClick={() => setShowAddForm(!showAddForm)}
                           >
-                            {showAddForm ? '✕ Закрыть' : '+ Добавить'}
+                            {showAddForm ? '✕ Закрыть' : '+ Добавить репетитора'}
                           </button>
                         )}
+                      </div>
 
-                        {showAddForm && (
-                          <div className={styles.addTutorForm}>
-                            <input
-                              type="text"
-                              placeholder="Имя"
-                              value={newTutor.name}
-                              onChange={(e) => setNewTutor(prev => ({ ...prev, name: e.target.value }))}
-                            />
-                            <input
-                              type="text"
-                              placeholder="Специализация"
-                              value={newTutor.specialty}
-                              onChange={(e) => setNewTutor(prev => ({ ...prev, specialty: e.target.value }))}
-                            />
-                            <textarea
-                              placeholder="Описание"
-                              value={newTutor.bio}
-                              onChange={(e) => setNewTutor(prev => ({ ...prev, bio: e.target.value }))}
-                            />
-                            <input
-                              type="text"
-                              placeholder="Образование"
-                              value={newTutor.education}
-                              onChange={(e) => setNewTutor(prev => ({ ...prev, education: e.target.value }))}
-                            />
-                            <input
-                              type="text"
-                              placeholder="Документы"
-                              value={newTutor.documents}
-                              onChange={(e) => setNewTutor(prev => ({ ...prev, documents: e.target.value }))}
-                            />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setNewTutor(prev => ({ ...prev, photo: file }));
-                                  setPhotoPreview(URL.createObjectURL(file));
-                                }
-                              }}
-                            />
-                            {photoPreview ? (
-                              <img
-                                src={photoPreview}
-                                alt="Preview"
-                                className={styles.addTutorPhotoPreview}
-                              />
-                            ) : null}
-                            <button type="button" className={styles.saveTutorBtn} onClick={handleAddTutor}>
-                              Сохранить
-                            </button>
-                          </div>
-                        )}
-
-                        {error && <div className={styles.errorBanner}>{error}</div>}
-
-                        <div
-                          className={`${styles.tutorsGrid} ${
-                            tutors.length === 1
-                              ? styles.single
-                              : tutors.length <= 3
-                                ? styles.few
-                                : ''
-                          }`}>  
-                          {tutors.map((tutor) => (
-                            <div className={styles.tutorCard} key={tutor.id}>
-                              {isAuthenticated && user?.role === 'admin' && (
-                                <div className={styles.deleteTutorBtn}
-                                  onClick={() => handleDeleteTutor(tutor.id)}
-                                  title="Удалить"
-                            >
-                              ✕
-                            </div>
-                              )}
-                              <div className={styles.cardContent}>
-                              <img
-                              src={
-                                tutor.img_url
-                                  ? tutor.img_url.startsWith('http')
-                                    ? tutor.img_url
-                                    : `${API_BASE}${tutor.img_url}`
-                                  : undefined
+                      {showAddForm && (
+                        <div className={styles.addTutorForm}>
+                          <input
+                            type="text"
+                            placeholder="Имя"
+                            value={newTutor.name}
+                            onChange={(e) => setNewTutor(prev => ({ ...prev, name: e.target.value }))}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Специализация"
+                            value={newTutor.specialty}
+                            onChange={(e) => setNewTutor(prev => ({ ...prev, specialty: e.target.value }))}
+                          />
+                          <textarea
+                            placeholder="Описание"
+                            value={newTutor.bio}
+                            onChange={(e) => setNewTutor(prev => ({ ...prev, bio: e.target.value }))}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Образование"
+                            value={newTutor.education}
+                            onChange={(e) => setNewTutor(prev => ({ ...prev, education: e.target.value }))}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Документы"
+                            value={newTutor.documents}
+                            onChange={(e) => setNewTutor(prev => ({ ...prev, documents: e.target.value }))}
+                          />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setNewTutor(prev => ({ ...prev, photo: file }));
+                                setPhotoPreview(URL.createObjectURL(file));
                               }
-                              alt={tutor.name}
-                              className={styles.tutorPhoto}
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none'; // или поставь плейсхолдер
-                              }}
+                            }}
+                          />
+                          {photoPreview ? (
+                            <img
+                              src={photoPreview}
+                              alt="Preview"
+                              className={styles.addTutorPhotoPreview}
+                            />
+                          ) : null}
+                          <button type="button" className={styles.saveTutorBtn} onClick={handleAddTutor}>
+                            Сохранить
+                          </button>
+                        </div>
+                      )}
+
+                      {error && <div className={styles.errorBanner}>{error}</div>}
+
+                      <div
+                        className={`${styles.tutorsGrid} ${
+                          tutors.length === 1
+                            ? styles.single
+                            : tutors.length <= 3
+                              ? styles.few
+                              : ''
+                        }`}>
+                        {tutors.map((tutor) => (
+                          <div className={styles.tutorCard} key={tutor.id}>
+                            {isAuthenticated && user?.role === 'admin' && (
+                              <div className={styles.deleteTutorBtn}
+                                onClick={() => handleDeleteTutor(tutor.id)}
+                                title="Удалить"
+                              >
+                                ✕
+                              </div>
+                            )}
+                            <div className={styles.cardContent}>
+                              <img
+                                src={
+                                  tutor.img_url
+                                    ? tutor.img_url.startsWith('http')
+                                      ? tutor.img_url
+                                      : `${API_BASE}${tutor.img_url}`
+                                    : undefined
+                                }
+                                alt={tutor.name}
+                                className={styles.tutorPhoto}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
                               />
-                                <h3 className={styles.tutorNameFront}>{tutor.name}</h3>
-                                <div className={styles.infoOverlay}>
-                                  <h3 className={styles.tutorName}>{tutor.name}</h3>
+                              <h3 className={styles.tutorNameFront}>{tutor.name}</h3>
+                              <div className={styles.infoOverlay}>
+                                <h3 className={styles.tutorName}>{tutor.name}</h3>
+                                <p className={styles.tutorInfo}>
+                                  {tutor.specialty}<br />
+                                  {tutor.bio}
+                                </p>
+                                {tutor.documents && (
+                                  <div className={styles.documents}>
+                                    <span>{tutor.documents}</span>
+                                  </div>
+                                )}
+                                {tutor.education && (
                                   <p className={styles.tutorInfo}>
-                                    {tutor.specialty}<br />
-                                    {tutor.bio}
+                                    {tutor.education}
                                   </p>
-                                  {tutor.documents && (
-                                    <div className={styles.documents}>
-                                      <span>{tutor.documents}</span>
-                                    </div>
-                                  )}
-                                  {tutor.education && (
-                                    <p className={styles.tutorInfo}>
-                                      {tutor.education}
-                                    </p>
-                                  )}
-                                </div>
+                                )}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </section>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
 
                     {/* 6. Дисциплины */}
                     <section className={styles.disciplinesSection}>
