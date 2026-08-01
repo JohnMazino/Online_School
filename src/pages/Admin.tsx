@@ -30,7 +30,7 @@ export default function AdminPage() {
     const [statsLoading, setStatsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [searchTimeout, setSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [totalUsers, setTotalUsers] = useState(0);
@@ -171,7 +171,14 @@ export default function AdminPage() {
 
                         <div className={styles.statsGrid}>
                             <div className={styles.statCard}>
-                                <div className={styles.statIcon}>👥</div>
+                                <div className={styles.statIcon}>
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M17 7H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M20 4V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                    </svg>
+                                </div>
                                 <div className={styles.statInfo}>
                                     {statsLoading ? (
                                         <span className={styles.statValue}>---</span>
@@ -182,7 +189,20 @@ export default function AdminPage() {
                                 </div>
                             </div>
                             <div className={styles.statCard}>
-                                <div className={styles.statIcon}>💰</div>
+                                <div className={styles.statIcon}>
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M12 18V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M4.93 4.93L7.76 7.76" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M16.24 16.24L19.07 19.07" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M2 12H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M18 12H22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M4.93 19.07L7.76 16.24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+                                        <path d="M12 9V12L13.5 13.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                    </svg>
+                                </div>
                                 <div className={styles.statInfo}>
                                     {statsLoading ? (
                                         <span className={styles.statValue}>---</span>

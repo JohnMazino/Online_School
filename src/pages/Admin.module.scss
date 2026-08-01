@@ -1,6 +1,7 @@
 .appWrapper {
     display: flex;
     min-height: 100vh;
+    background: var(--bg-body);
 }
 
 .sidebarZone {
@@ -27,19 +28,20 @@
     background: var(--bg-card);
     border-radius: 30px;
     backdrop-filter: blur(10px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 0 12px 24px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
     min-height: calc(100vh - 14vh);
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-    transition: background 0.4s ease, box-shadow 0.4s ease;
+    transition: background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
 .adminTitle {
     margin: 0 0 2rem 0;
-    font-size: 1.8rem;
-    color: var(--text-dark);
+    font-size: 2.2rem;
     font-weight: 700;
+    color: var(--text-dark);
 }
 
 .statsGrid {
@@ -51,18 +53,20 @@
 
 .statCard {
     background: var(--bg-card);
-    border-radius: 12px;
-    padding: 1.5rem;
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
-    transition: box-shadow 0.2s ease, background 0.4s ease;
+    transition: all 0.3s ease;
 }
 
 .statCard:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px var(--shadow);
+    border-color: var(--primary);
 }
 
 .statIcon {
@@ -73,8 +77,32 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg-body);
-    border-radius: 12px;
+    background: rgba(80, 134, 242, 0.08);
+    border-radius: 14px;
+    color: var(--primary);
+    transition: all 0.3s ease;
+
+    svg {
+        width: 28px;
+        height: 28px;
+        display: block;
+    }
+}
+
+// Для темной темы
+:global(html.dark) {
+    .statIcon {
+        background: rgba(80, 134, 242, 0.12);
+        color: var(--primary);
+    }
+}
+
+// Для светлой темы
+:global(html.light) {
+    .statIcon {
+        background: rgba(80, 134, 242, 0.08);
+        color: var(--primary);
+    }
 }
 
 .statInfo {
@@ -84,13 +112,13 @@
 }
 
 .statValue {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: var(--text-dark);
 }
 
 .statLabel {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
 }
 
@@ -106,29 +134,31 @@
     transform: translateY(-50%);
     font-size: 1rem;
     pointer-events: none;
+    color: var(--text-secondary);
 }
 
 .searchInput {
     width: 100%;
-    padding: 0.75rem 2.5rem 0.75rem 2.75rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 0.9rem;
+    padding: 0.8rem 2.5rem 0.8rem 2.75rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.95rem;
     font-family: inherit;
-    background: var(--bg-body);
-    color: var(--text-primary);
+    background: var(--bg-card);
+    color: var(--text-dark);
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.4s ease;
+    transition: all 0.3s ease;
     box-sizing: border-box;
 }
 
 .searchInput:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.15);
+    box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.1);
 }
 
 .searchInput::placeholder {
     color: var(--text-secondary);
+    opacity: 0.6;
 }
 
 .searchClear {
@@ -138,35 +168,38 @@
     transform: translateY(-50%);
     background: none;
     border: none;
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--text-secondary);
     cursor: pointer;
     padding: 0.25rem;
     line-height: 1;
     border-radius: 4px;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .searchClear:hover {
-    color: var(--text-primary);
+    color: var(--text-dark);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .errorBanner {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
+    background: rgba(231, 76, 60, 0.08);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
     padding: 0.75rem 1rem;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 1.5rem;
     font-size: 0.9rem;
+    border-left: 4px solid #e74c3c;
 }
 
 .tableWrapper {
     overflow-x: auto;
-    background: var(--bg-body);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    background: var(--bg-card);
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
+    transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .userTable {
@@ -176,12 +209,12 @@
 }
 
 .userTable thead {
-    background: var(--bg-body);
+    background: rgba(80, 134, 242, 0.04);
     border-bottom: 2px solid var(--border);
 }
 
 .userTable th {
-    padding: 0.85rem 1rem;
+    padding: 1rem 1.2rem;
     text-align: left;
     font-weight: 600;
     color: var(--text-secondary);
@@ -192,51 +225,75 @@
 }
 
 .userTable td {
-    padding: 0.75rem 1rem;
+    padding: 0.9rem 1.2rem;
     border-bottom: 1px solid var(--border);
-    color: var(--text-primary);
+    color: var(--text-dark);
+    vertical-align: middle;
+}
+
+.userTable tbody tr {
+    transition: background 0.2s ease;
 }
 
 .userTable tbody tr:hover {
     background: rgba(80, 134, 242, 0.04);
 }
 
+.userTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .emptyCell {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 3rem 1rem;
     color: var(--text-secondary);
     font-style: italic;
 }
 
 .roleBadge {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    background: rgba(80, 134, 242, 0.1);
+    background: rgba(80, 134, 242, 0.12);
     color: var(--primary);
+}
+
+.roleBadge.admin {
+    background: rgba(231, 76, 60, 0.12);
+    color: #e74c3c;
+}
+
+.roleBadge.teacher {
+    background: rgba(52, 152, 219, 0.12);
+    color: #3498db;
+}
+
+.roleBadge.student {
+    background: rgba(46, 204, 113, 0.12);
+    color: #27ae60;
 }
 
 .editSelect,
 .editInput {
-    padding: 0.35rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding: 0.4rem 0.7rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
     font-size: 0.85rem;
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
     font-family: inherit;
     background: var(--bg-card);
-    color: var(--text-primary);
+    color: var(--text-dark);
 }
 
 .editSelect:focus,
 .editInput:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.15);
+    box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.1);
 }
 
 .editInput {
@@ -247,38 +304,43 @@
     display: flex;
     gap: 0.5rem;
     white-space: nowrap;
+    flex-wrap: wrap;
 }
 
 .saveBtn,
 .cancelBtn,
 .editBtn {
-    padding: 0.35rem 0.75rem;
-    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     font-family: inherit;
 }
 
 .saveBtn {
-    background: #10b981;
+    background: var(--gradient-primary);
     color: white;
 }
 
 .saveBtn:hover {
-    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(80, 134, 242, 0.3);
 }
 
 .cancelBtn {
-    background: var(--bg-body);
+    background: var(--bg-card);
     color: var(--text-secondary);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
 }
 
 .cancelBtn:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--bg-card);
+    color: var(--text-dark);
+    border-color: var(--text-dark);
+    transform: translateY(-2px);
 }
 
 .editBtn {
@@ -289,6 +351,8 @@
 
 .editBtn:hover {
     background: rgba(80, 134, 242, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(80, 134, 242, 0.15);
 }
 
 .pagination {
@@ -312,15 +376,21 @@
 }
 
 .perPageSelect {
-    padding: 0.35rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding: 0.4rem 0.7rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
     font-size: 0.85rem;
     font-family: inherit;
     background: var(--bg-card);
-    color: var(--text-primary);
+    color: var(--text-dark);
     outline: none;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.perPageSelect:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(80, 134, 242, 0.1);
 }
 
 .paginationControls {
@@ -335,72 +405,262 @@
 }
 
 .pageBtn {
-    padding: 0.35rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 500;
+    padding: 0.4rem 0.9rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
     background: var(--bg-card);
-    color: var(--text-primary);
+    color: var(--text-dark);
     font-family: inherit;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .pageBtn:hover:not(:disabled) {
     background: rgba(80, 134, 242, 0.1);
     border-color: var(--primary);
+    transform: translateY(-2px);
 }
 
 .pageBtn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+    transform: none;
+}
+
+.pageBtn.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: var(--primary);
 }
 
 .pageInfo {
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-dark);
     min-width: 3rem;
     text-align: center;
 }
 
-html.dark .errorBanner {
-    background: #2d1b1b;
-    border-color: #5c2020;
-    color: #fca5a5;
+/* ============================================
+   ТЕМНАЯ ТЕМА
+   ============================================ */
+
+:global(html.dark) {
+    .contentRectangle {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.2);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 12px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .statCard {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.15);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+        &:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+    }
+
+    .statIcon {
+        background: rgba(80, 134, 242, 0.12);
+    }
+
+    .searchInput {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.2);
+        color: var(--text-dark);
+    }
+
+    .searchInput:focus {
+        border-color: var(--primary);
+        background: rgba(22, 33, 62, 0.8);
+    }
+
+    .searchInput::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.4;
+    }
+
+    .tableWrapper {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
+
+    .userTable thead {
+        background: rgba(80, 134, 242, 0.06);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
+
+    .userTable th {
+        color: var(--text-secondary);
+    }
+
+    .userTable td {
+        color: var(--text-dark);
+        border-color: rgba(80, 134, 242, 0.1);
+    }
+
+    .userTable tbody tr:hover {
+        background: rgba(80, 134, 242, 0.06);
+    }
+
+    .roleBadge {
+        background: rgba(80, 134, 242, 0.15);
+        color: var(--primary);
+    }
+
+    .editSelect,
+    .editInput {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.2);
+        color: var(--text-dark);
+    }
+
+    .editSelect:focus,
+    .editInput:focus {
+        border-color: var(--primary);
+        background: rgba(22, 33, 62, 0.8);
+    }
+
+    .cancelBtn {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.2);
+        color: var(--text-secondary);
+
+        &:hover {
+            background: rgba(22, 33, 62, 0.8);
+            border-color: var(--text-dark);
+            color: var(--text-dark);
+        }
+    }
+
+    .editBtn {
+        background: rgba(80, 134, 242, 0.15);
+        border-color: rgba(80, 134, 242, 0.2);
+        color: var(--primary);
+
+        &:hover {
+            background: rgba(80, 134, 242, 0.25);
+        }
+    }
+
+    .pageBtn {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.15);
+        color: var(--text-dark);
+
+        &:hover:not(:disabled) {
+            background: rgba(80, 134, 242, 0.1);
+            border-color: var(--primary);
+        }
+    }
+
+    .pageBtn.active {
+        background: var(--gradient-primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    .perPageSelect {
+        background: rgba(22, 33, 62, 0.6);
+        border-color: rgba(80, 134, 242, 0.15);
+        color: var(--text-dark);
+    }
+
+    .perPageSelect:focus {
+        border-color: var(--primary);
+    }
+
+    .errorBanner {
+        background: rgba(231, 76, 60, 0.12);
+        border-color: rgba(231, 76, 60, 0.25);
+        color: #ef5350;
+        border-left-color: #ef5350;
+    }
+
+    .searchClear {
+        color: var(--text-secondary);
+
+        &:hover {
+            color: var(--text-dark);
+        }
+    }
+
+    .paginationText {
+        color: var(--text-secondary);
+    }
+
+    .paginationLabel {
+        color: var(--text-secondary);
+    }
+
+    .statValue {
+        color: var(--text-dark);
+    }
+
+    .statLabel {
+        color: var(--text-secondary);
+    }
+
+    .adminTitle {
+        color: var(--text-dark);
+    }
 }
 
-html.dark .searchInput {
-    background: var(--bg-card);
-    color: var(--text-primary);
+/* ============================================
+   СВЕТЛАЯ ТЕМА
+   ============================================ */
+
+:global(html.light) {
+    .contentRectangle {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.12);
+    }
+
+    .statCard {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.1);
+    }
+
+    .tableWrapper {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.1);
+    }
+
+    .searchInput {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
+
+    .editSelect,
+    .editInput {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
+
+    .pageBtn {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.1);
+    }
+
+    .perPageSelect {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.1);
+    }
+
+    .cancelBtn {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(80, 134, 242, 0.15);
+    }
 }
 
-html.dark .searchInput::placeholder {
-    color: var(--text-secondary);
-}
-
-html.dark .userTable tbody tr:hover {
-    background: rgba(80, 134, 242, 0.06);
-}
-
-html.dark .cancelBtn:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-html.dark .statCard {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-html.dark .pageBtn:hover:not(:disabled) {
-    background: rgba(80, 134, 242, 0.1);
-    border-color: var(--primary);
-}
-
-html.dark .perPageSelect {
-    background: var(--bg-card);
-    color: var(--text-primary);
-}
+/* ============================================
+   АДАПТИВНОСТЬ
+   ============================================ */
 
 @media (max-width: 1024px) {
     .contentRectangle {
@@ -411,16 +671,134 @@ html.dark .perPageSelect {
 }
 
 @media (max-width: 768px) {
+    .appWrapper {
+        flex-direction: column;
+    }
+
+    .sidebarZone {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .mainContent {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
     .contentRectangle {
         margin-top: 4vh;
-        margin-left: 16px;
-        margin-right: 16px;
+        margin-left: 16px !important;
+        margin-right: 16px !important;
         padding: 1.5rem 1.2rem;
         border-radius: 20px;
         min-height: auto;
+        padding-bottom: 90px; /* Отступ для мобильного сайдбара */
+        width: auto !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .statsGrid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .statCard {
+        padding: 1.2rem 1.5rem;
+    }
+
+    .statValue {
+        font-size: 1.5rem;
+    }
+
+    .adminTitle {
+        font-size: 1.8rem;
+    }
+
+    .pagination {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .paginationInfo {
+        justify-content: center;
+    }
+
+    .paginationControls {
+        justify-content: center;
+    }
+
+    .actionsCell {
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .saveBtn,
+    .cancelBtn,
+    .editBtn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .editInput {
+        width: 100%;
+    }
+
+    .userTable th,
+    .userTable td {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .userTable th:last-child,
+    .userTable td:last-child {
+        min-width: 100px;
+    }
+
+    .roleBadge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+
+    .searchInput {
+        font-size: 0.9rem;
+        padding: 0.7rem 2.2rem 0.7rem 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .contentRectangle {
+        padding: 1rem 0.8rem;
+        padding-bottom: 90px;
+        border-radius: 16px;
+        margin-left: 8px !important;
+        margin-right: 8px !important;
+    }
+
+    .adminTitle {
+        font-size: 1.4rem;
+    }
+
+    .statCard {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    .statValue {
+        font-size: 1.2rem;
+    }
+
+    .statIcon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.5rem;
+    }
+
+    .userTable th,
+    .userTable td {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
     }
 }

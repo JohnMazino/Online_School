@@ -510,7 +510,10 @@
   font-weight: bold;
 }
 
-/* Адаптивность */
+/* ==============================================
+   АДАПТИВНОСТЬ
+   ============================================== */
+
 @media (max-width: 1024px) {
   .gridAndSidebar {
     grid-template-columns: 1fr;
@@ -528,37 +531,89 @@
 }
 
 @media (max-width: 768px) {
+  .blockBlastPage {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
   .gameContent {
-    padding: 16px;
+    padding: 8px;
+    padding-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100vh;
+    overflow: hidden;
   }
 
   .gameWindow {
-    padding: 16px;
-    border-radius: 20px;
+    padding: 10px;
+    border-radius: 16px;
+    min-height: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 80px);
+    overflow: hidden;
   }
 
   .gameHeader {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  .gameHeader .backButton {
+    align-self: flex-start;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .gameSubtitle {
+    font-size: 0.8rem;
+    margin: 4px 0 0;
   }
 
   .statusBar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .statusBar .livesContainer {
+    font-size: 0.8rem;
+  }
+
+  .statusBar .hearts {
+    font-size: 1.1rem;
+  }
+
+  .gridAndSidebar {
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
     gap: 8px;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
   }
 
-  .sidePanel {
-    grid-template-columns: 1fr;
-  }
-
-  .pieceList {
-    grid-template-columns: 1fr;
-  }
-
+  /* Увеличиваем игровое поле */
   .boardGrid {
     padding: 8px;
     gap: 3px;
+    flex-shrink: 0;
+    max-width: 100%;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: 60vh;
   }
 
   .boardRow {
@@ -567,37 +622,163 @@
 
   .boardCell {
     border-radius: 6px;
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+    aspect-ratio: 1;
+  }
+
+  /* Панель с фигурами - фиксированная высота без скролла */
+  .sidePanel {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+    max-height: 160px;
+    overflow: hidden;
+  }
+
+  .sideSection {
+    padding: 8px 12px;
+    border-radius: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sideSection h2 {
+    font-size: 13px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+  }
+
+  /* Горизонтальный список фигур без скролла */
+  .pieceList {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    overflow: visible;
+    flex-wrap: nowrap;
+    padding: 4px 0;
+  }
+
+  .pieceCard {
+    padding: 6px;
+    border-radius: 10px;
+    min-width: 50px;
+    flex-shrink: 0;
+    gap: 6px;
+    flex: 1;
+    max-width: 80px;
+  }
+
+  .piecePreview {
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .previewCell {
+    width: 16px;
+    height: 16px;
+  }
+
+  .pieceName {
+    display: none;
+  }
+
+  .sideActions {
+    display: none !important;
+  }
+
+  /* Мобильные кнопки управления */
+  .mobileActions {
+    display: flex !important;
+    gap: 6px;
+    padding-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .mobileActions .resetButton,
+  .mobileActions .backToProfileButton {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    text-align: center;
   }
 
   .modalWindow {
-    padding: 20px;
-    margin: 16px;
-    border-radius: 20px;
+    padding: 16px;
+    margin: 12px;
+    border-radius: 16px;
+    max-height: 80vh;
   }
 
   .gameOverModal .gameOverActions {
     flex-direction: column;
   }
 
+  .gameOverModal h2 {
+    font-size: 1.4rem;
+  }
+
+  .gameOverModal .finalScore {
+    font-size: 1.1rem;
+  }
+
   .matchingBoard {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .matchingLeftColumn,
+  .matchingRightColumn {
+    gap: 6px;
+  }
+
+  .matchingRow {
+    padding: 8px 12px;
+    min-height: 38px;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 480px) {
   .gameContent {
-    padding: 8px;
+    padding: 6px;
+    padding-bottom: 76px;
   }
 
   .gameWindow {
-    padding: 12px;
-    border-radius: 16px;
+    padding: 8px;
+    border-radius: 12px;
+    max-height: calc(100vh - 70px);
   }
 
+  .gameHeader .backButton {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  .statusBar {
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    gap: 4px;
+  }
+
+  .statusBar .hearts {
+    font-size: 0.9rem;
+  }
+
+  /* Увеличиваем поле на маленьких экранах */
   .boardGrid {
     padding: 6px;
     gap: 2px;
+    max-height: 55vh;
   }
 
   .boardRow {
@@ -608,18 +789,100 @@
     border-radius: 4px;
   }
 
-  .previewCell {
-    width: 16px;
-    height: 16px;
+  .sidePanel {
+    max-height: 140px;
+  }
+
+  .sideSection {
+    padding: 6px 8px;
+  }
+
+  .sideSection h2 {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .pieceList {
+    gap: 6px;
+    padding: 2px 0;
   }
 
   .pieceCard {
-    padding: 8px;
+    padding: 4px;
+    min-width: 40px;
+    max-width: 65px;
+    border-radius: 8px;
+  }
+
+  .piecePreview {
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .previewCell {
+    width: 14px;
+    height: 14px;
+  }
+
+  .mobileActions .resetButton,
+  .mobileActions .backToProfileButton {
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
 
   .modalWindow {
-    padding: 16px;
-    border-radius: 16px;
+    padding: 12px;
+    margin: 8px;
+    border-radius: 12px;
+  }
+
+  .modalQuestion {
+    font-size: 15px;
+  }
+
+  .optionLabel {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .boardGrid {
+    padding: 4px;
+    gap: 2px;
+    max-height: 50vh;
+  }
+
+  .boardRow {
+    gap: 2px;
+  }
+
+  .boardCell {
+    border-radius: 3px;
+  }
+
+  .sidePanel {
+    max-height: 120px;
+  }
+
+  .pieceCard {
+    min-width: 35px;
+    max-width: 55px;
+    padding: 3px;
+  }
+
+  .previewCell {
+    width: 12px;
+    height: 12px;
+  }
+
+  .statusBar {
+    font-size: 0.65rem;
+    padding: 4px 8px;
+  }
+
+  .statusBar .hearts {
+    font-size: 0.8rem;
   }
 }
 
@@ -851,5 +1114,31 @@
   .matchingRow {
     background: rgba(255, 255, 255, 0.8);
     border-color: rgba(80, 134, 242, 0.1);
+  }
+}
+
+/* ==============================================
+   МОБИЛЬНЫЕ КНОПКИ УПРАВЛЕНИЯ (добавляются отдельно в JSX)
+   ============================================== */
+
+.mobileActions {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobileActions {
+    display: flex !important;
+    gap: 8px;
+    padding-top: 8px;
+    flex-shrink: 0;
+  }
+
+  .mobileActions .resetButton,
+  .mobileActions .backToProfileButton {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+    text-align: center;
   }
 }
