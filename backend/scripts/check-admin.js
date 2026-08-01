@@ -7,15 +7,15 @@ const pool = new Pool({
 
 const checkAdmin = async () => {
   try {
-    const result = await pool.query(
-      'SELECT id, phone, first_name, last_name, role FROM users WHERE role = $1',
+     const result = await pool.query(
+      'SELECT id, email, first_name, last_name, role FROM users WHERE role = $1',
       ['admin']
     );
 
     if (result.rows.length > 0) {
       console.log('✓ Администраторы в базе:');
       result.rows.forEach(admin => {
-        console.log(`  - ID: ${admin.id}, Phone: ${admin.phone}, ${admin.first_name} ${admin.last_name}`);
+        console.log(`  - ID: ${admin.id}, Email: ${admin.email}, ${admin.first_name} ${admin.last_name}`);
       });
     } else {
       console.log('✗ Администраторов не найдено');

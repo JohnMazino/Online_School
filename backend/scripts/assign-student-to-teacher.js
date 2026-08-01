@@ -8,28 +8,28 @@ const pool = new Pool({
 const assignStudentToTeacher = async () => {
   const client = await pool.connect();
   try {
-    // Найти студента по номеру телефона
+    // Найти студента по email
     const student = await client.query(
-      'SELECT id, first_name, last_name, phone FROM users WHERE phone = $1 AND role = $2',
-      ['+79530816149', 'student']
+      'SELECT id, first_name, last_name FROM users WHERE email = $1 AND role = $2',
+      ['student@example.com', 'student']
     );
 
     if (student.rows.length === 0) {
-      console.log('❌ Студент с номером +79530816149 не найден');
+      console.log('❌ Студент с email student@example.com не найден');
       return;
     }
 
     const studentId = student.rows[0].id;
     const studentName = `${student.rows[0].first_name} ${student.rows[0].last_name}`;
 
-    // Найти учителя по номеру телефона
+    // Найти учителя по email
     const teacher = await client.query(
-      'SELECT id, first_name, last_name, phone FROM users WHERE phone = $1 AND role = $2',
-      ['+79530816148', 'teacher']
+      'SELECT id, first_name, last_name FROM users WHERE email = $1 AND role = $2',
+      ['teacher@example.com', 'teacher']
     );
 
     if (teacher.rows.length === 0) {
-      console.log('❌ Учитель с номером +79530816148 не найден');
+      console.log('❌ Учитель с email teacher@example.com не найден');
       return;
     }
 
@@ -54,8 +54,8 @@ const assignStudentToTeacher = async () => {
     );
 
     console.log('✓ Студент успешно назначен учителю');
-    console.log(`  Студент: ${studentName} (ID: ${studentId}, Phone: ${student.rows[0].phone})`);
-    console.log(`  Учитель: ${teacherName} (ID: ${teacherId}, Phone: ${teacher.rows[0].phone})`);
+    console.log(`  Студент: ${studentName} (ID: ${studentId})`);
+    console.log(`  Учитель: ${teacherName} (ID: ${teacherId})`);
 
   } catch (error) {
     console.error('✗ Ошибка:', error.message);

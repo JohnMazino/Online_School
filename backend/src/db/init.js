@@ -5,23 +5,26 @@ const initializeDatabase = async (pool) => {
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        phone VARCHAR(50) UNIQUE NOT NULL,
-        phone_normalized VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         first_name VARCHAR(100) NOT NULL,
         last_name VARCHAR(100) NOT NULL,
-        email VARCHAR(100),
         role VARCHAR(20) NOT NULL DEFAULT 'student',
         balance INTEGER NOT NULL DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
-    // Ensure balance column exists for older DBs
-    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS balance INTEGER NOT NULL DEFAULT 0;`);
-    
-    // Ensure email column exists for older DBs
-    await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(100);`);
+    // Миграция для существующих БД: убрать телефон, добавить email
+    try { await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(100);`); } catch {}
+    try { await client.query(`UPDATE users SET email = phone_normalized WHERE email IS NULL AND phone_normalized IS NOT NULL;`); } catch {}
+    try { await client.query(`UPDATE users SET email = phone WHERE email IS NULL AND phone IS NOT NULL;`); } catch {}
+    try { await client.query(`ALTER TABLE users ALTER COLUMN email SET NOT NULL;`); } catch {}
+    try { await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS users_email_unique ON users(email);`); } catch {}
+    try { await client.query(`ALTER TABLE users DROP CONSTRAINT IF EXISTS users_phone_key;`); } catch {}
+    try { await client.query(`ALTER TABLE users DROP CONSTRAINT IF EXISTS users_phone_normalized_key;`); } catch {}
+    try { await client.query(`ALTER TABLE users DROP COLUMN IF EXISTS phone;`); } catch {}
+    try { await client.query(`ALTER TABLE users DROP COLUMN IF EXISTS phone_normalized;`); } catch {}
 
     // Создание таблицы связи преподавателей и студентов
     await client.query(`

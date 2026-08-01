@@ -16,7 +16,7 @@ require('dotenv').config({ path: __dirname + '/../.env' });
     };
     const tempPass = genTempPass(Math.max(8, minLen));
     const hash = await bcrypt.hash(tempPass, 10);
-    const result = await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id, phone, first_name, last_name', [hash, 4]);
+    const result = await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id, email, first_name, last_name', [hash, 4]);
     console.log('updated user', result.rows[0]);
     console.log('tempPass len', tempPass.length);
   } catch (err) {

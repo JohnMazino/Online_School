@@ -1,11 +1,11 @@
 const API_URL = 'http://localhost:5000/api';
 
 export const authApi = {
-  register: async (firstName: string, lastName: string, phone: string, password: string, captchaInput?: string, captchaId?: string) => {
+  register: async (firstName: string, lastName: string, email: string, password: string, captchaInput?: string, captchaId?: string) => {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ firstName, lastName, phone, password, captchaInput, captchaId }),
+      body: JSON.stringify({ firstName, lastName, email, password, captchaInput, captchaId }),
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -20,11 +20,11 @@ export const authApi = {
     return response.json();
   },
 
-  login: async (phone: string, password: string, captchaInput?: string, captchaId?: string) => {
+  login: async (email: string, password: string, captchaInput?: string, captchaId?: string) => {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password, captchaInput, captchaId }),
+      body: JSON.stringify({ email, password, captchaInput, captchaId }),
     });
     if (!response.ok) {
        const errorData = await response.json().catch(() => ({}));
@@ -46,31 +46,31 @@ export const authApi = {
     return response.json();
   },
 
-  sendSmsCode: async (phone: string) => {
-     const response = await fetch(`${API_URL}/auth/send-sms`, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ phone }),
-     });
-     if (!response.ok) {
-       const errorData = await response.json().catch(() => ({}));
-       throw new Error(errorData.error || 'Failed to send SMS code');
-     }
-     return response.json();
-   },
+  sendEmailCode: async (email: string) => {
+    const response = await fetch(`${API_URL}/auth/send-email-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to send email code');
+    }
+    return response.json();
+  },
 
-   registerWithSms: async (firstName: string, lastName: string, phone: string, password: string, code: string) => {
-     const response = await fetch(`${API_URL}/auth/register-sms`, {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ firstName, lastName, phone, password, code }),
-     });
-     if (!response.ok) {
-       const errorData = await response.json().catch(() => ({}));
-       throw new Error(errorData.error || 'Registration failed');
-     }
-     return response.json();
-   },
+  registerWithEmail: async (firstName: string, lastName: string, email: string, password: string, code: string) => {
+    const response = await fetch(`${API_URL}/auth/register-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firstName, lastName, email, password, code }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Registration failed');
+    }
+    return response.json();
+  },
 
    getProfile: async (token: string) => {
     const response = await fetch(`${API_URL}/auth/profile`, {

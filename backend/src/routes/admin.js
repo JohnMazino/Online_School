@@ -54,18 +54,18 @@ const adminRoutes = (pool) => {
       let rowsResult;
       let total = 0;
 
-      if (q) {
+       if (q) {
         const pattern = `%${q}%`;
         const countRes = await pool.query(
-          `SELECT COUNT(*) AS count FROM users WHERE phone ILIKE $1 OR phone_normalized ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1 OR role ILIKE $1`,
+          `SELECT COUNT(*) AS count FROM users WHERE email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1 OR role ILIKE $1`,
           [pattern]
         );
         total = parseInt(countRes.rows[0].count, 10);
 
         rowsResult = await pool.query(
-          `SELECT id, phone, first_name, last_name, role, balance, created_at
+          `SELECT id, email, first_name, last_name, role, balance, created_at
            FROM users
-           WHERE phone ILIKE $1 OR phone_normalized ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1 OR role ILIKE $1
+           WHERE email ILIKE $1 OR first_name ILIKE $1 OR last_name ILIKE $1 OR role ILIKE $1
            ORDER BY id DESC
            LIMIT $2 OFFSET $3`,
           [pattern, perPage, offset]
@@ -75,7 +75,7 @@ const adminRoutes = (pool) => {
         total = parseInt(countRes.rows[0].count, 10);
 
         rowsResult = await pool.query(
-          'SELECT id, phone, first_name, last_name, role, balance, created_at FROM users ORDER BY id DESC LIMIT $1 OFFSET $2',
+          'SELECT id, email, first_name, last_name, role, balance, created_at FROM users ORDER BY id DESC LIMIT $1 OFFSET $2',
           [perPage, offset]
         );
       }
@@ -94,7 +94,7 @@ const adminRoutes = (pool) => {
       if (!userId || !role) return res.status(400).json({ error: 'Missing userId or role' });
 
       const result = await pool.query(
-        'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, phone, first_name, last_name, role, balance',
+        'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, email, first_name, last_name, role, balance',
         [role, userId]
       );
 
@@ -114,7 +114,7 @@ const adminRoutes = (pool) => {
       if (userId === undefined || balance === undefined) return res.status(400).json({ error: 'Missing userId or balance' });
 
       const result = await pool.query(
-        'UPDATE users SET balance = $1 WHERE id = $2 RETURNING id, phone, first_name, last_name, role, balance',
+        'UPDATE users SET balance = $1 WHERE id = $2 RETURNING id, email, first_name, last_name, role, balance',
         [balance, userId]
       );
 

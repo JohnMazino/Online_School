@@ -12,8 +12,8 @@ const createAdmin = async () => {
     const hashedPassword = await bcryptjs.hash('29090803', 10);
     
     const result = await pool.query(
-      'INSERT INTO users (phone, phone_normalized, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, phone, first_name, last_name, role',
-      ['admin', 'admin', hashedPassword, 'Admin', 'User', 'admin']
+      'INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, role',
+      ['admin', hashedPassword, 'Admin', 'User', 'admin']
     );
 
     console.log('✓ Админ успешно создан:', result.rows[0]);

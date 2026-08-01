@@ -8,23 +8,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 async function testLogin() {
   const teacher = {
     id: 3,
-    phone: '+7 (912) 000-00-02',
+    email: 'teacher@example.com',
     first_name: 'Мария',
     last_name: 'Петрова',
     role: 'teacher',
     balance: 0
   };
 
-  // Что вернёт backend при входе
   const responseData = {
     token: jwt.sign(
-      { id: teacher.id, phone: teacher.phone, role: teacher.role },
+      { id: teacher.id, email: teacher.email, role: teacher.role },
       JWT_SECRET,
       { expiresIn: '24h' }
     ),
     user: {
       id: teacher.id,
-      phone: teacher.phone,
+      email: teacher.email,
       firstName: teacher.first_name,
       lastName: teacher.last_name,
       role: teacher.role,

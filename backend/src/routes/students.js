@@ -29,7 +29,7 @@ const studentRoutes = (pool) => {
       
       // Получить студентов этого преподавателя
       const result = await pool.query(
-        `SELECT u.id, u.first_name as "firstName", u.last_name as "lastName", u.email, u.phone
+        `SELECT u.id, u.first_name as "firstName", u.last_name as "lastName", u.email
          FROM users u
          WHERE u.id IN (
            SELECT student_id FROM teacher_students WHERE teacher_id = $1
@@ -46,24 +46,24 @@ const studentRoutes = (pool) => {
     }
   });
 
-  // Поиск студентов по имени/email/телефону
+  // Поиск студентов по имени/email
   router.get('/search', verifyToken, async (req, res) => {
     try {
       const teacherId = req.user.id;
       const query = (req.query.q || '').toString().trim();
-      
+
       if (!query) {
         return res.json({ students: [] });
       }
 
       const pattern = `%${query}%`;
       const result = await pool.query(
-        `SELECT u.id, u.first_name as "firstName", u.last_name as "lastName", u.email, u.phone
+        `SELECT u.id, u.first_name as "firstName", u.last_name as "lastName", u.email
          FROM users u
          WHERE u.id IN (
            SELECT student_id FROM teacher_students WHERE teacher_id = $1
          )
-         AND (u.first_name ILIKE $2 OR u.last_name ILIKE $2 OR u.email ILIKE $2 OR u.phone ILIKE $2)
+         AND (u.first_name ILIKE $2 OR u.last_name ILIKE $2 OR u.email ILIKE $2)
          ORDER BY u.first_name, u.last_name
          LIMIT 100`,
         [teacherId, pattern]

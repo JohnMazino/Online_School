@@ -1,6 +1,6 @@
 (async () => {
   try {
-    const login = await fetch('http://localhost:5000/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: 'admin', password: '29090803' }) });
+    const login = await fetch('http://localhost:5000/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'admin', password: '29090803' }) });
     const loginJson = await login.json();
     console.log('login status', login.status);
     if (!loginJson.token) {

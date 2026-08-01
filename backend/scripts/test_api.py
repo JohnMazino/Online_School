@@ -1,5 +1,5 @@
 import requests, json
-r = requests.post('http://localhost:5000/api/auth/login', json={'phone':'admin','password':'29090803'})
+r = requests.post('http://localhost:5000/api/auth/login', json={'email':'admin','password':'29090803'})
 print('login', r.status_code)
 print(r.text)
 if r.status_code==200:

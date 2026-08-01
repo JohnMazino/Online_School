@@ -1,4 +1,3 @@
-// src/pages/Register.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -10,20 +9,20 @@ import Background from '../components/Background/Background';
 export default function Register() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [phone, setPhone] = useState('+7 ');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [smsCode, setSmsCode] = useState('');
     const [captchaInput, setCaptchaInput] = useState('');
     const [captchaSvg, setCaptchaSvg] = useState('');
     const [captchaId, setCaptchaId] = useState('');
+    const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [showSmsModal, setShowSmsModal] = useState(false);
-    const [smsModalError, setSmsModalError] = useState('');
-    const [smsModalLoading, setSmsModalLoading] = useState(false);
+    const [showCodeModal, setShowCodeModal] = useState(false);
+    const [modalError, setModalError] = useState('');
+    const [modalLoading, setModalLoading] = useState(false);
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
-    const phoneInputRef = useRef<HTMLInputElement>(null);
+    const emailInputRef = useRef<HTMLInputElement>(null);
 
     const generateCaptcha = async () => {
         try {
@@ -40,88 +39,12 @@ export default function Register() {
         void generateCaptcha();
     }, []);
 
-    const formatPhone = (digits: string): string => {
-        const d = digits.slice(0, 10);
-        let result = '+7';
-
-        if (d.length > 0) result += ` (${d.slice(0, 3)}`;
-        if (d.length >= 3) result += `) ${d.slice(3, 6)}`;
-        if (d.length >= 6) result += ` ${d.slice(6, 8)}`;
-        if (d.length >= 8) result += ` ${d.slice(8, 10)}`;
-
-        return result;
-    };
-
-    const getDigits = (value: string): string => {
-        let digits = value.replace(/\D/g, '');
-        if (digits.startsWith('7') || digits.startsWith('8')) {
-            digits = digits.slice(1);
-        }
-        return digits.slice(0, 10);
-    };
-
-    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const input = e.target;
-        const newValue = input.value;
-        const cursor = input.selectionStart ?? 0;
-
-        const oldDigits = getDigits(phone);
-        let newDigits = getDigits(newValue);
-        
-        // Если стёрли пробел/скобку — удаляем предыдущую цифру
-        if (newValue.length < phone.length && newDigits.length === oldDigits.length) {
-            const digitsBeforeCursor = phone
-                .slice(0, cursor + (phone.length - newValue.length))
-                .replace(/\D/g, '')
-                .length;
-
-            const removeIndex = Math.max(0, digitsBeforeCursor - 1);
-            newDigits =
-                oldDigits.slice(0, removeIndex) + oldDigits.slice(removeIndex + 1);
-        }
-
-        const formatted = formatPhone(newDigits);
-        setPhone(formatted);
-
-        // Восстанавливаем позицию курсора
-        requestAnimationFrame(() => {
-            if (!phoneInputRef.current) return;
-
-            const digitsBefore = newValue
-                .slice(0, cursor)
-                .replace(/\D/g, '')
-                .length;
-
-            let pos = 0;
-            let counted = 0;
-
-            for (let i = 0; i < formatted.length; i++) {
-                if (/\d/.test(formatted[i])) {
-                    counted++;
-                }
-                pos = i + 1;
-                if (counted >= digitsBefore) break;
-            }
-
-            if (digitsBefore === 0) {
-                pos = 3; // после "+7 "
-            }
-
-            phoneInputRef.current.setSelectionRange(pos, pos);
-        });
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        if (!firstName || !lastName || !phone || !password) {
+        if (!firstName || !lastName || !email || !password) {
             setError('Заполните все поля');
-            return;
-        }
-
-        if (getDigits(phone).length < 10) {
-            setError('Номер телефона должен содержать минимум 10 цифр');
             return;
         }
 
@@ -133,10 +56,10 @@ export default function Register() {
         setLoading(true);
         try {
             await authApi.verifyCaptcha(captchaInput, captchaId);
-            const cleanPhone = '7' + getDigits(phone);
-            await authApi.sendSmsCode(cleanPhone);
-            setShowSmsModal(true);
-            setSmsModalError('');
+            await authApi.sendEmailCode(email);
+            setShowCodeModal(true);
+            setCode('');
+            setModalError('');
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Ошибка';
             setError(message);
@@ -146,19 +69,18 @@ export default function Register() {
         }
     };
 
-    const handleVerifySmsCode = async () => {
-        if (!smsCode.trim()) {
-            setSmsModalError('Введите код из SMS');
+    const handleVerifyCode = async () => {
+        if (!code.trim()) {
+            setModalError('Введите код из письма');
             return;
         }
 
-        setSmsModalLoading(true);
-        setSmsModalError('');
+        setModalLoading(true);
+        setModalError('');
 
         try {
-            const cleanPhone = '7' + getDigits(phone);
-            const data = await authApi.registerWithSms(
-                firstName, lastName, cleanPhone, password, smsCode.trim()
+            const data = await authApi.registerWithEmail(
+                firstName, lastName, email, password, code.trim()
             );
             login(data.user, data.token);
             if (data.user?.role === 'admin') {
@@ -168,9 +90,9 @@ export default function Register() {
             }
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Ошибка регистрации';
-            setSmsModalError(message);
+            setModalError(message);
         } finally {
-            setSmsModalLoading(false);
+            setModalLoading(false);
         }
     };
 
@@ -205,13 +127,15 @@ export default function Register() {
                         </label>
 
                         <label>
-                            Номер телефона
+                            Email
                             <input
-                                ref={phoneInputRef}
-                                type="tel"
-                                value={phone}
-                                onChange={handlePhoneChange}
+                                ref={emailInputRef}
+                                type="email"
+                                placeholder="example@mail.ru"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
+                                autoComplete="email"
                             />
                         </label>
 
@@ -263,18 +187,18 @@ export default function Register() {
                 </div>
             </div>
 
-            {showSmsModal && (
+            {showCodeModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
                         <h2>Введите код подтверждения</h2>
                         <p style={{ marginBottom: 16 }}>
-                            На ваш номер <strong>{phone}</strong> выслан код. Введите его ниже.
+                            На вашу почту <strong>{email}</strong> выслан код. Введите его ниже.
                         </p>
                         <input
                             type="text"
                             placeholder="______"
-                            value={smsCode}
-                            onChange={(e) => setSmsCode(e.target.value)}
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
                             autoComplete="one-time-code"
                             style={{
                                 width: '100%',
@@ -287,22 +211,20 @@ export default function Register() {
                                 marginBottom: 12,
                             }}
                         />
-                        {smsModalError && <p className={styles.error}>{smsModalError}</p>}
+                        {modalError && <p className={styles.error}>{modalError}</p>}
                         <div style={{ display: 'flex', gap: 8 }}>
                             <button
                                 type="button"
-                                onClick={() => setShowSmsModal(false)}
-                                style={{ flex: 1 }}
+                                onClick={() => setShowCodeModal(false)}
                             >
                                 Назад
                             </button>
                             <button
                                 type="button"
-                                onClick={handleVerifySmsCode}
-                                disabled={smsModalLoading}
-                                style={{ flex: 1 }}
+                                onClick={handleVerifyCode}
+                                disabled={modalLoading}
                             >
-                                {smsModalLoading ? 'Проверка...' : 'Подтвердить'}
+                                {modalLoading ? 'Проверка...' : 'Подтвердить'}
                             </button>
                         </div>
                     </div>

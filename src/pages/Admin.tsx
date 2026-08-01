@@ -8,7 +8,7 @@ import styles from './Admin.module.scss';
 
 interface User {
     id: number;
-    phone: string;
+    email: string;
     first_name: string;
     last_name: string;
     role: string;
@@ -245,7 +245,7 @@ export default function AdminPage() {
                                         <tr key={u.id}>
                                             <td>{u.id}</td>
                                             <td>{u.first_name} {u.last_name}</td>
-                                            <td>{u.phone}</td>
+                                            <td>{u.email}</td>
                                             <td>
                                                 {editingId === u.id ? (
                                                     <select

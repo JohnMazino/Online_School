@@ -7,8 +7,8 @@ const pool = new Pool({
 
 const listUsers = async () => {
   try {
-    const result = await pool.query(
-      'SELECT id, phone, first_name, last_name, role, created_at FROM users ORDER BY id ASC'
+     const result = await pool.query(
+      'SELECT id, email, first_name, last_name, role, created_at FROM users ORDER BY id ASC'
     );
 
     if (result.rows.length === 0) {
@@ -18,7 +18,7 @@ const listUsers = async () => {
       console.log('─'.repeat(80));
       result.rows.forEach(user => {
         console.log(`ID: ${user.id}`);
-        console.log(`  Phone: ${user.phone}`);
+        console.log(`  Email: ${user.email}`);
         console.log(`  Name: ${user.first_name} ${user.last_name}`);
         console.log(`  Role: ${user.role}`);
         console.log(`  Created: ${user.created_at}`);

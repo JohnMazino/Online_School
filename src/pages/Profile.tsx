@@ -18,7 +18,7 @@ interface User {
     id: number;
     firstName: string;
     lastName: string;
-    phone: string;
+    email: string;
     role: string;
     balance?: number;
 }
@@ -189,7 +189,7 @@ export default function Profile() {
 
                         <div className={styles.userInfo}>
                             <h1>{user.firstName} {user.lastName}</h1>
-                            <p className={styles.phone}>{user.phone}</p>
+                            <p className={styles.email}>{user.email}</p>
                             {user.role !== 'teacher' && (
                                 <p className={styles.balance}>
                                     Баланс: <span>{user.balance ?? 0} ₽</span>

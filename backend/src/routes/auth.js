@@ -2,7 +2,7 @@ const express = require('express');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const svgCaptcha = require('svg-captcha');
-const { normalizePhone } = require('../utils/phone');
+const nodemailer = require('nodemailer');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const captchaStore = new Map();
@@ -11,9 +11,21 @@ const otpStore = new Map();
 const CAPTCHA_TTL_MS = 5 * 60 * 1000;
 const OTP_TTL_MS = 5 * 60 * 1000;
 
-const SMSAERO_EMAIL = process.env.SMSAERO_EMAIL || '';
-const SMSAERO_API_KEY = process.env.SMSAERO_API_KEY || 'iJmPexdIGJLaNSN7g8ffOfuUBZ7c';
-const SMSAERO_SIGN = process.env.SMSAERO_SIGN || 'OnlineSchool';
+const SMTP_HOST = process.env.SMTP_HOST || '';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const SMTP_FROM = process.env.SMTP_FROM || 'no-reply@platforma-school.ru';
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+const transporter = SMTP_HOST
+  ? nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
+    })
+  : null;
 
 const cleanupExpiredCaptchas = () => {
   const now = Date.now();
@@ -26,9 +38,9 @@ const cleanupExpiredCaptchas = () => {
 
 const cleanupExpiredOtps = () => {
   const now = Date.now();
-  for (const [phone, record] of otpStore.entries()) {
+  for (const [email, record] of otpStore.entries()) {
     if (now - record.createdAt > OTP_TTL_MS) {
-      otpStore.delete(phone);
+      otpStore.delete(email);
     }
   }
 };
@@ -42,33 +54,25 @@ const generateOtpCode = () => {
   return code;
 };
 
-const sendSmsViaAero = async (phone, code) => {
-  const text = `${code} - Код подтверждения для сайта Platforma-school.ru. Не сообщайте его никому!`;
-  const params = new URLSearchParams({
-    number: phone,
-    text: text,
-    sign: SMSAERO_SIGN,
-  });
-  const url = `https://gate.smsaero.ru/v2/sms/send?${params.toString()}`;
-  const auth = Buffer.from(`${SMSAERO_EMAIL}:${SMSAERO_API_KEY}`).toString('base64');
-  const response = await fetch(url, {
-    headers: { Authorization: `Basic ${auth}` },
-  });
-  const data = await response.json().catch(() => null);
+const sendEmailCode = async (email, code) => {
+  const text = `${code} — код подтверждения для регистрации на Platforma-school.ru. Не передавайте его посторонним.`;
 
-  if (!response.ok || data?.success === false) {
-    const apiErr = data?.message || data?.error || `HTTP ${response.status}`;
-    const fullResponse = JSON.stringify(data);
-    throw new Error(`AeroSMS: ${apiErr} (${fullResponse})`);
+  if (NODE_ENV !== 'production') {
+    console.log(`[EMAIL CODE] To ${email}: ${code}`);
+    return { mock: true };
   }
-  if (data?.success) {
-    const msg = data.data;
-    console.log(`[AeroSMS] Sent to ${phone}, status=${msg.status} (${msg.extendStatus}), channel=${msg.channel}, cost=${msg.cost}₽`);
-    if (msg.status === 8) {
-      console.warn('[AeroSMS] Message is in MODERATION — free sender names are moderated before sending. For authorization codes, register a paid sender name (платное имя) in your SMSAero account.');
-    }
+
+  if (!transporter) {
+    throw new Error('SMTP not configured');
   }
-  return data;
+
+  await transporter.sendMail({
+    from: SMTP_FROM,
+    to: email,
+    subject: 'Код подтверждения регистрации',
+    text,
+  });
+  return { sent: true };
 };
 
 const createCaptchaChallenge = () => {
@@ -96,13 +100,12 @@ const createCaptchaChallenge = () => {
 const authRoutes = (pool) => {
   const router = express.Router();
 
-  // Регистрация
+  // Регистрация (устаревший эндпоинт, используйте register-email)
   router.post('/register', async (req, res) => {
     try {
-      const { phone, password, firstName, lastName, captchaInput, captchaId } = req.body;
+      const { email, password, firstName, lastName, captchaInput, captchaId } = req.body;
 
-      // Проверка обязательных полей
-      if (!phone || !password || !firstName || !lastName) {
+      if (!email || !password || !firstName || !lastName) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
@@ -119,31 +122,20 @@ const authRoutes = (pool) => {
       }
       captchaStore.delete(captchaId);
 
-      // Special-case: admin registration via secret credentials
-      let role = 'student';
-      let normalizedPhone;
-      if (phone === 'admin' && password === '29090803') {
-        role = 'admin';
-        normalizedPhone = 'admin';
-      } else {
-        // Normalize phone
-        normalizedPhone = normalizePhone(phone);
-      }
+      const normalized = email.toLowerCase().trim();
+      const role = 'student';
 
-      // Hash password
       const hashedPassword = await bcryptjs.hash(password, 10);
 
-      // Вставка пользователя в БД
       const result = await pool.query(
-        'INSERT INTO users (phone, phone_normalized, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, phone, first_name, last_name, role, balance',
-        [phone, normalizedPhone, hashedPassword, firstName, lastName, role]
+        'INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, role, balance',
+        [normalized, hashedPassword, firstName, lastName, role]
       );
 
       const user = result.rows[0];
 
-      // Генерация JWT токена
       const token = jwt.sign(
-        { id: user.id, phone: user.phone, role: user.role },
+        { id: user.id, email: user.email, role: user.role },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -152,7 +144,7 @@ const authRoutes = (pool) => {
         token,
         user: {
           id: user.id,
-          phone: user.phone,
+          email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
           role: user.role,
@@ -161,7 +153,7 @@ const authRoutes = (pool) => {
       });
     } catch (error) {
       if (error.code === '23505') {
-        return res.status(400).json({ error: 'Phone number already registered' });
+        return res.status(400).json({ error: 'Email уже зарегистрирован' });
       }
       console.error('Register error:', error);
       return res.status(500).json({ error: 'Internal server error' });
@@ -188,55 +180,55 @@ const authRoutes = (pool) => {
     return res.json({ success: true });
   });
 
-  // Отправка SMS-кода (AeroSMS)
-  router.post('/send-sms', async (req, res) => {
+  // Отправка кода на email
+  router.post('/send-email-code', async (req, res) => {
     cleanupExpiredOtps();
 
-    const { phone } = req.body;
-    if (!phone) {
-      return res.status(400).json({ error: 'Phone is required' });
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
     }
 
-    const normalized = normalizePhone(phone);
+    const normalized = email.toLowerCase().trim();
     const code = generateOtpCode();
 
-    let smsOk = true;
+    let emailOk = true;
     try {
-      await sendSmsViaAero(normalized, code);
+      await sendEmailCode(normalized, code);
     } catch (err) {
-      console.error('Failed to send SMS via AeroSMS:', err.message);
+      console.error('Failed to send email code:', err.message);
       if (process.env.NODE_ENV === 'production') {
-        smsOk = false;
+        emailOk = false;
       }
     }
 
-    if (!smsOk) {
-      return res.status(502).json({ error: 'Failed to send SMS code' });
+    if (!emailOk) {
+      return res.status(502).json({ error: 'Failed to send email code' });
     }
 
     otpStore.set(normalized, { code, createdAt: Date.now() });
 
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`[SMS OTP] Code for ${normalized}: ${code} (valid ${OTP_TTL_MS / 60000} min)`);
+      console.log(`[EMAIL CODE] Code for ${normalized}: ${code} (valid ${OTP_TTL_MS / 60000} min)`);
     }
 
-    return res.json({ success: true, message: 'SMS code sent' });
+    return res.json({ success: true, message: 'Код отправлен на email' });
   });
 
-  // Регистрация по SMS-коду
-  router.post('/register-sms', async (req, res) => {
+  // Регистрация по email-коду
+  router.post('/register-email', async (req, res) => {
     cleanupExpiredOtps();
 
-    const { phone, code, firstName, lastName, password } = req.body;
-    if (!phone || !code || !firstName || !lastName || !password) {
+    const { email, code, firstName, lastName, password } = req.body;
+    if (!email || !code || !firstName || !lastName || !password) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const normalized = normalizePhone(phone);
+    const normalized = email.toLowerCase().trim();
     const stored = otpStore.get(normalized);
 
     if (!stored || stored.code !== String(code).trim()) {
-      return res.status(400).json({ error: 'Invalid or expired code' });
+      return res.status(400).json({ error: 'Неверный или истекший код' });
     }
 
     otpStore.delete(normalized);
@@ -245,13 +237,13 @@ const authRoutes = (pool) => {
 
     try {
       const result = await pool.query(
-        'INSERT INTO users (phone, phone_normalized, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, phone, first_name, last_name, role, balance',
-        [normalized, normalized, hashedPassword, firstName, lastName, 'student']
+        'INSERT INTO users (email, password_hash, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, role, balance',
+        [normalized, hashedPassword, firstName, lastName, 'student']
       );
 
       const user = result.rows[0];
       const token = jwt.sign(
-        { id: user.id, phone: user.phone, role: user.role },
+        { id: user.id, email: user.email, role: user.role },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -260,7 +252,7 @@ const authRoutes = (pool) => {
         token,
         user: {
           id: user.id,
-          phone: user.phone,
+          email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
           role: user.role,
@@ -269,9 +261,9 @@ const authRoutes = (pool) => {
       });
     } catch (error) {
       if (error.code === '23505') {
-        return res.status(400).json({ error: 'Phone number already registered' });
+        return res.status(400).json({ error: 'Этот email уже зарегистрирован' });
       }
-      console.error('Register-sms error:', error);
+      console.error('Register-email error:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -279,43 +271,36 @@ const authRoutes = (pool) => {
   // Вход в систему
   router.post('/login', async (req, res) => {
     try {
-      const { phone, password } = req.body;
+      const { email, password } = req.body;
 
-      // Проверка обязательных полей
-      if (!phone || !password) {
-        return res.status(400).json({ error: 'Missing phone or password' });
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Missing email or password' });
       }
 
-      // Special-case admin login
-      if (phone === 'admin' && password === '29090803') {
-        const token = jwt.sign({ id: 'admin', phone: 'admin', role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
-        return res.json({ token, user: { id: null, phone: 'admin', firstName: 'Admin', lastName: '', role: 'admin' } });
+      if (email === 'admin' && password === '29090803') {
+        const token = jwt.sign({ id: 'admin', email: 'admin', role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+        return res.json({ token, user: { id: null, email: 'admin', firstName: 'Admin', lastName: '', role: 'admin' } });
       }
 
-      // Normalize phone
-      const normalizedPhone = normalizePhone(phone);
-
-      // Find user by normalized phone
+      const normalized = email.toLowerCase().trim();
       const result = await pool.query(
-        'SELECT id, phone, password_hash, first_name, last_name, role, balance FROM users WHERE phone_normalized = $1',
-        [normalizedPhone]
+        'SELECT id, email, password_hash, first_name, last_name, role, balance FROM users WHERE email = $1',
+        [normalized]
       );
 
       if (result.rows.length === 0) {
-        return res.status(401).json({ error: 'Invalid phone or password' });
+        return res.status(401).json({ error: 'Неверный email или пароль' });
       }
 
       const user = result.rows[0];
 
-      // Проверка пароля
       const passwordMatch = await bcryptjs.compare(password, user.password_hash);
       if (!passwordMatch) {
-        return res.status(401).json({ error: 'Invalid phone or password' });
+        return res.status(401).json({ error: 'Неверный email или пароль' });
       }
 
-      // Генерация JWT токена
       const token = jwt.sign(
-        { id: user.id, phone: user.phone, role: user.role },
+        { id: user.id, email: user.email, role: user.role },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -324,7 +309,7 @@ const authRoutes = (pool) => {
         token,
         user: {
           id: user.id,
-          phone: user.phone,
+          email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
           role: user.role,
@@ -350,11 +335,11 @@ const authRoutes = (pool) => {
 
       // Special admin token
       if (decoded && decoded.role === 'admin' && decoded.id === 'admin') {
-        return res.json({ user: { id: null, phone: 'admin', firstName: 'Admin', lastName: '', role: 'admin' } });
+        return res.json({ user: { id: null, email: 'admin', firstName: 'Admin', lastName: '', role: 'admin' } });
       }
 
       const result = await pool.query(
-        'SELECT id, phone, first_name, last_name, role, balance FROM users WHERE id = $1',
+        'SELECT id, email, first_name, last_name, role, balance FROM users WHERE id = $1',
         [decoded.id]
       );
 
@@ -366,7 +351,7 @@ const authRoutes = (pool) => {
       return res.json({
         user: {
           id: user.id,
-          phone: user.phone,
+          email: user.email,
           firstName: user.first_name,
           lastName: user.last_name,
           role: user.role,
