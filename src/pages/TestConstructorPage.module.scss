@@ -16,6 +16,13 @@
     background: var(--bg-light);
 }
 
+@media (max-width: 768px) {
+    .constructorContent {
+        margin-left: 0;
+        padding: 1rem 1.5rem 90px 1.5rem; /* добавить отступ снизу для сайдбара */
+    }
+}
+
 /* Заголовок страницы */
 .constructorHeader {
     background: rgba(255, 255, 255, 0.62);

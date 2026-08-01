@@ -1,3 +1,4 @@
+// src/pages/Register.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -9,20 +10,22 @@ import Background from '../components/Background/Background';
 export default function Register() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('+7 ');
     const [password, setPassword] = useState('');
+    const [smsCode, setSmsCode] = useState('');
     const [captchaInput, setCaptchaInput] = useState('');
     const [captchaSvg, setCaptchaSvg] = useState('');
     const [captchaId, setCaptchaId] = useState('');
-    const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [showCodeModal, setShowCodeModal] = useState(false);
-    const [modalError, setModalError] = useState('');
-    const [modalLoading, setModalLoading] = useState(false);
+    const [showSmsModal, setShowSmsModal] = useState(false);
+    const [smsModalError, setSmsModalError] = useState('');
+    const [smsModalLoading, setSmsModalLoading] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
-    const emailInputRef = useRef<HTMLInputElement>(null);
+    const phoneInputRef = useRef<HTMLInputElement>(null);
+    const smsInputRef = useRef<HTMLInputElement>(null);
 
     const generateCaptcha = async () => {
         try {
@@ -39,12 +42,94 @@ export default function Register() {
         void generateCaptcha();
     }, []);
 
+    useEffect(() => {
+        if (showSmsModal && smsInputRef.current) {
+            setTimeout(() => {
+                smsInputRef.current?.focus();
+            }, 100);
+        }
+    }, [showSmsModal]);
+
+    const formatPhone = (digits: string): string => {
+        const d = digits.slice(0, 10);
+        let result = '+7';
+
+        if (d.length > 0) result += ` (${d.slice(0, 3)}`;
+        if (d.length >= 3) result += `) ${d.slice(3, 6)}`;
+        if (d.length >= 6) result += ` ${d.slice(6, 8)}`;
+        if (d.length >= 8) result += ` ${d.slice(8, 10)}`;
+
+        return result;
+    };
+
+    const getDigits = (value: string): string => {
+        let digits = value.replace(/\D/g, '');
+        if (digits.startsWith('7') || digits.startsWith('8')) {
+            digits = digits.slice(1);
+        }
+        return digits.slice(0, 10);
+    };
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const input = e.target;
+        const newValue = input.value;
+        const cursor = input.selectionStart ?? 0;
+
+        const oldDigits = getDigits(phone);
+        let newDigits = getDigits(newValue);
+        
+        if (newValue.length < phone.length && newDigits.length === oldDigits.length) {
+            const digitsBeforeCursor = phone
+                .slice(0, cursor + (phone.length - newValue.length))
+                .replace(/\D/g, '')
+                .length;
+
+            const removeIndex = Math.max(0, digitsBeforeCursor - 1);
+            newDigits =
+                oldDigits.slice(0, removeIndex) + oldDigits.slice(removeIndex + 1);
+        }
+
+        const formatted = formatPhone(newDigits);
+        setPhone(formatted);
+
+        requestAnimationFrame(() => {
+            if (!phoneInputRef.current) return;
+
+            const digitsBefore = newValue
+                .slice(0, cursor)
+                .replace(/\D/g, '')
+                .length;
+
+            let pos = 0;
+            let counted = 0;
+
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) {
+                    counted++;
+                }
+                pos = i + 1;
+                if (counted >= digitsBefore) break;
+            }
+
+            if (digitsBefore === 0) {
+                pos = 3;
+            }
+
+            phoneInputRef.current.setSelectionRange(pos, pos);
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
-        if (!firstName || !lastName || !email || !password) {
+        if (!firstName || !lastName || !phone || !password) {
             setError('Заполните все поля');
+            return;
+        }
+
+        if (getDigits(phone).length < 10) {
+            setError('Номер телефона должен содержать минимум 10 цифр');
             return;
         }
 
@@ -56,10 +141,13 @@ export default function Register() {
         setLoading(true);
         try {
             await authApi.verifyCaptcha(captchaInput, captchaId);
-            await authApi.sendEmailCode(email);
-            setShowCodeModal(true);
-            setCode('');
-            setModalError('');
+            const cleanPhone = '7' + getDigits(phone);
+            await authApi.sendSmsCode(cleanPhone);
+            setShowSmsModal(true);
+            setSmsModalError('');
+            setSmsCode('');
+            setResendCooldown(30);
+            startCooldown();
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Ошибка';
             setError(message);
@@ -69,18 +157,47 @@ export default function Register() {
         }
     };
 
-    const handleVerifyCode = async () => {
-        if (!code.trim()) {
-            setModalError('Введите код из письма');
+    const startCooldown = () => {
+        const interval = setInterval(() => {
+            setResendCooldown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const handleResendCode = async () => {
+        if (resendCooldown > 0) return;
+        
+        try {
+            const cleanPhone = '7' + getDigits(phone);
+            await authApi.sendSmsCode(cleanPhone);
+            setSmsModalError('');
+            setSmsCode('');
+            setResendCooldown(30);
+            startCooldown();
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Ошибка при отправке кода';
+            setSmsModalError(message);
+        }
+    };
+
+    const handleVerifySmsCode = async () => {
+        if (!smsCode.trim()) {
+            setSmsModalError('Введите код из SMS');
             return;
         }
 
-        setModalLoading(true);
-        setModalError('');
+        setSmsModalLoading(true);
+        setSmsModalError('');
 
         try {
-            const data = await authApi.registerWithEmail(
-                firstName, lastName, email, password, code.trim()
+            const cleanPhone = '7' + getDigits(phone);
+            const data = await authApi.registerWithSms(
+                firstName, lastName, cleanPhone, password, smsCode.trim()
             );
             login(data.user, data.token);
             if (data.user?.role === 'admin') {
@@ -90,9 +207,9 @@ export default function Register() {
             }
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Ошибка регистрации';
-            setModalError(message);
+            setSmsModalError(message);
         } finally {
-            setModalLoading(false);
+            setSmsModalLoading(false);
         }
     };
 
@@ -127,15 +244,13 @@ export default function Register() {
                         </label>
 
                         <label>
-                            Email
+                            Номер телефона
                             <input
-                                ref={emailInputRef}
-                                type="email"
-                                placeholder="example@mail.ru"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                ref={phoneInputRef}
+                                type="tel"
+                                value={phone}
+                                onChange={handlePhoneChange}
                                 required
-                                autoComplete="email"
                             />
                         </label>
 
@@ -187,44 +302,74 @@ export default function Register() {
                 </div>
             </div>
 
-            {showCodeModal && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modal}>
-                        <h2>Введите код подтверждения</h2>
-                        <p style={{ marginBottom: 16 }}>
-                            На вашу почту <strong>{email}</strong> выслан код. Введите его ниже.
-                        </p>
-                        <input
-                            type="text"
-                            placeholder="______"
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            autoComplete="one-time-code"
-                            style={{
-                                width: '100%',
-                                padding: '8px 12px',
-                                fontSize: '1.2rem',
-                                textAlign: 'center',
-                                letterSpacing: '2px',
-                                border: '1px solid #ccc',
-                                borderRadius: 6,
-                                marginBottom: 12,
-                            }}
-                        />
-                        {modalError && <p className={styles.error}>{modalError}</p>}
-                        <div style={{ display: 'flex', gap: 8 }}>
+            {/* SMS Модальное окно */}
+            {showSmsModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowSmsModal(false)}>
+                    <div className={styles.smsModal} onClick={(e) => e.stopPropagation()}>
+                        {/* Кнопка закрытия (крестик) */}
+                        <button
+                            className={styles.closeBtn}
+                            onClick={() => setShowSmsModal(false)}
+                            aria-label="Закрыть"
+                            type="button"
+                        >
+                            ×
+                        </button>
+
+                        <div className={styles.smsModalHeader}>
+                            <div className={styles.smsModalIcon}>
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                    <circle cx="24" cy="24" r="24" fill="rgba(80, 134, 242, 0.1)"/>
+                                    <path d="M24 14C18.48 14 14 18.48 14 24C14 29.52 18.48 34 24 34C29.52 34 34 29.52 34 24C34 18.48 29.52 14 24 14ZM26 30H22V26H26V30ZM26 24H22V18H26V24Z" fill="#5086f2"/>
+                                </svg>
+                            </div>
+                            <h2 className={styles.smsModalTitle}>Проверка безопасности</h2>
+                            <p className={styles.smsModalSubtitle}>
+                                Код подтверждения отправлен на ваш номер
+                            </p>
+                        </div>
+
+                        <div className={styles.smsModalBody}>
+                            <div className={styles.smsCodeInput}>
+                                <input
+                                    ref={smsInputRef}
+                                    type="text"
+                                    maxLength={6}
+                                    placeholder="Введите код из SMS"
+                                    value={smsCode}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        setSmsCode(value);
+                                        setSmsModalError('');
+                                    }}
+                                    autoComplete="one-time-code"
+                                    className={styles.smsInput}
+                                />
+                            </div>
+
+                            {smsModalError && (
+                                <p className={styles.smsModalError}>{smsModalError}</p>
+                            )}
+
                             <button
+                                className={styles.smsSubmitBtn}
+                                onClick={handleVerifySmsCode}
+                                disabled={smsModalLoading || !smsCode.trim()}
                                 type="button"
-                                onClick={() => setShowCodeModal(false)}
                             >
-                                Назад
+                                {smsModalLoading ? 'Проверка...' : 'Подтвердить'}
                             </button>
+
                             <button
+                                className={styles.smsResendBtn}
+                                onClick={handleResendCode}
+                                disabled={resendCooldown > 0}
                                 type="button"
-                                onClick={handleVerifyCode}
-                                disabled={modalLoading}
                             >
-                                {modalLoading ? 'Проверка...' : 'Подтвердить'}
+                                {resendCooldown > 0
+                                    ? `Отправить повторно через ${resendCooldown}с`
+                                    : 'Отправить код повторно'
+                                }
                             </button>
                         </div>
                     </div>
