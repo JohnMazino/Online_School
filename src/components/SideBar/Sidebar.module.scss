@@ -274,8 +274,8 @@ html.dark .icon {
 }
 
 
+/* Адаптация для мобильных устройств */
 @media (max-width: 768px) {
-    /* нижняя навигация */
     .sidebar {
         position: fixed;
         top: auto;
@@ -291,23 +291,21 @@ html.dark .icon {
         border-bottom: none;
         backdrop-filter: blur(20px);
         box-shadow: 
-            0 -2px 16px rgba(0,0,0,0.08),
-            0 -4px 24px rgba(0,0,0,0.06);
+            0 -2px 16px rgba(0, 0, 0, 0.08),
+            0 -4px 24px rgba(0, 0, 0, 0.06);
         transform: none;
         transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
         z-index: 999;
         
-        /* Убираем hover-эффект на мобильных */
         &:hover {
             width: 100%;
             max-height: 64px;
             box-shadow: 
-                0 -2px 16px rgba(0,0,0,0.08),
-                0 -4px 24px rgba(0,0,0,0.06);
+                0 -2px 16px rgba(0, 0, 0, 0.08),
+                0 -4px 24px rgba(0, 0, 0, 0.06);
         }
         
-        /* Скрываем декоративные элементы */
         &::before {
             display: none;
         }

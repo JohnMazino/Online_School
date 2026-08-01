@@ -21,9 +21,11 @@ export default function Register() {
     const [showSmsModal, setShowSmsModal] = useState(false);
     const [smsModalError, setSmsModalError] = useState('');
     const [smsModalLoading, setSmsModalLoading] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
     const navigate = useNavigate();
     const login = useAuthStore(state => state.login);
     const phoneInputRef = useRef<HTMLInputElement>(null);
+    const smsInputRef = useRef<HTMLInputElement>(null);
 
     const generateCaptcha = async () => {
         try {
@@ -39,6 +41,14 @@ export default function Register() {
     useEffect(() => {
         void generateCaptcha();
     }, []);
+
+    useEffect(() => {
+        if (showSmsModal && smsInputRef.current) {
+            setTimeout(() => {
+                smsInputRef.current?.focus();
+            }, 100);
+        }
+    }, [showSmsModal]);
 
     const formatPhone = (digits: string): string => {
         const d = digits.slice(0, 10);
@@ -68,7 +78,6 @@ export default function Register() {
         const oldDigits = getDigits(phone);
         let newDigits = getDigits(newValue);
         
-        // Если стёрли пробел/скобку — удаляем предыдущую цифру
         if (newValue.length < phone.length && newDigits.length === oldDigits.length) {
             const digitsBeforeCursor = phone
                 .slice(0, cursor + (phone.length - newValue.length))
@@ -83,7 +92,6 @@ export default function Register() {
         const formatted = formatPhone(newDigits);
         setPhone(formatted);
 
-        // Восстанавливаем позицию курсора
         requestAnimationFrame(() => {
             if (!phoneInputRef.current) return;
 
@@ -104,7 +112,7 @@ export default function Register() {
             }
 
             if (digitsBefore === 0) {
-                pos = 3; // после "+7 "
+                pos = 3;
             }
 
             phoneInputRef.current.setSelectionRange(pos, pos);
@@ -137,12 +145,43 @@ export default function Register() {
             await authApi.sendSmsCode(cleanPhone);
             setShowSmsModal(true);
             setSmsModalError('');
+            setSmsCode('');
+            setResendCooldown(30);
+            startCooldown();
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Ошибка';
             setError(message);
             void generateCaptcha();
         } finally {
             setLoading(false);
+        }
+    };
+
+    const startCooldown = () => {
+        const interval = setInterval(() => {
+            setResendCooldown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
+    const handleResendCode = async () => {
+        if (resendCooldown > 0) return;
+        
+        try {
+            const cleanPhone = '7' + getDigits(phone);
+            await authApi.sendSmsCode(cleanPhone);
+            setSmsModalError('');
+            setSmsCode('');
+            setResendCooldown(30);
+            startCooldown();
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Ошибка при отправке кода';
+            setSmsModalError(message);
         }
     };
 
@@ -263,46 +302,74 @@ export default function Register() {
                 </div>
             </div>
 
+            {/* SMS Модальное окно */}
             {showSmsModal && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modal}>
-                        <h2>Введите код подтверждения</h2>
-                        <p style={{ marginBottom: 16 }}>
-                            На ваш номер <strong>{phone}</strong> выслан код. Введите его ниже.
-                        </p>
-                        <input
-                            type="text"
-                            placeholder="______"
-                            value={smsCode}
-                            onChange={(e) => setSmsCode(e.target.value)}
-                            autoComplete="one-time-code"
-                            style={{
-                                width: '100%',
-                                padding: '8px 12px',
-                                fontSize: '1.2rem',
-                                textAlign: 'center',
-                                letterSpacing: '2px',
-                                border: '1px solid #ccc',
-                                borderRadius: 6,
-                                marginBottom: 12,
-                            }}
-                        />
-                        {smsModalError && <p className={styles.error}>{smsModalError}</p>}
-                        <div style={{ display: 'flex', gap: 8 }}>
+                <div className={styles.modalOverlay} onClick={() => setShowSmsModal(false)}>
+                    <div className={styles.smsModal} onClick={(e) => e.stopPropagation()}>
+                        {/* Кнопка закрытия (крестик) */}
+                        <button
+                            className={styles.closeBtn}
+                            onClick={() => setShowSmsModal(false)}
+                            aria-label="Закрыть"
+                            type="button"
+                        >
+                            ×
+                        </button>
+
+                        <div className={styles.smsModalHeader}>
+                            <div className={styles.smsModalIcon}>
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                    <circle cx="24" cy="24" r="24" fill="rgba(80, 134, 242, 0.1)"/>
+                                    <path d="M24 14C18.48 14 14 18.48 14 24C14 29.52 18.48 34 24 34C29.52 34 34 29.52 34 24C34 18.48 29.52 14 24 14ZM26 30H22V26H26V30ZM26 24H22V18H26V24Z" fill="#5086f2"/>
+                                </svg>
+                            </div>
+                            <h2 className={styles.smsModalTitle}>Проверка безопасности</h2>
+                            <p className={styles.smsModalSubtitle}>
+                                Код подтверждения отправлен на ваш номер
+                            </p>
+                        </div>
+
+                        <div className={styles.smsModalBody}>
+                            <div className={styles.smsCodeInput}>
+                                <input
+                                    ref={smsInputRef}
+                                    type="text"
+                                    maxLength={6}
+                                    placeholder="Введите код из SMS"
+                                    value={smsCode}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        setSmsCode(value);
+                                        setSmsModalError('');
+                                    }}
+                                    autoComplete="one-time-code"
+                                    className={styles.smsInput}
+                                />
+                            </div>
+
+                            {smsModalError && (
+                                <p className={styles.smsModalError}>{smsModalError}</p>
+                            )}
+
                             <button
-                                type="button"
-                                onClick={() => setShowSmsModal(false)}
-                                style={{ flex: 1 }}
-                            >
-                                Назад
-                            </button>
-                            <button
-                                type="button"
+                                className={styles.smsSubmitBtn}
                                 onClick={handleVerifySmsCode}
-                                disabled={smsModalLoading}
-                                style={{ flex: 1 }}
+                                disabled={smsModalLoading || !smsCode.trim()}
+                                type="button"
                             >
                                 {smsModalLoading ? 'Проверка...' : 'Подтвердить'}
+                            </button>
+
+                            <button
+                                className={styles.smsResendBtn}
+                                onClick={handleResendCode}
+                                disabled={resendCooldown > 0}
+                                type="button"
+                            >
+                                {resendCooldown > 0
+                                    ? `Отправить повторно через ${resendCooldown}с`
+                                    : 'Отправить код повторно'
+                                }
                             </button>
                         </div>
                     </div>

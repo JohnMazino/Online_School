@@ -30,6 +30,12 @@
     }
 }
 
+@media (max-width: 768px) {
+    .profileContent {
+        padding: 2rem 1.5rem 90px 1.5rem; /* отступ снизу для сайдбара */
+        margin-left: 0;
+    }
+
 /* Шапка профиля (аватар + имя + баланс) */
 .profileHeader {
     position: relative;
@@ -1308,4 +1314,5 @@
 
 .downloadBtn:hover {
     background: rgba(80, 134, 242, 0.2);
+}
 }
