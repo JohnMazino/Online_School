@@ -57,6 +57,72 @@ const generateOtpCode = () => {
 const sendEmailCode = async (email, code) => {
   const text = `${code} — код подтверждения для регистрации на Platforma-school.ru. Не передавайте его посторонним.`;
 
+  //HTML-версия
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f7; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 480px; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 28px 32px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 600;">
+                Platforma-school.ru
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding: 36px 32px;">
+              <p style="margin: 0 0 16px; color: #374151; font-size: 16px; line-height: 1.5;">
+                Здравствуйте!
+              </p>
+              <p style="margin: 0 0 28px; color: #374151; font-size: 16px; line-height: 1.5;">
+                Ваш код подтверждения для регистрации:
+              </p>
+
+              <!-- Code box -->
+              <div style="background: #f3f4f6; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 28px;">
+                <span style="font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #111827;">
+                  ${code}
+                </span>
+              </div>
+
+              <p style="margin: 0 0 8px; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                Код действителен ограниченное время.
+              </p>
+              <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                Никому не сообщайте этот код.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background: #f9fafb; padding: 20px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                Это автоматическое письмо, отвечать на него не нужно.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
   if (NODE_ENV !== 'production') {
     console.log(`[EMAIL CODE] To ${email}: ${code}`);
     return { mock: true };
@@ -70,7 +136,8 @@ const sendEmailCode = async (email, code) => {
     from: SMTP_FROM,
     to: email,
     subject: 'Код подтверждения регистрации',
-    text,
+    text,   // для клиентов, которые не поддерживают HTML
+    html,   // html версия
   });
   return { sent: true };
 };
@@ -190,6 +257,12 @@ const authRoutes = (pool) => {
     }
 
     const normalized = email.toLowerCase().trim();
+
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [normalized]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: 'Эта почта уже зарегистрирована' });
+    }
+
     const code = generateOtpCode();
 
     let emailOk = true;
