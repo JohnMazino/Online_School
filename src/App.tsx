@@ -287,13 +287,6 @@ function App() {
                             value={newTutor.education}
                             onChange={(e) => setNewTutor(prev => ({ ...prev, education: e.target.value }))}
                           />
-                          <input
-                            type="text"
-                            placeholder="Документы (краткое описание)"
-                            value={newTutor.documents}
-                            onChange={(e) => setNewTutor(prev => ({ ...prev, documents: e.target.value }))}
-                          />
-                          
                           <div className={styles.uploadSection}>
                             <label className={styles.uploadLabel}>
                               <span className={styles.uploadIcon}>
