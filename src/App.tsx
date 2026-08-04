@@ -8,6 +8,8 @@ import Sidebar from './components/SideBar/SideBar';
 
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import Draw from './pages/Draw';
 import AdminPage from './pages/Admin';
@@ -418,6 +420,8 @@ function App() {
         {/* Страницы входа и регистрации — без фона и сайдбара */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/test-constructor" element={<TestConstructorPage />} />
         <Route path="/test/:testId/results" element={<TestResults />} />

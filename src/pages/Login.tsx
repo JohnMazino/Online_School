@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { authApi } from '../api/auth';
 import styles from './Auth.module.scss';
@@ -64,6 +64,12 @@ export default function Login() {
                                 autoComplete="current-password"
                             />
                         </label>
+
+                        <div className={styles.forgotPasswordWrapper}>
+                            <Link to="/forgot-password" className={styles.forgotPasswordLink}>
+                                Забыли пароль?
+                            </Link>
+                        </div>
 
                         {error && <p className={styles.error}>{error}</p>}
 

@@ -80,6 +80,45 @@ export const authApi = {
     return response.json();
   },
 
+  forgotPassword: async (email: string): Promise<void> => {
+        const response = await fetch(`${API_URL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Ошибка при отправке запроса');
+        }
+    },
+
+    verifyResetToken: async (token: string): Promise<void> => {
+        const response = await fetch(`${API_URL}/auth/verify-reset-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Недействительный токен');
+        }
+    },
+
+    resetPassword: async (token: string, newPassword: string): Promise<void> => {
+        const response = await fetch(`${API_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, newPassword }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Ошибка при сбросе пароля');
+        }
+    },
+
   // Admin APIs
   getStats: async (token: string) => {
     const response = await fetch(`${API_URL}/admin/stats`, {
