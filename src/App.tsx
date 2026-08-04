@@ -41,19 +41,26 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [tutors, setTutors] = useState<Array<{ id: number; name: string; specialty: string; bio: string; education: string; documents: string; img_url: string }>>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newTutor, setNewTutor] = useState({ name: '', specialty: '', bio: '', education: '', documents: '', photo: null as File | null });
+  const [newTutor, setNewTutor] = useState({ 
+    name: '', 
+    specialty: '', 
+    bio: '', 
+    education: '', 
+    documents: '', 
+    photo: null as File | null,
+    documentFiles: [] as File[] 
+  });
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [documentPreviews, setDocumentPreviews] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   const loadFromLocalStorage = useAuthStore((state) => state.loadFromLocalStorage);
 
   useEffect(() => {
-    // Инициализируем состояние из localStorage при первой загрузке
     loadFromLocalStorage();
     setIsLoading(false);
 
-    // Отладочная информация
     console.log('App initialized - Auth State:', {
       isAuthenticated,
       user: user,
@@ -79,20 +86,55 @@ function App() {
     }
   };
 
-  const handleAddTutor = async () => {
+    const handleAddTutor = async () => {
     const token = useAuthStore.getState().token;
     if (!token) return;
     if (!newTutor.name || !newTutor.specialty) return;
     try {
-      const data = await tutorApi.add(token, newTutor.name, newTutor.specialty, newTutor.bio, newTutor.education, newTutor.documents, newTutor.photo || undefined);
+      // Объединяем документы в одно поле через запятую или массив
+      const documentsString = newTutor.documentFiles.length > 0 
+        ? newTutor.documentFiles.map(f => f.name).join(', ')
+        : newTutor.documents;
+
+      const data = await tutorApi.add(
+        token, 
+        newTutor.name, 
+        newTutor.specialty, 
+        newTutor.bio, 
+        newTutor.education, 
+        documentsString, // Передаем как строку
+        newTutor.photo || undefined
+      );
       setTutors(prev => [data.tutor, ...prev]);
-      setNewTutor({ name: '', specialty: '', bio: '', education: '', documents: '', photo: null });
+      setNewTutor({ name: '', specialty: '', bio: '', education: '', documents: '', photo: null, documentFiles: [] });
       setPhotoPreview(null);
+      setDocumentPreviews([]);
       setShowAddForm(false);
     } catch (err) {
       console.error('Failed to add tutor:', err);
       setError('Не удалось добавить репетитора');
     }
+  };
+
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const fileArray = Array.from(files);
+      setNewTutor(prev => ({
+        ...prev,
+        documentFiles: [...prev.documentFiles, ...fileArray]
+      }));
+      const previews = fileArray.map(file => URL.createObjectURL(file));
+      setDocumentPreviews(prev => [...prev, ...previews]);
+    }
+  };
+
+  const removeDocument = (index: number) => {
+    setNewTutor(prev => ({
+      ...prev,
+      documentFiles: prev.documentFiles.filter((_, i) => i !== index)
+    }));
+    setDocumentPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   if (isLoading) {
@@ -102,7 +144,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Главная страница — с фоном и сайдбаром */}
         <Route
           path="/"
           element={
@@ -116,7 +157,6 @@ function App() {
 
                 <main className={styles.mainContent}>
                   <div className={styles.contentRectangle}>
-                    {/* 1. Хедер */}
                     <header className={styles.header}>
                       <div className={styles.logoAndTitle}>
                         <img
@@ -130,7 +170,6 @@ function App() {
                       </div>
                     </header>
 
-                    {/* 2. блок: фото + кнопка - показываем только если не авторизован */}
                     {!isAuthenticated && (
                       <section className={styles.heroSection}>
                         <div className={styles.heroContent}>
@@ -152,7 +191,6 @@ function App() {
                       </section>
                     )}
 
-                    {/* 3. приветственный текст в белом прямоугольнике */}
                     <section className={styles.welcomeBox}>
                       <div className={styles.welcomeRectangle}>
                         <h2 className={styles.welcomeTitle}>Рады приветствовать вас!</h2>
@@ -162,12 +200,10 @@ function App() {
                       </div>
                     </section>
 
-                    {/* 4. Карточки "Наши преимущества" */}
                     <section className={styles.advantagesSection}>
                       <h2 className={styles.sectionAdvantagesTitle}>Наши преимущества</h2>
 
                       <div className={styles.advantagesGrid}>
-                        {/* Карточка 1 */}
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
@@ -175,7 +211,6 @@ function App() {
                             </div>
                             <h3 className={styles.cardTitle}>Репетиторы</h3>
                           </div>
-
                           <div className={styles.cardBack}>
                             <p>
                               Каждый репетитор является дипломированным специалистом. Его документы об образовании выгружены на сайт и находятся в разделе «Репетиторы».
@@ -183,7 +218,6 @@ function App() {
                           </div>
                         </div>
 
-                        {/* Карточка 2 */}
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
@@ -191,7 +225,6 @@ function App() {
                             </div>
                             <h3 className={styles.cardTitle}>Оплата</h3>
                           </div>
-
                           <div className={styles.cardBack}>
                             <p>
                               Оплатите занятия онлайн или оформите рассрочку через нашего партнёра — «Т-Банк». Также вы можете пополнить баланс личного кабинета, чтобы позже быстро записаться на урок, не беспокоясь об оплате.
@@ -199,7 +232,6 @@ function App() {
                           </div>
                         </div>
 
-                        {/* Карточка 3 */}
                         <div className={styles.advantageCard}>
                           <div className={styles.cardFront}>
                             <div className={styles.iconWrapper}>
@@ -207,7 +239,6 @@ function App() {
                             </div>
                             <h3 className={styles.cardTitle}>Подход</h3>
                           </div>
-
                           <div className={styles.cardBack}>
                             <p>
                               У нас не только групповые занятия, но и есть возможность оформить график дополнительных индивидуальных занятий.
@@ -217,7 +248,6 @@ function App() {
                       </div>
                     </section>
 
-                    {/* 5. Наши репетиторы */}
                     <section id="tutors-section" className={styles.tutorsSection}>
                       <div className={styles.tutorsHeader}>
                         <h2 className={styles.sectionTutorTitle}>Наши репетиторы</h2>
@@ -259,28 +289,90 @@ function App() {
                           />
                           <input
                             type="text"
-                            placeholder="Документы"
+                            placeholder="Документы (краткое описание)"
                             value={newTutor.documents}
                             onChange={(e) => setNewTutor(prev => ({ ...prev, documents: e.target.value }))}
                           />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                setNewTutor(prev => ({ ...prev, photo: file }));
-                                setPhotoPreview(URL.createObjectURL(file));
-                              }
-                            }}
-                          />
-                          {photoPreview ? (
-                            <img
-                              src={photoPreview}
-                              alt="Preview"
-                              className={styles.addTutorPhotoPreview}
-                            />
-                          ) : null}
+                          
+                          <div className={styles.uploadSection}>
+                            <label className={styles.uploadLabel}>
+                              <span className={styles.uploadIcon}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 4V16M12 16L8 12M12 16L16 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M20 16V20H4V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </span>
+                              <span>Фото репетитора</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setNewTutor(prev => ({ ...prev, photo: file }));
+                                    setPhotoPreview(URL.createObjectURL(file));
+                                  }
+                                }}
+                              />
+                            </label>
+                            {photoPreview && (
+                              <div className={styles.filePreview}>
+                                <img src={photoPreview} alt="Preview" className={styles.addTutorPhotoPreview} />
+                                <button 
+                                  className={styles.removeFileBtn}
+                                  onClick={() => {
+                                    setPhotoPreview(null);
+                                    setNewTutor(prev => ({ ...prev, photo: null }));
+                                  }}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className={styles.uploadSection}>
+                            <label className={styles.uploadLabel}>
+                              <span className={styles.uploadIcon}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M4 6H20V18H4V6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M8 10H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                  <path d="M8 14H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                  <path d="M12 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                  <path d="M12 18V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                </svg>
+                              </span>
+                              <span>Документы (PDF)</span>
+                              <input
+                                type="file"
+                                accept=".pdf"
+                                multiple
+                                onChange={handleDocumentChange}
+                              />
+                            </label>
+                            {documentPreviews.length > 0 && (
+                              <div className={styles.documentList}>
+                                {newTutor.documentFiles.map((file, index) => (
+                                  <div key={index} className={styles.documentItem}>
+                                    <span className={styles.documentName}>
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                      {file.name}
+                                    </span>
+                                    <button 
+                                      className={styles.removeFileBtn}
+                                      onClick={() => removeDocument(index)}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
                           <button type="button" className={styles.saveTutorBtn} onClick={handleAddTutor}>
                             Сохранить
                           </button>
@@ -329,15 +421,13 @@ function App() {
                                   {tutor.specialty}<br />
                                   {tutor.bio}
                                 </p>
+                                {tutor.education && (
+                                  <p className={styles.tutorInfo}>{tutor.education}</p>
+                                )}
                                 {tutor.documents && (
                                   <div className={styles.documents}>
                                     <span>{tutor.documents}</span>
                                   </div>
-                                )}
-                                {tutor.education && (
-                                  <p className={styles.tutorInfo}>
-                                    {tutor.education}
-                                  </p>
                                 )}
                               </div>
                             </div>
@@ -346,26 +436,15 @@ function App() {
                       </div>
                     </section>
 
-                    {/* 6. Дисциплины */}
                     <section className={styles.disciplinesSection}>
                       <h2 className={styles.sectionTitle}>Дисциплины</h2>
                       <div className={styles.disciplinesGrid}>
-                        <DisciplineCard
-                          name="Математика"
-                          photoUrl={mathPhoto}
-                        />
-                        <DisciplineCard
-                          name="Физика"
-                          photoUrl={physicsPhoto}
-                        />
-                        <DisciplineCard
-                          name="Информатика"
-                          photoUrl={informaticsPhoto}
-                        />
+                        <DisciplineCard name="Математика" photoUrl={mathPhoto} />
+                        <DisciplineCard name="Физика" photoUrl={physicsPhoto} />
+                        <DisciplineCard name="Информатика" photoUrl={informaticsPhoto} />
                       </div>
                     </section>
 
-                    {/* 7. Футер (Подвал) */}
                     <footer className={styles.footer}>
                       <div className={styles.footerContainer}>
                         <div className={styles.footerLogo}>
@@ -417,7 +496,6 @@ function App() {
           }
         />
 
-        {/* Страницы входа и регистрации — без фона и сайдбара */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
