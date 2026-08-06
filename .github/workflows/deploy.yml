@@ -1,0 +1,43 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd /var/www/platforma
+
+            echo ">>> Pull code"
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo ">>> Backend"
+            cd backend
+            npm install --omit=dev
+            pm2 restart platforma-backend || pm2 start src/index.js --name platforma-backend
+
+            echo ">>> Frontend"
+            cd /var/www/platforma
+            npm install
+            npm run build
+
+            echo ">>> Draw"
+            cd draw
+            npm install --legacy-peer-deps
+            npm run build
+            pm2 restart platforma-draw || pm2 start npm --name platforma-draw -- start
+
+            pm2 save
+            echo ">>> Deploy done"
