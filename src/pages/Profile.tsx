@@ -443,14 +443,6 @@ export default function Profile() {
                             <button>Написать репетитору</button>
                         </div>
                     </section>
-
-                    {/* Чат с поддержкой */}
-                    <section className={styles.section}>
-                        <h2>Чат с поддержкой</h2>
-                        <Link to="/support" className={styles.supportLink}>
-                            <button className={styles.supportBtn}>Открыть чат</button>
-                        </Link>
-                    </section>
                 </div>
             </div>
         </>

@@ -613,6 +613,109 @@
     }
 }
 
+/* ==============================================
+   ЗАГРУЗКА ФАЙЛОВ
+   ============================================== */
+
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.uploadLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(80, 134, 242, 0.03);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  &:hover {
+    border-color: var(--primary);
+    background: rgba(80, 134, 242, 0.05);
+    color: var(--primary);
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+}
+
+.uploadIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.filePreview {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+}
+
+.removeFileBtn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: #e74c3c;
+  color: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+  }
+}
+
+.documentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.documentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(80, 134, 242, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(80, 134, 242, 0.1);
+}
+
+.documentName {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+
+  svg {
+    flex-shrink: 0;
+    color: var(--primary);
+  }
+}
+
+
 /* Дисциплины: карточки в ряд с адаптивным переносом */
 .disciplinesSection {
     margin: 4rem 0 6rem;

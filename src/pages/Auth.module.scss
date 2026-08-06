@@ -118,6 +118,107 @@
     text-decoration: underline;
 }
 
+.forgotPasswordWrapper {
+    text-align: center;
+    margin-top: -0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.forgotPasswordLink {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+}
+
+.authDescription {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.successMessage {
+    text-align: center;
+    padding: 1rem 0;
+
+    h2 {
+        color: var(--text-dark);
+        margin: 1rem 0 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        
+        strong {
+            color: var(--text-dark);
+        }
+    }
+}
+
+.successIcon,
+.errorIcon {
+    font-size: 3rem;
+}
+
+.backToLoginBtn {
+    padding: 0.8rem 2rem;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(80, 134, 242, 0.3);
+    }
+}
+
+.backToLogin {
+    margin-top: 1.5rem;
+    text-align: center;
+
+    a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.2s;
+
+        &:hover {
+            color: var(--primary);
+        }
+    }
+}
+
+.errorMessage {
+    text-align: center;
+    padding: 1rem 0;
+
+    h2 {
+        color: #e74c3c;
+        margin: 1rem 0 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+}
+
 // ============================================
 // МОДАЛЬНОЕ ОКНО ДЛЯ EMAIL КОДА
 // ============================================
