@@ -34,6 +34,7 @@ import informaticsPhoto from './assets/pics/informatika.jpg';
 import RepetitorIcon from './assets/icons/repetitorBold.svg?react';
 import DollarIcon from './assets/icons/dollar.svg?react';
 import BookIcon from './assets/icons/book.svg?react';
+import logo from './assets/logo.svg';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -160,7 +161,7 @@ function App() {
                     <header className={styles.header}>
                       <div className={styles.logoAndTitle}>
                         <img
-                          src="src/assets/logo.svg"
+                          src={logo}
                           alt="Логотип"
                           className={styles.logo}
                           width={100}
@@ -441,7 +442,7 @@ function App() {
                     <footer className={styles.footer}>
                       <div className={styles.footerContainer}>
                         <div className={styles.footerLogo}>
-                          <img src="src/assets/logo.svg" alt="Логотип" className={styles.footerLogoImg} width={48} height={48} />
+                          <img src={logo} alt="Логотип" className={styles.footerLogoImg} width={48} height={48} />
                           <div>
                             <h4 className={styles.footerTitle}>Платформа</h4>
                             <p className={styles.footerSubtitle}>Онлайн-уроки с лучшими репетиторами</p>
