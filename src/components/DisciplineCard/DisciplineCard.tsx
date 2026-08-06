@@ -34,14 +34,14 @@ export default function DisciplineCard({ name, photoUrl, className = '' }: Disci
     // const handleTypeSelect = (type: 'individual' | 'group') => {
     //     setSelectedType(type);
     // };
-
+    /*
     const handlePayment = () => {
         // Здесь логика перехода к оплате
         console.log('Переход к оплате для дисциплины:', name);
         // Пример: window.location.href = '/payment';
         // Или вызов модалки с оплатой
         alert(`Оплата занятий по предмету: ${name}`);
-    };
+    };*/
 
     return (
         <>

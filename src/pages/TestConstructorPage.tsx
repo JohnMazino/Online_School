@@ -345,7 +345,6 @@ export default function TestConstructorPage() {
                         {activeTab === 'lectures' && token && authUser && (
                             <LecturesPanel
                                 token={token}
-                                teacherId={authUser.id}
                             />
                         )}
                     </main>
