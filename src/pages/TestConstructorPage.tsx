@@ -48,8 +48,9 @@ export default function TestConstructorPage() {
                     return;
                 }
 
+                const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
                 // Загружаем тесты репетитора
-                const response = await fetch(`http://localhost:5000/api/tests`, {
+                const response = await fetch(`${apiBase}/tests`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
 
@@ -62,7 +63,7 @@ export default function TestConstructorPage() {
                 }
 
                 // Загружаем назначения преподавателя
-                const assignmentsResponse = await fetch(`http://localhost:5000/api/tests/teacher/assignments-all`, {
+                const assignmentsResponse = await fetch(`${apiBase}/tests/teacher/assignments-all`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
 

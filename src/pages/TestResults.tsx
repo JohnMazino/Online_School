@@ -34,8 +34,9 @@ export default function TestResults() {
                     return;
                 }
 
+                const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
                 // Получаем результат теста
-                const resultResponse = await fetch(`http://localhost:5000/api/tests/result/${testId}`, {
+                const resultResponse = await fetch(`${apiBase}/tests/result/${testId}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
 
@@ -65,7 +66,7 @@ export default function TestResults() {
                 }
 
                 // Получаем сам тест для отображения информации
-                const testResponse = await fetch(`http://localhost:5000/api/tests/${testId}`, {
+                const testResponse = await fetch(`${apiBase}/tests/${testId}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
 
